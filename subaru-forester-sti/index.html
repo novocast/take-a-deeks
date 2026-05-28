@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subaru Forester STI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #1e8fff;
+      --c2: #d4a017;
+      --bg: #0a0a0e;
+      --surface: rgba(255,255,255,0.04);
+      --surface-h: rgba(255,255,255,0.07);
+      --text: #d8dce8;
+      --muted: #5a6080;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      line-height: 1.65;
+    }
+
+    /* ── Side nav ── */
+    .sidenav {
+      position: fixed;
+      top: 50%;
+      left: 1.5rem;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .sidenav a {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.25rem 0.6rem;
+      border-left: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .sidenav a.active { color: var(--c1); border-left-color: var(--accent); }
+    .sidenav a:hover { color: #fff; }
+
+    /* Mobile nav */
+    .mobile-nav {
+      display: none;
+      position: sticky;
+      top: 48px;
+      z-index: 90;
+      background: rgba(10,10,14,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .mobile-nav-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .mob-arrow { margin-left: auto; font-size: 0.65rem; }
+    .mobile-nav-links {
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.5rem 1.25rem 0.75rem;
+    }
+    .mobile-nav-links.open { display: flex; }
+    .mobile-nav-links a {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .mobile-nav-links a.active { color: var(--c1); border-color: var(--c1); }
+
+    /* ── Layout ── */
+    .page { max-width: 820px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ── Hero ── */
+    .hero { padding: 3.5rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c2);
+      border: 1px solid var(--c2);
+      padding: 0.2rem 0.65rem;
+      border-radius: 3px;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 7vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: #fff;
+      margin-bottom: 0.9rem;
+    }
+    .hero h1 .sti { color: var(--c1); }
+    .hero-sub { font-size: 1rem; color: var(--muted); max-width: 560px; line-height: 1.6; }
+    .hero-stats { display: flex; flex-wrap: wrap; gap: 1.5rem 2.5rem; margin-top: 2rem; }
+    .hstat-val { font-size: 1.9rem; font-weight: 800; color: var(--c1); line-height: 1; }
+    .hstat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── Section ── */
+    .section { padding: 3rem 0; border-bottom: 1px solid var(--border); }
+    .section:last-child { border-bottom: none; }
+    .sec-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--c2); margin-bottom: 0.5rem; }
+    .sec-title { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: -0.025em; margin-bottom: 1.25rem; }
+    .sec-body { font-size: 0.93rem; color: var(--text); line-height: 1.75; }
+    .sec-body p + p { margin-top: 0.9rem; }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--c1);
+      border-radius: 0 10px 10px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+    }
+    .callout.gold { border-left-color: var(--c2); }
+    .callout strong { color: #fff; }
+
+    /* ── Spec cards ── */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.8rem;
+      margin-top: 1.25rem;
+    }
+    .spec-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+    }
+    .spec-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.3rem; }
+    .spec-val { font-size: 1.35rem; font-weight: 800; color: var(--c1); line-height: 1.1; }
+    .spec-note { font-size: 0.73rem; color: var(--muted); margin-top: 0.25rem; }
+    .spec-bar-wrap { margin-top: 0.6rem; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .spec-bar { height: 100%; background: var(--c1); border-radius: 2px; width: 0; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ── Compare table ── */
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 1.25rem; font-size: 0.86rem; }
+    .compare-table th {
+      text-align: left;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th.sti-col { color: var(--c1); }
+    .compare-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { color: var(--muted); font-size: 0.8rem; }
+    .compare-table td.sti-val { color: var(--c1); font-weight: 600; }
+    .compare-table tr:hover td { background: var(--surface); }
+
+    /* ── Timeline ── */
+    .timeline { margin-top: 1.25rem; position: relative; padding-left: 1.5rem; }
+    .timeline::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
+    .tl-item { position: relative; margin-bottom: 1.5rem; }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -1.19rem;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--c1);
+      border: 2px solid var(--bg);
+    }
+    .tl-year { font-size: 0.75rem; font-weight: 700; color: var(--c2); letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+    .tl-event { font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 0.2rem; }
+    .tl-detail { font-size: 0.82rem; color: var(--muted); }
+
+    /* ── Surprise cards ── */
+    .surprise-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.85rem; margin-top: 1.25rem; }
+    .surprise-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--c2);
+      border-radius: 0 0 10px 10px;
+      padding: 1.1rem;
+    }
+    .surp-head { font-size: 0.88rem; font-weight: 700; color: var(--c2); margin-bottom: 0.5rem; }
+    .surp-body { font-size: 0.83rem; color: var(--text); line-height: 1.65; }
+
+    /* ── S401 ── */
+    .s401-banner {
+      background: linear-gradient(135deg, rgba(30,143,255,0.07), rgba(212,160,23,0.09));
+      border: 1px solid rgba(212,160,23,0.3);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-top: 1.25rem;
+    }
+    .s401-number { font-size: 4rem; font-weight: 900; color: var(--c2); line-height: 1; margin-bottom: 0.25rem; }
+    .s401-sub { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1rem; }
+    .s401-features { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.6rem; margin-top: 1rem; }
+    .s401-feat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--text); }
+    .s401-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c2); flex-shrink: 0; }
+
+    /* ── Price chart ── */
+    .price-chart {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .price-bar-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+    .pb-year { font-size: 0.75rem; color: var(--muted); text-align: right; }
+    .pb-col { position: relative; height: 14px; }
+    .pb-bar { position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px; min-width: 3px; background: var(--c1); width: 0; }
+    .pb-price { font-size: 0.75rem; color: var(--c1); font-weight: 600; white-space: nowrap; }
+
+    /* ── Quiz ── */
+    .quiz-wrap { margin-top: 1.25rem; }
+    .quiz-q { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+    .quiz-question { font-size: 0.93rem; font-weight: 600; color: #fff; margin-bottom: 0.75rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+    .quiz-opt {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 0.86rem;
+      color: var(--text);
+      background: transparent;
+      text-align: left;
+      width: 100%;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+    .quiz-opt:hover { border-color: var(--c1); background: rgba(30,143,255,0.06); }
+    .quiz-opt.correct { border-color: #22c55e; background: rgba(34,197,94,0.1); color: #4ade80; }
+    .quiz-opt.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); color: #f87171; }
+    .quiz-feedback { font-size: 0.82rem; margin-top: 0.6rem; padding: 0.5rem 0.75rem; border-radius: 6px; display: none; }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct { background: rgba(34,197,94,0.1); color: #4ade80; }
+    .quiz-feedback.wrong { background: rgba(239,68,68,0.1); color: #f87171; }
+
+    .footer-gap { height: 5rem; }
+
+    @media (max-width: 900px) {
+      .sidenav { display: none; }
+      .mobile-nav { display: block; }
+    }
+  </style>
+</head>
+<body data-page-id="subaru-forester-sti" style="--accent: #003f8a;">
+
+<nav class="sidenav" id="sidenav">
+  <a href="#what-is-it" class="active">What Is It</a>
+  <a href="#origins">Origins</a>
+  <a href="#engine">The Engine</a>
+  <a href="#specs">Specs</a>
+  <a href="#what-changed">What Changed</a>
+  <a href="#surprises">Surprises</a>
+  <a href="#s401">S401 Edition</a>
+  <a href="#legacy">Legacy</a>
+  <a href="#quiz">Quiz</a>
+</nav>
+
+<div class="mobile-nav">
+  <div class="mobile-nav-toggle" id="mob-toggle">
+    Contents <span class="mob-arrow" id="mob-arrow">▼</span>
+  </div>
+  <div class="mobile-nav-links" id="mob-links">
+    <a href="#what-is-it">What Is It</a>
+    <a href="#origins">Origins</a>
+    <a href="#engine">The Engine</a>
+    <a href="#specs">Specs</a>
+    <a href="#what-changed">What Changed</a>
+    <a href="#surprises">Surprises</a>
+    <a href="#s401">S401</a>
+    <a href="#legacy">Legacy</a>
+    <a href="#quiz">Quiz</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="hero" id="what-is-it">
+    <div class="hero-badge">JDM Only · 2004–2007</div>
+    <h1>Subaru<br>Forester <span class="sti">STI</span></h1>
+    <p class="hero-sub">Japan's most unexpected performance car: a practical family SUV with the heart of a rally champion. Never officially sold outside Japan — quietly one of the most desirable cars Subaru ever made.</p>
+    <div class="hero-stats">
+      <div>
+        <div class="hstat-val">280 ps</div>
+        <div class="hstat-label">Power Output</div>
+      </div>
+      <div>
+        <div class="hstat-val">5.1 s</div>
+        <div class="hstat-label">0–100 km/h</div>
+      </div>
+      <div>
+        <div class="hstat-val">EJ207</div>
+        <div class="hstat-label">Engine Code</div>
+      </div>
+      <div>
+        <div class="hstat-val">400</div>
+        <div class="hstat-label">S401 Built</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What is it -->
+  <div class="section">
+    <div class="sec-label">Overview</div>
+    <div class="sec-title">A family SUV with no business going this fast</div>
+    <div class="sec-body">
+      <p>The Subaru Forester STI is a car that shouldn't exist in any rational product lineup. In the early 2000s, Subaru's STI division — responsible for the brand's rally-winning, tarmac-terrorising performance cars — turned their attention not to a hot hatch or sports car, but to the boxy, practical Forester. The result was a four-wheel-drive family hauler that shared its beating heart with the Impreza WRX STI.</p>
+      <p>In Japan, the Forester STI (internally coded SG9) launched in 2004 and sold exclusively through Subaru's domestic STI dealer network. It was never officially offered in Europe, the United States, or Australia — though many have since been grey-imported into those markets. The pitch was simple: all the capability and thrills of an STI, but with enough room for child seats, a dog, and a full boot of camping gear.</p>
+
+      <div class="callout">
+        <strong>Why JDM only?</strong> Subaru's global lineup already had the Impreza WRX STI in markets like the UK and Australia. Adding a more expensive, more powerful Forester STI would have cannibalized sales and muddied the brand positioning. Japan's domestic market, with its appetite for niche performance variants, was the perfect and only home.
+      </div>
+
+      <p>What made it genuinely special wasn't just the engine transplant. STI's engineers overhauled the suspension, brakes, transmission, and chassis to handle the power in a car with a higher centre of gravity than the Impreza. The result drove nothing like a standard Forester — it drove like a tall, all-weather, impossibly practical WRX STI.</p>
+    </div>
+  </div>
+
+  <!-- Origins -->
+  <div class="section" id="origins">
+    <div class="sec-label">History & Discovery</div>
+    <div class="sec-title">How it came to exist</div>
+    <div class="sec-body">
+      <p>By the early 2000s, Subaru Tecnica International had established a clear formula: take a standard Subaru, fit the high-output turbocharged flat-four, add a close-ratio six-speed gearbox, STI-tuned suspension, and sell it to serious enthusiasts. That formula had produced world rally champions. Applying it to the Forester was a logical — if unexpected — extension.</p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-year">2002</div>
+          <div class="tl-event">Forester STI concept previewed</div>
+          <div class="tl-detail">Subaru shows a performance Forester at Japanese motor shows, testing public appetite for the idea before committing to production.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2004</div>
+          <div class="tl-event">SG9 Forester STI goes on sale</div>
+          <div class="tl-detail">Full production model launched in Japan. The SG9 shares the SG-series Forester platform but receives comprehensive rework throughout — engine, gearbox, suspension, brakes, and interior.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2005</div>
+          <div class="tl-event">S401 limited edition released</div>
+          <div class="tl-detail">STI produces exactly 400 numbered units of the S401 — the most extreme factory Forester STI ever made, with uprated ECU, Bilstein dampers, strut brace, and 18" BBS wheels.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2007</div>
+          <div class="tl-event">SG9 production ends</div>
+          <div class="tl-detail">The SG-body Forester is replaced by the SH generation. The SH gets a milder STI variant, but most enthusiasts consider the SG9 the definitive version.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2013</div>
+          <div class="tl-event">Last "proper" Forester STI</div>
+          <div class="tl-detail">With Subaru's shift toward CVT transmissions and an electrification roadmap, no further STI-tuned Forester follows. The SG9 becomes retrospectively iconic.</div>
+        </div>
+      </div>
+
+      <p>The Forester STI's creation reflected something important about Subaru's culture at the time. STI was not simply a badge-engineering department — it was staffed by engineers who genuinely cared about chassis dynamics, and the brief to build a performance Forester was taken seriously at every level of development.</p>
+    </div>
+  </div>
+
+  <!-- Engine -->
+  <div class="section" id="engine">
+    <div class="sec-label">Deep Dive</div>
+    <div class="sec-title">The EJ207: Subaru's crown jewel</div>
+    <div class="sec-body">
+      <p>The engine in the Forester STI is not some detuned or slightly warmed-over version of a regular turbocharged flat-four. It is the EJ207 — the same unit found in the Impreza WRX STI, the legendary 22B special edition, and the Prodrive-prepared World Rally Championship cars. Fitting this engine into the Forester was not a compromise; it was a genuine parts-bin raid at the very top of Subaru's catalogue.</p>
+
+      <p>The EJ207 displaces 2.0 litres, arranged in a horizontally opposed "boxer" configuration — four cylinders lying flat, two on each side, firing across each other. This layout keeps the engine's mass low in the chassis, contributing to a lower centre of gravity than any upright four-cylinder could achieve. The crankshaft sits below the bonnet line, a packaging advantage that is baked into Subaru's DNA and directly inherited from their aviation engine heritage.</p>
+
+      <div class="callout">
+        <strong>The Gentleman's Agreement cap.</strong> Japanese manufacturers in this era adhered to a voluntary limit of 280 ps (276 bhp / 206 kW) for domestic market cars — a self-imposed ceiling agreed between manufacturers to avoid a horsepower war. The EJ207 in the Forester STI is rated at exactly 280 ps on paper. In practice, these engines consistently measure higher on dynos. Standard, unmodified examples regularly show 300–320 bhp at the wheels.
+      </div>
+
+      <p>Key to the EJ207's character is its twin-scroll turbocharger. Unlike a single-scroll unit, the twin-scroll design separates exhaust pulses from pairs of cylinders into distinct channels within the turbine housing. This reduces turbo lag significantly and improves spool-up, giving the engine a more linear power delivery than the stereotypical turbo rush. Paired with Subaru's intercooler and STI's revised ECU mapping, the result is an engine that feels eager from low revs and pulls hard through to its 7,000 rpm redline.</p>
+
+      <p>The block itself is a cast-iron unit — unusual in an era when aluminium was becoming standard — chosen for its rigidity and ability to handle the stresses of forced induction. STI-specific pistons and connecting rods are forged rather than cast, making them substantially stronger under load. The cylinder head features sodium-filled exhaust valves to manage heat, a detail borrowed directly from racing engine practice.</p>
+
+      <p>This is an engine that rewards proper maintenance and punishes neglect. Oil changes matter. The turbo seals are not forgiving of cold starts followed by immediate hard driving. Treat it correctly and 200,000 km is well within reach. Ignore it and the repair bills will be significant. This partly explains why pristine examples with documented service histories command such strong premiums today.</p>
+    </div>
+  </div>
+
+  <!-- Specs -->
+  <div class="section" id="specs">
+    <div class="sec-label">Numbers</div>
+    <div class="sec-title">By the figures</div>
+    <div class="sec-body">
+      <p>Dry specifications only tell part of the story, but the Forester STI's numbers are genuinely impressive in isolation — and remarkable when considered in the context of a five-seat SUV sold in 2004.</p>
+    </div>
+    <div class="spec-grid">
+      <div class="spec-card">
+        <div class="spec-label">Power</div>
+        <div class="spec-val">280 ps</div>
+        <div class="spec-note">206 kW / 276 bhp — voluntary JDM ceiling</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="88"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Torque</div>
+        <div class="spec-val">343 Nm</div>
+        <div class="spec-note">At 4,000 rpm — flat curve, useful from low revs</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="72"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">0–100 km/h</div>
+        <div class="spec-val">5.1 s</div>
+        <div class="spec-note">Factory claim — independent tests often return 4.9 s</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="82"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Top Speed</div>
+        <div class="spec-val">240 km/h</div>
+        <div class="spec-note">Electronically limited — potential is higher</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="65"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Engine</div>
+        <div class="spec-val">EJ207</div>
+        <div class="spec-note">2.0L flat-four, twin-scroll turbo, DOHC, cast-iron block</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="100"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Gearbox</div>
+        <div class="spec-val">6-speed</div>
+        <div class="spec-note">Close-ratio manual, STI Helical LSD rear axle</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="90"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Drive System</div>
+        <div class="spec-val">DCCD AWD</div>
+        <div class="spec-note">Driver's Control Centre Differential — adjustable front/rear torque split</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="95"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Kerb Weight</div>
+        <div class="spec-val">1,470 kg</div>
+        <div class="spec-note">Heavier than Impreza STI but lighter than most modern rivals</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="55"></div></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Front Brakes</div>
+        <div class="spec-val">Brembo</div>
+        <div class="spec-note">4-pot Brembo calipers, 326mm ventilated discs</div>
+        <div class="spec-bar-wrap"><div class="spec-bar" data-width="85"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What Changed -->
+  <div class="section" id="what-changed">
+    <div class="sec-label">Under the skin</div>
+    <div class="sec-title">STI vs. standard Forester: what actually changed</div>
+    <div class="sec-body">
+      <p>Calling it badge-engineered is a misunderstanding. The list of changes from a standard Forester XT turbo to the STI is extensive — this is a comprehensively re-engineered car, not a sticker and spring job.</p>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Forester XT (standard)</th>
+          <th class="sti-col">Forester STI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Engine</td>
+          <td>EJ205 — 230 ps</td>
+          <td class="sti-val">EJ207 — 280 ps</td>
+        </tr>
+        <tr>
+          <td>Gearbox</td>
+          <td>5-speed or 4-speed auto</td>
+          <td class="sti-val">6-speed close-ratio STI unit</td>
+        </tr>
+        <tr>
+          <td>Centre diff</td>
+          <td>Viscous coupling AWD</td>
+          <td class="sti-val">DCCD — manually/electronically adjustable</td>
+        </tr>
+        <tr>
+          <td>Front brakes</td>
+          <td>Single-piston sliding caliper</td>
+          <td class="sti-val">Brembo 4-pot, 326mm discs</td>
+        </tr>
+        <tr>
+          <td>Suspension</td>
+          <td>Standard McPherson/double wishbone</td>
+          <td class="sti-val">STI-tuned geometry, Bilstein dampers, stiffer springs</td>
+        </tr>
+        <tr>
+          <td>Wheels</td>
+          <td>16–17" standard alloys</td>
+          <td class="sti-val">17" BBS forged alloys (optional 18")</td>
+        </tr>
+        <tr>
+          <td>Rear diff</td>
+          <td>Open differential</td>
+          <td class="sti-val">Helical LSD</td>
+        </tr>
+        <tr>
+          <td>ECU mapping</td>
+          <td>Standard Subaru tune</td>
+          <td class="sti-val">STI-specific fuel and ignition maps</td>
+        </tr>
+        <tr>
+          <td>Steering</td>
+          <td>Standard ratio rack</td>
+          <td class="sti-val">Quick-ratio rack</td>
+        </tr>
+        <tr>
+          <td>Interior</td>
+          <td>Standard trim</td>
+          <td class="sti-val">STI Recaro seats, STI steering wheel and gearknob</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:1.25rem;">
+      <strong>The DCCD advantage.</strong> The Driver's Control Centre Differential is the jewel in the crown. It allows the driver to bias torque distribution between the front and rear axles — from fully open (rotation-friendly, more playful) through to fully locked (maximum traction on loose or slippery surfaces). No standard Forester offered anything remotely close to this level of driver control.
+    </div>
+  </div>
+
+  <!-- Surprises -->
+  <div class="section" id="surprises">
+    <div class="sec-label">Counterintuitive facts</div>
+    <div class="sec-title">Things that defy the obvious</div>
+    <div class="surprise-grid">
+      <div class="surprise-card">
+        <div class="surp-head">It's faster than a 2004 Porsche Boxster S</div>
+        <div class="surp-body">The 2004 Boxster S ran 0–100 km/h in around 5.4 seconds. A boxy, tall, practical family SUV designed to carry camping gear beat it off the line. They were aimed at completely different buyers — but the numbers don't care about that.</div>
+      </div>
+      <div class="surprise-card">
+        <div class="surp-head">The 280 ps figure is almost certainly wrong</div>
+        <div class="surp-body">The Japanese gentleman's agreement capped power at 280 ps on paper. Forester STIs regularly produce 300–320 bhp on independent dynamometer tests in completely stock, unmodified form. Subaru submitted the agreed figure and quietly built more engine than they admitted.</div>
+      </div>
+      <div class="surprise-card">
+        <div class="surp-head">The iconic rear wing is entirely optional</div>
+        <div class="surp-body">The enormous multi-element rear wing that defines the look of many Forester STIs was a factory option — the "Sport Package" — not standard fitment. Buyers could choose a cleaner, wingless appearance. Both versions are genuine, complete STIs.</div>
+      </div>
+      <div class="surprise-card">
+        <div class="surp-head">It was priced comparably to a Lancer Evolution</div>
+        <div class="surp-body">At launch in Japan, the Forester STI was priced similarly to a Mitsubishi Lancer Evolution VIII. Japanese domestic pricing made no attempt to extract a large premium over the Impreza STI. Grey import prices to other markets often doubled the cost.</div>
+      </div>
+      <div class="surprise-card">
+        <div class="surp-head">The burble is a mathematical accident</div>
+        <div class="surp-body">The signature Subaru idle note — that loping, uneven burble — is a byproduct of the EJ-series engine's odd-fire crankshaft angle. Cylinders don't fire at perfectly equal intervals, creating an uneven pulse. Some tuners straighten it out; purists consider that blasphemy.</div>
+      </div>
+      <div class="surprise-card">
+        <div class="surp-head">It retains a meaningful tow rating</div>
+        <div class="surp-body">Unlike most performance cars of the era, the Forester STI kept a 1,500 kg tow rating. You could theoretically tow a trailer to a track day, unhitch, and then embarrass sports cars in the paddock. Impractical. Magnificent. The option exists.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S401 -->
+  <div class="section" id="s401">
+    <div class="sec-label">Limited Edition</div>
+    <div class="sec-title">The S401: Subaru's rarest Forester</div>
+    <div class="sec-body">
+      <p>In 2005, STI produced an extreme variant of the Forester STI called the S401 — named for its production limit of exactly 400 numbered units. Where the standard Forester STI already pushed the boundaries of what a family SUV should do, the S401 went further still.</p>
+      <p>Each S401 was individually built with additional components hand-fitted by STI technicians. The result was a car that felt closer to a motorsport-adjacent touring vehicle than anything with rear seats and a full boot had any right to feel.</p>
+    </div>
+    <div class="s401-banner">
+      <div class="s401-number">400</div>
+      <div class="s401-sub">Units produced — each individually numbered</div>
+      <p style="font-size:0.86rem;color:var(--text);line-height:1.75;">The S401 received a revised ECU pushing power beyond the standard 280 ps ceiling, STI-specification Bilstein dampers, a strut tower brace, a revised front lip spoiler, and 18-inch BBS forged wheels. Interior changes included a numbered identification plaque and upgraded STI Recaro seats with additional side bolstering.</p>
+      <div class="s401-features">
+        <div class="s401-feat"><div class="s401-dot"></div>Uprated STI ECU tune</div>
+        <div class="s401-feat"><div class="s401-dot"></div>Bilstein STI dampers</div>
+        <div class="s401-feat"><div class="s401-dot"></div>Strut tower brace</div>
+        <div class="s401-feat"><div class="s401-dot"></div>18" BBS forged wheels</div>
+        <div class="s401-feat"><div class="s401-dot"></div>Revised front aero lip</div>
+        <div class="s401-feat"><div class="s401-dot"></div>Individual serial number</div>
+        <div class="s401-feat"><div class="s401-dot"></div>STI Recaro sport seats</div>
+        <div class="s401-feat"><div class="s401-dot"></div>Weight reduction measures</div>
+      </div>
+    </div>
+    <div class="sec-body" style="margin-top:1.25rem;">
+      <p>Finding an S401 today requires patience, budget, and some luck. Many have been modified, which reduces collector value. The small production run means supply is genuinely constrained — not artificially inflated scarcity. Numbers-matching, original, unmodified S401s with full service histories are now considered the holy grail of Forester collecting.</p>
+    </div>
+  </div>
+
+  <!-- Legacy -->
+  <div class="section" id="legacy">
+    <div class="sec-label">Legacy & Value</div>
+    <div class="sec-title">Why collectors pay attention now</div>
+    <div class="sec-body">
+      <p>When the Forester STI was new, it was a niche product appreciated by enthusiasts who needed practicality but wanted performance. Two decades later it has become something else: a collectible JDM classic whose values have risen consistently as the performance SUV genre it pioneered has become the automotive mainstream.</p>
+      <p>The cars that now fill the Forester STI's spiritual role — the Volkswagen Tiguan R, BMW X3 M, Alfa Romeo Stelvio Quadrifoglio — are larger, heavier, more expensive, and far more electronically complex. None of them have the raw mechanical simplicity, the flat-four burble, or the Japan-only mystique of the SG9.</p>
+
+      <div class="callout gold">
+        <strong>What happened to values?</strong> A low-mileage Forester STI that sold for roughly ¥3.5 million new in Japan now changes hands for substantially more when grey-imported to the UK or Australia. The S401 in particular has seen dramatic appreciation, with clean examples trading for two to three times the original retail price in enthusiast markets.
+      </div>
+
+      <p>The irony is that the Forester STI's practicality — the very quality that once made it seem less exotic than a pure sports car — is now part of its appeal. You can use it as your only car. You can road trip in it. You can service it at any Subaru specialist. And then you can find a mountain road and remind a local sports car owner what a naturally-aspirated-soul AWD weapon feels like when it's working properly.</p>
+      <p>Subaru has not built a Forester with this specification since 2007. Given the brand's trajectory toward CVTs and PHEV platforms, it is unlikely they ever will again. That makes every surviving SG9 Forester STI — and every S401 in particular — genuinely irreplaceable.</p>
+    </div>
+
+    <div class="price-chart">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;">Approximate import market value (AUD, good condition, indicative only)</div>
+      <div class="price-bar-row">
+        <div class="pb-year">2010</div>
+        <div class="pb-col"><div class="pb-bar" data-pct="18" style="background:var(--muted);"></div></div>
+        <div class="pb-price">~$18k</div>
+      </div>
+      <div class="price-bar-row">
+        <div class="pb-year">2015</div>
+        <div class="pb-col"><div class="pb-bar" data-pct="30"></div></div>
+        <div class="pb-price">~$28k</div>
+      </div>
+      <div class="price-bar-row">
+        <div class="pb-year">2019</div>
+        <div class="pb-col"><div class="pb-bar" data-pct="46"></div></div>
+        <div class="pb-price">~$42k</div>
+      </div>
+      <div class="price-bar-row">
+        <div class="pb-year">2022</div>
+        <div class="pb-col"><div class="pb-bar" data-pct="70"></div></div>
+        <div class="pb-price">~$65k</div>
+      </div>
+      <div class="price-bar-row">
+        <div class="pb-year">2025</div>
+        <div class="pb-col"><div class="pb-bar" data-pct="100"></div></div>
+        <div class="pb-price">$80k+</div>
+      </div>
+      <div style="font-size:0.7rem;color:var(--muted);margin-top:0.75rem;">S401 values run approximately 40–60% higher. Indicative only.</div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="section" id="quiz">
+    <div class="sec-label">Test yourself</div>
+    <div class="sec-title">Five questions</div>
+    <div class="sec-body" style="margin-bottom:1rem;">
+      <p>These cover what you've just read — not trivia guessing games.</p>
+    </div>
+    <div class="quiz-wrap" id="quiz-wrap"></div>
+  </div>
+
+  <div class="footer-gap"></div>
+</div>
+
+<script>
+// ── Nav highlighting ────────────────────────────────────────────
+const NAV_IDS = ['what-is-it','origins','engine','specs','what-changed','surprises','s401','legacy','quiz'];
+const sections = NAV_IDS.map(id => document.getElementById(id)).filter(Boolean);
+const allNavLinks = document.querySelectorAll('.sidenav a, .mobile-nav-links a');
+
+const navObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      allNavLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+sections.forEach(s => navObs.observe(s));
+
+// ── Mobile nav toggle ────────────────────────────────────────────
+document.getElementById('mob-toggle').addEventListener('click', () => {
+  const links = document.getElementById('mob-links');
+  const arrow = document.getElementById('mob-arrow');
+  const open = links.classList.toggle('open');
+  arrow.textContent = open ? '▲' : '▼';
+});
+document.querySelectorAll('.mobile-nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('mob-links').classList.remove('open');
+    document.getElementById('mob-arrow').textContent = '▼';
+  });
+});
+
+// ── Animate spec bars ────────────────────────────────────────────
+const specObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.spec-bar[data-width]').forEach(b => { b.style.width = b.dataset.width + '%'; });
+      specObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.2 });
+document.querySelectorAll('.spec-grid').forEach(g => specObs.observe(g));
+
+// ── Animate price bars ───────────────────────────────────────────
+const priceObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.pb-bar[data-pct]').forEach(b => {
+        b.style.transition = 'width 1s cubic-bezier(0.4,0,0.2,1)';
+        b.style.width = b.dataset.pct + '%';
+      });
+      priceObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.2 });
+document.querySelectorAll('.price-chart').forEach(c => priceObs.observe(c));
+
+// ── Quiz ─────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    q: 'What engine code powers the Forester STI?',
+    opts: ['EJ205', 'EJ207', 'FA20', 'EJ257'],
+    answer: 1,
+    feedback: 'The EJ207 — the same unit used in the Impreza WRX STI and Subaru\'s WRC machines. The EJ205 (230 ps) is the standard Forester XT engine.'
+  },
+  {
+    q: 'How many S401 units were produced?',
+    opts: ['100', '250', '400', '1,000'],
+    answer: 2,
+    feedback: '400 numbered units — hence "S401". Each was individually numbered and hand-finished by STI technicians in Japan.'
+  },
+  {
+    q: 'What does DCCD stand for?',
+    opts: ["Dual-Clutch Centre Differential", "Driver's Control Centre Differential", "Dynamic Centre Control Drive", "Direct Clutch Centre Drive"],
+    answer: 1,
+    feedback: "Driver's Control Centre Differential. It lets the driver manually adjust the front-to-rear torque split, from fully open through to fully locked."
+  },
+  {
+    q: 'The Forester STI\'s large rear wing was...',
+    opts: [
+      'Standard on every model',
+      'Only fitted to S401 editions',
+      'An optional factory package called Sport Package',
+      'Fitted only to early 2004 models'
+    ],
+    answer: 2,
+    feedback: 'The wing is the optional factory "Sport Package" — buyers could choose a wingless appearance. Both versions are complete, genuine STIs.'
+  },
+  {
+    q: 'Why was the Forester STI never officially sold outside Japan?',
+    opts: [
+      'It failed international crash safety tests',
+      'It would have cannibalized Impreza WRX STI sales in those markets',
+      'It couldn\'t meet European emissions regulations',
+      'Production volumes were too small to certify for export'
+    ],
+    answer: 1,
+    feedback: 'With the Impreza WRX STI already established in key markets, a more expensive, more capable Forester STI would have muddied positioning and taken sales from the existing model.'
+  }
+];
+
+const quizWrap = document.getElementById('quiz-wrap');
+QUESTIONS.forEach((q, qi) => {
+  const div = document.createElement('div');
+  div.className = 'quiz-q';
+  div.innerHTML = `
+    <div class="quiz-question">${qi + 1}. ${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o, oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${qi}"></div>
+  `;
+  quizWrap.appendChild(div);
+});
+
+quizWrap.addEventListener('click', e => {
+  const btn = e.target.closest('.quiz-opt');
+  if (!btn) return;
+  const qi = +btn.dataset.qi;
+  const oi = +btn.dataset.oi;
+  const qDiv = btn.closest('.quiz-q');
+  if (qDiv.dataset.answered) return;
+  qDiv.dataset.answered = '1';
+  const correct = QUESTIONS[qi].answer === oi;
+  qDiv.querySelectorAll('.quiz-opt').forEach((b, i) => {
+    if (i === QUESTIONS[qi].answer) b.classList.add('correct');
+    else if (i === oi && !correct) b.classList.add('wrong');
+    b.style.cursor = 'default';
+  });
+  const fb = document.getElementById('qfb-' + qi);
+  fb.textContent = QUESTIONS[qi].feedback;
+  fb.className = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+});
+</script>
+
+<script src="../header.js"></script>
+</body>
+</html>

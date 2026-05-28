@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Take a deeks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .hero {
+      padding: 48px 24px 28px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .topic-list {
+      list-style: none;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+
+    .topic-entry {
+      border-left: 3px solid var(--entry-accent, #444);
+      margin-bottom: 12px;
+      border-radius: 0 8px 8px 0;
+      background: #1a1a1a;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .topic-entry:hover {
+      background: #212121;
+      transform: translateX(3px);
+    }
+
+    .topic-entry a {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .topic-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #f0f0f0;
+      flex-shrink: 0;
+    }
+
+    .topic-desc {
+      font-size: 0.85rem;
+      color: #666;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .topic-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .topic-date {
+      font-size: 0.75rem;
+      color: #444;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .topic-fav-star {
+      font-size: 0.8rem;
+      color: var(--entry-accent, #888);
+      line-height: 1;
+    }
+
+    .empty-state {
+      color: #444;
+      font-size: 0.9rem;
+      padding: 48px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body data-page-id="index" style="--accent: #111111;">
+
+  <div class="hero">
+    <h1>What are we learning today?</h1>
+    <p>A personal collection of interactive topic pages.</p>
+  </div>
+
+  <ul class="topic-list">
+    <li class="topic-entry" style="--entry-accent: #1a3a52;">
+      <a href="godot-engine/index.html">
+        <span class="topic-title">Godot Engine</span>
+        <span class="topic-desc">The free, open-source game engine from Buenos Aires — scene/node architecture, GDScript, signals, and why it terrifies Unity.</span>
+        <span class="topic-meta"><span class="topic-date">2026-05-28</span></span>
+      </a>
+    </li>
+    <li class="topic-entry" style="--entry-accent: #4c1d95;">
+      <a href="js-hacking-puzzles/index.html">
+        <span class="topic-title">JavaScript Hacking Puzzles</span>
+        <span class="topic-desc">Ten interactive puzzles that expose the weirdest corners of JS — type coercion, closures, the event loop, and more.</span>
+        <span class="topic-meta"><span class="topic-date">2026-05-28</span></span>
+      </a>
+    </li>
+    <li class="topic-entry" style="--entry-accent: #ae1a2e;">
+      <a href="gran-turismo/index.html">
+        <span class="topic-title">Gran Turismo</span>
+        <span class="topic-desc">The 1997 PS1 simulation that rewrote what a racing game could be — five years, fifteen people, and ten million copies sold.</span>
+        <span class="topic-meta"><span class="topic-date">2026-05-28</span></span>
+      </a>
+    </li>
+    <li class="topic-entry" style="--entry-accent: #1a237e;">
+      <a href="unity/index.html">
+        <span class="topic-title">Unity Game Engine</span>
+        <span class="topic-desc">How Unity's GameObjects and Components work, the three render pipelines, getting started with C#, famous games, and the 2023 Runtime Fee controversy.</span>
+        <span class="topic-meta"><span class="topic-date">2026-05-28</span></span>
+      </a>
+    </li>
+    <!-- Add new entries HERE at the top, newest first. Format:
+    <li class="topic-entry" style="--entry-accent: #hexcolor;">
+      <a href="topic-slug/">
+        <span class="topic-title">Title</span>
+        <span class="topic-desc">One sentence description.</span>
+        <span class="topic-meta"><span class="topic-date">YYYY-MM-DD</span></span>
+      </a>
+    </li>
+    -->
+    <li class="topic-entry" style="--entry-accent: #003f8a;">
+      <a href="subaru-forester-sti/index.html">
+        <span class="topic-title">Subaru Forester STI</span>
+        <span class="topic-desc">Japan's most unexpected performance car — a family SUV with a rally-bred engine, sold only in Japan and never officially exported.</span>
+        <span class="topic-meta"><span class="topic-date">2026-05-28</span></span>
+      </a>
+    </li>
+    <li class="topic-entry" style="--entry-accent: #093ba9;">
+      <a href="the-solar-system/">
+        <span class="topic-title">The Solar System</span>
+        <span class="topic-desc">An interactive tour of all eight planets, with animated orbits, size comparisons, and key facts.</span>
+        <span class="topic-meta"><span class="topic-date">2026-05-27</span></span>
+      </a>
+    </li>
+    <li class="empty-state" id="empty-msg">No topics yet — generate one!</li>
+  </ul>
+
+  <script>
+    (function () {
+      var entries = document.querySelectorAll('.topic-entry');
+      if (entries.length > 0) {
+        var empty = document.getElementById('empty-msg');
+        if (empty) empty.remove();
+      }
+      entries.forEach(function (li) {
+        var link = li.querySelector('a');
+        if (!link) return;
+        var slug = link.getAttribute('href').replace(/\/$/, '');
+        if (localStorage.getItem('learn:fav:' + slug) === '1') {
+          var meta = li.querySelector('.topic-meta');
+          if (meta) {
+            var star = document.createElement('span');
+            star.className = 'topic-fav-star';
+            star.textContent = '★';
+            meta.appendChild(star);
+          }
+        }
+      });
+    })();
+  </script>
+
+  <script src="header.js"></script>
+</body>
+</html>

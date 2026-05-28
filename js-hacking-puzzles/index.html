@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Hacking Puzzles</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #c084fc;
+      --c2: #4ade80;
+      --surface: #141418;
+      --surface2: #1e1e2a;
+      --border: #2d2d3d;
+      --text-dim: #64748b;
+      --code-bg: #08080e;
+      --r: 8px;
+      --mono: 'Fira Code', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d0d0d;
+      color: #e2e8f0;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Side nav ── */
+    .sidenav {
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 36px 16px 36px 0;
+      border-right: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .sidenav::-webkit-scrollbar { display: none; }
+    .sidenav-lbl {
+      font-size: 0.67rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+      padding-left: 12px;
+    }
+    .sidenav ul { list-style: none; }
+    .sidenav a {
+      display: block;
+      padding: 6px 12px;
+      font-size: 0.79rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      border-radius: 0 4px 4px 0;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      line-height: 1.4;
+    }
+    .sidenav a:hover { color: var(--c1); }
+    .sidenav a.active {
+      color: var(--c1);
+      border-left-color: var(--accent);
+      background: rgba(192,132,252,0.08);
+    }
+
+    /* ── Mobile nav ── */
+    .mobile-nav {
+      display: none;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+    }
+    .mobile-nav summary {
+      padding: 11px 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--c1);
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mobile-nav summary::-webkit-details-marker { display: none; }
+    .mobile-nav summary::before { content: '▾'; }
+    details[open] > summary::before { content: '▴'; }
+    .mobile-nav ul { list-style: none; padding: 4px 0 12px 12px; display: flex; flex-wrap: wrap; }
+    .mobile-nav li { width: 50%; }
+    .mobile-nav a {
+      display: block;
+      padding: 4px 0;
+      font-size: 0.77rem;
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+    .mobile-nav a:hover { color: var(--c1); }
+
+    /* ── Content ── */
+    .content { padding: 40px 0 100px 48px; min-width: 0; }
+
+    /* ── Hero ── */
+    .hero { margin-bottom: 64px; }
+    .hero-eye {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--c2);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 18px;
+    }
+    .hero h1 em { font-style: normal; color: var(--c1); }
+    .hero > p { font-size: 1.05rem; color: var(--text-dim); max-width: 560px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .tag {
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    /* ── Sections ── */
+    section { margin-bottom: 72px; }
+    section > h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .h-ico {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--surface2);
+      font-size: 0.84rem;
+      flex-shrink: 0;
+    }
+    h3 { font-size: 1rem; font-weight: 600; color: var(--c1); margin: 28px 0 10px; }
+    p { margin-bottom: 14px; }
+
+    /* ── Code blocks ── */
+    .cb {
+      position: relative;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      margin: 16px 0;
+      font-family: var(--mono);
+      font-size: 0.79rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      tab-size: 2;
+    }
+    .cb-tag {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 0.63rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .kw  { color: var(--c1); }
+    .str { color: #fbbf24; }
+    .num { color: #fb923c; }
+    .fn  { color: #60a5fa; }
+    .cmt { color: #3a4e37; }
+    .out { color: var(--c2); }
+    .err { color: #f87171; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-left: 3px solid var(--c1);
+      background: rgba(192,132,252,0.06);
+      padding: 13px 17px;
+      border-radius: 0 var(--r) var(--r) 0;
+      margin: 18px 0;
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+    .callout.g { border-color: var(--c2); background: rgba(74,222,128,0.06); }
+    .callout.a { border-color: #fbbf24; background: rgba(251,191,36,0.06); }
+    .callout strong { color: var(--c1); }
+    .callout.g strong { color: var(--c2); }
+    .callout.a strong { color: #fbbf24; }
+
+    /* ── Tables ── */
+    .tbl-wrap {
+      overflow-x: auto;
+      margin: 16px 0;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    th {
+      background: var(--surface2);
+      color: var(--c1);
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.73rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    td code, th code { background: none; border: none; padding: 0; }
+    .t { color: var(--c2); font-weight: 600; }
+    .f { color: #f87171; font-weight: 600; }
+
+    /* ── Inline code ── */
+    code {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--c1);
+    }
+
+    /* ── Reveal cards ── */
+    .rg { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin: 18px 0; }
+    .rc {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      user-select: none;
+    }
+    .rc:hover { border-color: var(--c1); }
+    .rc.open { border-color: var(--c2); }
+    .rc-expr { font-family: var(--mono); font-size: 0.79rem; color: #e2e8f0; }
+    .rc-result { font-family: var(--mono); font-size: 0.79rem; color: var(--c2); margin-top: 6px; display: none; }
+    .rc-result::before { content: '→ '; color: var(--text-dim); }
+    .rc.open .rc-result { display: block; }
+    .rc-expl { font-size: 0.73rem; color: var(--text-dim); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); line-height: 1.55; display: none; font-family: -apple-system, sans-serif; }
+    .rc.open .rc-expl { display: block; }
+    .rc-hint { font-size: 0.68rem; color: var(--text-dim); margin-top: 6px; opacity: 0.45; }
+    .rc.open .rc-hint { display: none; }
+
+    /* ── Event loop viz ── */
+    .el-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .el-col { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
+    .el-col-title {
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .el-col:nth-child(1) .el-col-title { color: var(--c1); }
+    .el-col:nth-child(2) .el-col-title { color: var(--c2); }
+    .el-col:nth-child(3) .el-col-title { color: #fbbf24; }
+    .el-item { font-family: var(--mono); font-size: 0.73rem; padding: 5px 8px; background: var(--code-bg); border-radius: 4px; margin-bottom: 4px; color: var(--text-dim); }
+
+    /* ── Two-col grid ── */
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+    .mc { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
+    .mc h4 { font-size: 0.78rem; font-weight: 600; margin-bottom: 7px; }
+    .mc.v1 h4 { color: var(--c1); }
+    .mc.v2 h4 { color: var(--c2); }
+    .mc p { font-size: 0.81rem; color: var(--text-dim); margin-bottom: 0; }
+
+    /* ── Step list ── */
+    .steps { margin: 16px 0; }
+    .step { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+    .step-n {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--c1);
+      color: var(--c1);
+      font-size: 0.73rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: var(--mono);
+    }
+    .step-body { font-size: 0.87rem; color: var(--text-dim); padding-top: 3px; line-height: 1.6; }
+    .step-body strong { color: #e2e8f0; }
+
+    /* ── Operator table ── */
+    .op-ex { font-family: var(--mono); color: var(--c2); }
+
+    /* ── Quiz ── */
+    .quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .score-badge { font-family: var(--mono); font-size: 0.84rem; color: var(--text-dim); }
+    .score-badge .n { color: var(--c2); font-weight: 700; font-size: 1.1rem; }
+    .pbar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 28px; overflow: hidden; }
+    .pfill { height: 100%; background: linear-gradient(90deg, var(--c1), var(--c2)); border-radius: 2px; width: 0%; transition: width 0.4s ease; }
+    .qcard { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 18px; transition: border-color 0.25s; }
+    .qcard.ok { border-color: var(--c2); }
+    .qcard.no { border-color: #f87171; }
+    .q-lbl { font-size: 0.67rem; color: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .q-snip {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 13px 15px;
+      font-family: var(--mono);
+      font-size: 0.77rem;
+      line-height: 1.75;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .q-ask { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 13px; }
+    .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+    .qbtn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 13px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: #e2e8f0;
+      transition: background 0.15s, border-color 0.15s;
+      text-align: left;
+      line-height: 1.4;
+    }
+    .qbtn:hover:not(:disabled) { border-color: var(--c1); background: rgba(192,132,252,0.1); }
+    .qbtn:disabled { cursor: default; }
+    .qbtn.yes { border-color: var(--c2); background: rgba(74,222,128,0.12); color: var(--c2); }
+    .qbtn.nope { border-color: #f87171; background: rgba(248,113,113,0.1); color: #f87171; }
+    .q-expl {
+      display: none;
+      margin-top: 13px;
+      padding: 12px 15px;
+      background: var(--code-bg);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      border-left: 3px solid var(--c1);
+    }
+    .q-expl.on { display: block; }
+    .final-box {
+      display: none;
+      text-align: center;
+      padding: 44px 24px;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 24px;
+    }
+    .final-box.on { display: block; }
+    .final-box .big { font-size: 4rem; font-weight: 900; color: var(--c2); font-family: var(--mono); line-height: 1; }
+    .final-box .total { font-size: 1rem; color: var(--text-dim); margin-top: 4px; font-family: var(--mono); }
+    .final-box .msg { color: var(--text-dim); margin-top: 14px; font-size: 0.95rem; }
+    .final-box button {
+      margin-top: 22px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--c1);
+      padding: 10px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.87rem;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    .final-box button:hover { border-color: var(--c1); }
+
+    /* ── Responsive ── */
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; padding: 0 16px; }
+      .sidenav { display: none; }
+      .mobile-nav { display: block; }
+      .content { padding: 24px 0 80px; }
+      .el-cols { grid-template-columns: 1fr; }
+      .q-opts { grid-template-columns: 1fr; }
+      .two { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .rg { grid-template-columns: 1fr 1fr; }
+      .hero h1 { font-size: 1.75rem; }
+    }
+    @media (max-width: 360px) {
+      .rg { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page-id="js-hacking-puzzles" style="--accent: #4c1d95;">
+
+<!-- Mobile nav (shown < 820px) -->
+<details class="mobile-nav">
+  <summary>Sections</summary>
+  <ul>
+    <li><a href="#intro">Origin Story</a></li>
+    <li><a href="#coercion">Type Coercion</a></li>
+    <li><a href="#scope">Scope &amp; Closures</a></li>
+    <li><a href="#this">The <code style="background:none;border:none;color:inherit">this</code> Problem</a></li>
+    <li><a href="#prototypes">Prototypes</a></li>
+    <li><a href="#eventloop">Event Loop</a></li>
+    <li><a href="#operators">Operators</a></li>
+    <li><a href="#quiz">Puzzle Gauntlet</a></li>
+  </ul>
+</details>
+
+<div class="layout">
+
+  <!-- Side nav -->
+  <nav class="sidenav" aria-label="Page sections">
+    <div class="sidenav-lbl">Sections</div>
+    <ul>
+      <li><a href="#intro">Origin Story</a></li>
+      <li><a href="#coercion">Type Coercion</a></li>
+      <li><a href="#scope">Scope &amp; Closures</a></li>
+      <li><a href="#this">The this Problem</a></li>
+      <li><a href="#prototypes">Prototypes</a></li>
+      <li><a href="#eventloop">Event Loop</a></li>
+      <li><a href="#operators">Operator Weirdness</a></li>
+      <li><a href="#quiz">Puzzle Gauntlet</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main content -->
+  <main class="content">
+
+    <div class="hero">
+      <div class="hero-eye">// interactive · javascript · brain benders</div>
+      <h1>JavaScript<br><em>Hacking</em> Puzzles</h1>
+      <p>JavaScript was built in ten days, runs everywhere, and behaves in ways that will make you question reality. This page is your guided tour through the weirdest corners of the language — with interactive puzzles to test what you think you know.</p>
+      <div class="hero-tags">
+        <span class="tag">type coercion</span>
+        <span class="tag">closures</span>
+        <span class="tag">prototypes</span>
+        <span class="tag">event loop</span>
+        <span class="tag">quiz</span>
+      </div>
+    </div>
+
+    <!-- ── Section 1: Origin ── -->
+    <section>
+      <h2 id="intro"><span class="h-ico">⚡</span> The Ten-Day Language</h2>
+
+      <p>In May 1995, Brendan Eich was hired by Netscape with one brief: write a scripting language for the browser in ten days. It was originally called Mocha, then LiveScript, then rebranded to JavaScript to piggyback on Java's hype — even though the two languages have almost nothing in common.</p>
+
+      <p>The tight deadline left permanent marks. Some design decisions were genuinely clever; others were quick compromises that couldn't later be fixed without breaking the entire web. Today JavaScript runs on billions of devices, and that original ten-day skeleton is still there underneath.</p>
+
+      <div class="callout">
+        <strong>The Wat Talk.</strong> In 2012, Gary Bernhardt gave a famous four-minute conference talk — just him, a REPL, and increasingly unhinged JavaScript expressions. The crowd's laughter gets more uncomfortable with each result. The puzzles on this page draw from the same vein of delightful wrongness.
+      </div>
+
+      <h3>Why learn the weird stuff?</h3>
+
+      <p>Knowing the quirks makes you a better debugger. When a bug appears because <code>null</code> is somehow equal to <code>undefined</code>, or a loop always logs the same number, you need the mental model — not just the symptom. The surprises also reveal how the language actually works under the hood, which is genuinely interesting once you stop being angry about it.</p>
+
+      <div class="two">
+        <div class="mc v1">
+          <h4>The Good Parts</h4>
+          <p>First-class functions, closures, prototypal inheritance, the event loop, dynamic objects — surprisingly elegant when used intentionally.</p>
+        </div>
+        <div class="mc v2">
+          <h4>The Wat Parts</h4>
+          <p>Implicit type coercion, hoisting, <code>this</code> binding, floating point gotchas, <code>typeof null</code> — legacy decisions baked into the language forever.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 2: Type Coercion ── -->
+    <section>
+      <h2 id="coercion"><span class="h-ico">🔀</span> Type Coercion — The Wild West</h2>
+
+      <p>JavaScript is a dynamically typed language, which means values carry their own type information and can be freely mixed. When you combine values of different types, JavaScript doesn't throw an error — it silently <em>coerces</em> one or both values into a common type, using rules that feel arbitrary until you understand the algorithm behind them.</p>
+
+      <h3>The + operator has a split personality</h3>
+
+      <p>The <code>+</code> operator does two completely different things: numeric addition and string concatenation. The rule is simple but has huge consequences: <strong>if either operand is a string, the result is a string</strong>. The minus operator, by contrast, always means subtraction and always coerces both sides to numbers.</p>
+
+      <div class="cb"><span class="cmt">// + coerces to STRING if either side is a string</span>
+<span class="str">"5"</span> + <span class="num">3</span>        <span class="out">// → "53"</span>
+<span class="str">"5"</span> + <span class="num">3</span> + <span class="num">1</span>    <span class="out">// → "531"  (left to right)</span>
+<span class="num">1</span> + <span class="num">2</span> + <span class="str">"3"</span>    <span class="out">// → "33"   (1+2 happens first = 3, then "3"+"3")</span>
+
+<span class="cmt">// - always coerces to NUMBER</span>
+<span class="str">"5"</span> - <span class="num">3</span>        <span class="out">// → 2</span>
+<span class="str">"10"</span> - <span class="str">"4"</span>    <span class="out">// → 6</span></div>
+
+      <h3>Falsy values — the only six that matter</h3>
+
+      <p>Every value in JavaScript is either "truthy" or "falsy" when evaluated in a boolean context. Only six values are falsy — everything else, including empty arrays and empty objects, is truthy.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Value</th><th>Type</th><th>Truthy / Falsy</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>false</code></td><td>Boolean</td><td class="f">Falsy</td><td>The only false boolean</td></tr>
+            <tr><td><code>0</code> and <code>-0</code></td><td>Number</td><td class="f">Falsy</td><td><code>0n</code> (BigInt zero) too</td></tr>
+            <tr><td><code>""</code></td><td>String</td><td class="f">Falsy</td><td>Empty string only</td></tr>
+            <tr><td><code>null</code></td><td>Null</td><td class="f">Falsy</td><td>Intentional absence</td></tr>
+            <tr><td><code>undefined</code></td><td>Undefined</td><td class="f">Falsy</td><td>Uninitialized value</td></tr>
+            <tr><td><code>NaN</code></td><td>Number</td><td class="f">Falsy</td><td>Not-a-Number is falsy</td></tr>
+            <tr><td><code>[]</code></td><td>Object</td><td class="t">Truthy</td><td>Empty array! Object reference</td></tr>
+            <tr><td><code>{}</code></td><td>Object</td><td class="t">Truthy</td><td>Empty object!</td></tr>
+            <tr><td><code>"false"</code></td><td>String</td><td class="t">Truthy</td><td>Non-empty string, always truthy</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The == rabbit hole</h3>
+
+      <p>The <code>==</code> operator uses the Abstract Equality Comparison algorithm, which performs coercion before comparing. The gist: <code>null</code> only equals <code>undefined</code> (and nothing else), numbers and strings get converted to numbers, and booleans get converted to <code>0</code> or <code>1</code> first. The <code>===</code> operator skips all of that and requires identical type and value — and it's almost always what you want.</p>
+
+      <div class="callout a">
+        <strong>Rule of thumb:</strong> always use <code>===</code> unless you have a specific reason to use <code>==</code>. The one legitimate use of <code>==</code> is <code>x == null</code>, which is a concise way to check for both <code>null</code> and <code>undefined</code>.
+      </div>
+
+      <h3>Click to reveal — guess the result first</h3>
+      <p>Each card shows a JavaScript expression. Click it to see what JS actually outputs, and why.</p>
+
+      <div class="rg">
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">[] + []</div>
+          <div class="rc-result">""</div>
+          <div class="rc-expl">Arrays convert to strings first. <code>[].toString()</code> is <code>""</code> (empty string). So it's <code>"" + ""</code> = <code>""</code>.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">[] + {}</div>
+          <div class="rc-result">"[object Object]"</div>
+          <div class="rc-expl"><code>[].toString()</code> = <code>""</code>. <code>{}.toString()</code> = <code>"[object Object]"</code>. Concatenated: <code>"[object Object]"</code>.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">"5" + 3</div>
+          <div class="rc-result">"53"</div>
+          <div class="rc-expl">The <code>+</code> operator sees a string on the left. It switches to string mode and converts <code>3</code> to <code>"3"</code>, then concatenates.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">"5" - 3</div>
+          <div class="rc-result">2</div>
+          <div class="rc-expl"><code>-</code> is never string concatenation. Both sides are coerced to numbers: <code>Number("5")</code> = <code>5</code>. So <code>5 - 3</code> = <code>2</code>.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">null + 1</div>
+          <div class="rc-result">1</div>
+          <div class="rc-expl"><code>Number(null)</code> = <code>0</code>. So <code>0 + 1</code> = <code>1</code>. null coerces to zero in numeric contexts.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">undefined + 1</div>
+          <div class="rc-result">NaN</div>
+          <div class="rc-expl"><code>Number(undefined)</code> = <code>NaN</code>. Any arithmetic with <code>NaN</code> produces <code>NaN</code>. Unlike <code>null</code>, <code>undefined</code> doesn't become zero.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">true + true</div>
+          <div class="rc-result">2</div>
+          <div class="rc-expl"><code>Number(true)</code> = <code>1</code>. So <code>1 + 1</code> = <code>2</code>. Booleans coerce to <code>0</code> or <code>1</code> in numeric contexts.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">"3" * "2"</div>
+          <div class="rc-result">6</div>
+          <div class="rc-expl"><code>*</code> is always numeric (like <code>-</code>). Both strings are coerced to numbers: <code>3 * 2</code> = <code>6</code>.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">+"3"</div>
+          <div class="rc-result">3</div>
+          <div class="rc-expl">The unary <code>+</code> operator coerces its operand to a number. <code>+""</code> = <code>0</code>, <code>+true</code> = <code>1</code>, <code>+null</code> = <code>0</code>, <code>+undefined</code> = <code>NaN</code>.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+        <div class="rc" onclick="this.classList.toggle('open')">
+          <div class="rc-expr">false + []</div>
+          <div class="rc-result">"false"</div>
+          <div class="rc-expl"><code>[].toString()</code> = <code>""</code>. Now <code>+</code> sees a string on the right, so it switches to string mode: <code>false.toString()</code> = <code>"false"</code>. Result: <code>"false"</code>.</div>
+          <div class="rc-hint">click to reveal</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 3: Scope & Closures ── -->
+    <section>
+      <h2 id="scope"><span class="h-ico">🔭</span> Scope, Hoisting &amp; Closures</h2>
+
+      <p>JavaScript's scoping rules were designed in a hurry and later patched. Understanding them requires knowing that the JS engine processes code in two passes: a compilation phase (where declarations are registered) and an execution phase (where code actually runs).</p>
+
+      <h3>Hoisting: the engine reads ahead</h3>
+
+      <p><code>var</code> declarations are "hoisted" to the top of their containing function or global scope. But only the <em>declaration</em> is hoisted, not the initialisation. The result: you can reference a <code>var</code> before its line in the code without getting a <code>ReferenceError</code> — you just get <code>undefined</code>.</p>
+
+      <div class="cb"><span class="cmt">// What you write:</span>
+<span class="fn">console</span>.<span class="fn">log</span>(x);   <span class="out">// → undefined  (not an error!)</span>
+<span class="kw">var</span> x = <span class="num">5</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(x);   <span class="out">// → 5</span>
+
+<span class="cmt">// What the engine sees:</span>
+<span class="kw">var</span> x;             <span class="cmt">// declaration hoisted</span>
+<span class="fn">console</span>.<span class="fn">log</span>(x);   <span class="out">// → undefined</span>
+x = <span class="num">5</span>;             <span class="cmt">// assignment stays in place</span>
+<span class="fn">console</span>.<span class="fn">log</span>(x);   <span class="out">// → 5</span></div>
+
+      <p><code>let</code> and <code>const</code> are also hoisted, but they live in a <strong>Temporal Dead Zone</strong> from the start of their block until their declaration line. Accessing them in this window throws a <code>ReferenceError</code> — a far more helpful behaviour than silently returning <code>undefined</code>.</p>
+
+      <h3>The classic var-in-loop bug</h3>
+
+      <p>This is one of the most common JavaScript gotchas and one of the best illustrations of how closures capture <em>variable references</em>, not <em>values</em>:</p>
+
+      <div class="cb"><span class="cmt">// The bug — using var</span>
+<span class="kw">for</span> (<span class="kw">var</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+  <span class="fn">setTimeout</span>(() =&gt; <span class="fn">console</span>.<span class="fn">log</span>(i), <span class="num">0</span>);
+}
+<span class="out">// Prints: 3, 3, 3</span>
+<span class="cmt">// All callbacks share the SAME i variable, which is 3 when they run</span></div>
+
+      <p>The loop finishes (i reaches 3) before any callback fires. All three closures point to the same <code>i</code> variable — and by then, it's 3. Using <code>let</code> fixes this instantly, because <code>let</code> creates a <em>new binding</em> for each loop iteration:</p>
+
+      <div class="cb"><span class="cmt">// The fix — using let</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+  <span class="fn">setTimeout</span>(() =&gt; <span class="fn">console</span>.<span class="fn">log</span>(i), <span class="num">0</span>);
+}
+<span class="out">// Prints: 0, 1, 2</span>
+<span class="cmt">// Each iteration gets its own i — the closure captures that unique binding</span></div>
+
+      <h3>What is a closure, really?</h3>
+
+      <p>A closure is a function that "remembers" the variables from the scope in which it was created, even after that scope has returned. Every function in JavaScript is a closure — it carries a reference to its outer scope. This is what enables patterns like private state, factory functions, and memoisation.</p>
+
+      <div class="cb"><span class="kw">function</span> <span class="fn">makeCounter</span>() {
+  <span class="kw">let</span> count = <span class="num">0</span>;
+  <span class="kw">return</span> {
+    <span class="fn">increment</span>: () =&gt; ++count,
+    <span class="fn">get</span>:       () =&gt; count,
+  };
+}
+
+<span class="kw">const</span> c = <span class="fn">makeCounter</span>();
+c.<span class="fn">increment</span>();  <span class="out">// 1</span>
+c.<span class="fn">increment</span>();  <span class="out">// 2</span>
+c.<span class="fn">get</span>();        <span class="out">// 2</span>
+<span class="cmt">// count is private — accessible only through the closure</span></div>
+
+      <div class="callout g">
+        <strong>Key insight:</strong> closures capture variables by reference, not by value. When the variable changes, every closure sharing it sees the new value. This is both the source of the loop bug and the source of closures' power.
+      </div>
+    </section>
+
+    <!-- ── Section 4: this ── -->
+    <section>
+      <h2 id="this"><span class="h-ico">🎭</span> The Slippery <code style="font-size:1rem;background:var(--surface2);border-color:var(--border)">this</code></h2>
+
+      <p>In most object-oriented languages, <code>this</code> refers to the current instance and is determined at class definition time. In JavaScript, <code>this</code> is determined at <em>call time</em> — it depends on how a function is invoked, not where it's defined. This trips up virtually every developer who comes to JS from another language.</p>
+
+      <h3>The four binding rules</h3>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body"><strong>Default binding.</strong> A function called without any context uses the global object as <code>this</code> (<code>window</code> in browsers). In strict mode, <code>this</code> is <code>undefined</code> instead — safer and more sensible.</div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body"><strong>Implicit binding.</strong> When a function is called as a method — <code>obj.fn()</code> — <code>this</code> is <code>obj</code>. The object to the left of the dot is the binding.</div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body"><strong>Explicit binding.</strong> <code>fn.call(ctx)</code>, <code>fn.apply(ctx)</code>, and <code>fn.bind(ctx)</code> let you manually set <code>this</code> to any value. <code>bind</code> creates a permanently bound new function.</div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body"><strong>Arrow functions.</strong> Arrow functions have no own <code>this</code>. They inherit <code>this</code> from the enclosing lexical scope at the time they're defined. This makes them ideal for callbacks.</div>
+        </div>
+      </div>
+
+      <div class="cb"><span class="kw">const</span> alice = {
+  name: <span class="str">'Alice'</span>,
+  <span class="fn">greetRegular</span>: <span class="kw">function</span>() { <span class="kw">return</span> <span class="kw">this</span>.name; },
+  <span class="fn">greetArrow</span>:   () =&gt; <span class="kw">this</span>.name,   <span class="cmt">// 'this' is outer scope (likely window)</span>
+};
+
+alice.<span class="fn">greetRegular</span>();  <span class="out">// → "Alice"  (implicit binding: alice)</span>
+alice.<span class="fn">greetArrow</span>();    <span class="out">// → undefined (arrow: outer this, not alice)</span>
+
+<span class="kw">const</span> fn = alice.greetRegular;
+<span class="fn">fn</span>();               <span class="out">// → undefined (default binding: no context)</span>
+
+<span class="fn">fn</span>.<span class="fn">call</span>(alice);     <span class="out">// → "Alice"  (explicit binding)</span></div>
+
+      <div class="callout">
+        <strong>The lost-context trap.</strong> Extracting a method into a variable (<code>const fn = obj.method</code>) strips the binding. This is why React class components used <code>this.handleClick = this.handleClick.bind(this)</code> in constructors — or why arrow function class fields are now preferred.
+      </div>
+    </section>
+
+    <!-- ── Section 5: Prototypes ── -->
+    <section>
+      <h2 id="prototypes"><span class="h-ico">🧬</span> Prototypes &amp; the Inheritance Chain</h2>
+
+      <p>JavaScript has no classical inheritance. Instead, every object has an internal <code>[[Prototype]]</code> link pointing to another object. When you access a property that doesn't exist on an object, the engine walks up this chain until it finds it or reaches <code>null</code>. This is the prototype chain.</p>
+
+      <h3>How new works — step by step</h3>
+
+      <p>When you call <code>new Constructor()</code>, JavaScript performs four silent steps. Understanding them demystifies both <code>new</code> and the <code>class</code> syntax (which is just sugar on top):</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body"><strong>Create</strong> a new empty object <code>{}</code>.</div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body"><strong>Link</strong> the object's <code>[[Prototype]]</code> to <code>Constructor.prototype</code>.</div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body"><strong>Invoke</strong> <code>Constructor</code> with <code>this</code> bound to the new object.</div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body"><strong>Return</strong> the new object — unless the constructor explicitly returns a different object.</div>
+        </div>
+      </div>
+
+      <div class="cb"><span class="kw">function</span> <span class="fn">Animal</span>(name) {
+  <span class="kw">this</span>.name = name;        <span class="cmt">// set on the instance</span>
+}
+Animal.prototype.<span class="fn">speak</span> = <span class="kw">function</span>() {
+  <span class="kw">return</span> <span class="str">`${</span><span class="kw">this</span>.name<span class="str">} speaks`</span>;
+};
+
+<span class="kw">const</span> cat = <span class="kw">new</span> <span class="fn">Animal</span>(<span class="str">'Mochi'</span>);
+cat.<span class="fn">speak</span>();            <span class="out">// → "Mochi speaks"</span>
+<span class="cmt">// 'speak' not on cat, found on Animal.prototype via chain</span>
+
+cat.hasOwnProperty(<span class="str">'name'</span>);   <span class="out">// → true  (name is on the instance)</span>
+cat.hasOwnProperty(<span class="str">'speak'</span>);  <span class="out">// → false (speak is on the prototype)</span>
+
+Object.<span class="fn">getPrototypeOf</span>(cat) === Animal.prototype;  <span class="out">// → true</span></div>
+
+      <h3>class is sugar</h3>
+
+      <p>ES6 <code>class</code> syntax is not a different inheritance system — it's a cleaner way to write constructor functions and prototype assignments. The prototype chain works exactly the same way underneath. If you've used classes in JS and never hit a prototype bug, that's fine — but knowing what's happening under the hood helps when things go wrong.</p>
+
+      <div class="callout a">
+        <strong>Dangerous pattern:</strong> mutating built-in prototypes (<code>Array.prototype.myMethod = ...</code>) used to be popular ("monkey-patching") but is now strongly discouraged. If two libraries both modify <code>Array.prototype</code> with the same name, one silently overwrites the other.
+      </div>
+    </section>
+
+    <!-- ── Section 6: Event Loop ── -->
+    <section>
+      <h2 id="eventloop"><span class="h-ico">🌀</span> The Event Loop — Time is an Illusion</h2>
+
+      <p>JavaScript is single-threaded — only one piece of code runs at a time. And yet, it handles network requests, timers, and user events concurrently without blocking. The secret is the event loop, which orchestrates three distinct queues with strict priority rules.</p>
+
+      <div class="el-cols">
+        <div class="el-col">
+          <div class="el-col-title">Call Stack</div>
+          <div class="el-item">Currently executing code</div>
+          <div class="el-item">LIFO — last in, first out</div>
+          <div class="el-item">Synchronous operations</div>
+          <div class="el-item">Must empty before queues run</div>
+        </div>
+        <div class="el-col">
+          <div class="el-col-title">Microtask Queue</div>
+          <div class="el-item">Promise .then / .catch</div>
+          <div class="el-item">queueMicrotask()</div>
+          <div class="el-item">MutationObserver callbacks</div>
+          <div class="el-item">Runs after EVERY task</div>
+        </div>
+        <div class="el-col">
+          <div class="el-col-title">Task Queue (Macrotask)</div>
+          <div class="el-item">setTimeout / setInterval</div>
+          <div class="el-item">I/O events, click handlers</div>
+          <div class="el-item">requestAnimationFrame</div>
+          <div class="el-item">One per event loop tick</div>
+        </div>
+      </div>
+
+      <h3>The execution order</h3>
+
+      <p>The event loop follows this priority, strictly: <strong>run the entire call stack</strong> → <strong>drain all microtasks</strong> (including any microtasks added by microtasks) → <strong>run one macrotask</strong> → <strong>drain all microtasks again</strong> → repeat. This is why Promises always resolve before a <code>setTimeout</code> with a zero delay.</p>
+
+      <div class="cb"><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'1'</span>);                               <span class="out">// sync → runs first</span>
+
+<span class="fn">setTimeout</span>(() =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'2'</span>), <span class="num">0</span>);       <span class="out">// macrotask → runs last</span>
+
+Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(() =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'3'</span>)); <span class="out">// microtask → runs second</span>
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'4'</span>);                               <span class="out">// sync → runs first (after '1')</span>
+
+<span class="cmt">// Output: 1, 4, 3, 2</span></div>
+
+      <h3>Why setTimeout(fn, 0) isn't instant</h3>
+
+      <p><code>setTimeout(fn, 0)</code> doesn't mean "run immediately" — it means "put this in the macrotask queue with a minimum delay of 0ms". The function won't run until the current call stack is empty <em>and</em> all pending microtasks have been processed. In practice, browsers clamp the minimum to ~4ms for nested timers. It's better understood as "run this after everything else currently pending".</p>
+
+      <div class="callout g">
+        <strong>async/await</strong> is syntactic sugar over Promises. <code>await</code> suspends the current function and queues the rest as a microtask. So async functions participate in the microtask queue — they run after synchronous code, but before macrotasks.
+      </div>
+
+      <h3>The "never-ending microtask" trap</h3>
+
+      <p>Because the event loop drains all microtasks before moving to the next macrotask, if microtasks continuously add more microtasks, the macrotask queue (and thus rendering and I/O events) can starve indefinitely. This is a real way to freeze a browser tab — avoid microtask loops.</p>
+    </section>
+
+    <!-- ── Section 7: Operators ── -->
+    <section>
+      <h2 id="operators"><span class="h-ico">🧪</span> Operator Weirdness &amp; Hidden Powers</h2>
+
+      <p>JavaScript has several operators that are either surprising, underused, or both. Some are genuine pitfalls; others are elegant shortcuts once you know them.</p>
+
+      <h3>The comparison chaining trap</h3>
+
+      <p>Mathematical notation like <code>1 &lt; 2 &lt; 3</code> feels readable, but JavaScript evaluates it left to right. <code>1 &lt; 2</code> is <code>true</code>, then <code>true &lt; 3</code> coerces <code>true</code> to <code>1</code>, so <code>1 &lt; 3</code> is <code>true</code>. But <code>3 &gt; 2 &gt; 1</code>: <code>3 &gt; 2</code> is <code>true</code>, then <code>true &gt; 1</code> is <code>1 &gt; 1</code> — <code>false</code>.</p>
+
+      <div class="cb"><span class="num">1</span> &lt; <span class="num">2</span> &lt; <span class="num">3</span>    <span class="out">// → true   (true &lt; 3 → 1 &lt; 3)</span>
+<span class="num">3</span> &gt; <span class="num">2</span> &gt; <span class="num">1</span>    <span class="out">// → false  (true &gt; 1 → 1 &gt; 1)</span></div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Operator</th><th>Example</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>??</code> Nullish coalescing</td>
+              <td class="op-ex">x ?? 'default'</td>
+              <td>Returns right side only if left is <code>null</code> or <code>undefined</code> — not falsy. So <code>0 ?? 'default'</code> → <code>0</code>, unlike <code>||</code>.</td>
+            </tr>
+            <tr>
+              <td><code>?.</code> Optional chaining</td>
+              <td class="op-ex">a?.b?.c</td>
+              <td>Returns <code>undefined</code> instead of throwing if any link in the chain is <code>null</code> or <code>undefined</code>.</td>
+            </tr>
+            <tr>
+              <td><code>~~</code> Double bitwise NOT</td>
+              <td class="op-ex">~~4.9 → 4</td>
+              <td>Truncates to 32-bit integer (towards zero). Faster than <code>Math.floor</code> for positives, but breaks for numbers over 2³¹.</td>
+            </tr>
+            <tr>
+              <td><code>| 0</code> Bitwise OR zero</td>
+              <td class="op-ex">(4.9 | 0) → 4</td>
+              <td>Same integer-truncation trick. Both <code>~~</code> and <code>| 0</code> are occasionally found in performance-critical game loops.</td>
+            </tr>
+            <tr>
+              <td><code>void</code> operator</td>
+              <td class="op-ex">void 0 → undefined</td>
+              <td><code>void expr</code> evaluates the expression but always returns <code>undefined</code>. <code>void 0</code> is a safe alias for <code>undefined</code> — used before <code>undefined</code> was non-writable.</td>
+            </tr>
+            <tr>
+              <td><code>delete</code> operator</td>
+              <td class="op-ex">delete obj.key</td>
+              <td>Removes a property from an object entirely (not just sets it to <code>undefined</code>). Cannot delete variables declared with <code>var/let/const</code>.</td>
+            </tr>
+            <tr>
+              <td><code>,</code> Comma operator</td>
+              <td class="op-ex">(a++, b++, c)</td>
+              <td>Evaluates each operand left to right and returns the value of the last one. Rarely useful in modern code outside <code>for</code> loop headers.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>NaN is not equal to itself</h3>
+
+      <p><code>NaN</code> (Not-a-Number) is the only value in JavaScript that is not equal to itself: <code>NaN === NaN</code> is <code>false</code>. This is actually mandated by the IEEE 754 floating-point standard. To check for NaN, use <code>Number.isNaN(x)</code> — the older <code>isNaN(x)</code> function first coerces its argument, so <code>isNaN("hello")</code> is <code>true</code>, which is often a surprise.</p>
+
+      <div class="cb">NaN === NaN           <span class="out">// → false</span>
+isNaN(<span class="str">"hello"</span>)       <span class="out">// → true   (coerces first: NaN === NaN)</span>
+Number.isNaN(<span class="str">"hello"</span>) <span class="out">// → false  (no coercion: "hello" is a string)</span>
+Number.isNaN(NaN)     <span class="out">// → true</span></div>
+    </section>
+
+    <!-- ── Section 8: Quiz ── -->
+    <section>
+      <h2 id="quiz"><span class="h-ico">🎯</span> The Puzzle Gauntlet</h2>
+
+      <p>Ten questions. Each one is a real JavaScript expression or snippet. Pick what you think the output is, then see the explanation. No looking things up — that defeats the point.</p>
+
+      <div class="quiz-top">
+        <div class="score-badge">Score: <span class="n" id="score-val">0</span> / <span id="score-total">10</span></div>
+        <div style="font-size:0.78rem;color:var(--text-dim);">Click an answer to lock it in</div>
+      </div>
+      <div class="pbar"><div class="pfill" id="pbar-fill"></div></div>
+
+      <div id="quiz-container"></div>
+
+      <div class="final-box" id="final-box">
+        <div class="big" id="final-score-big">0</div>
+        <div class="total" id="final-score-total">out of 10</div>
+        <div class="msg" id="final-msg"></div>
+        <button onclick="resetQuiz()">Try Again</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  /* ── Reveal cards ── */
+  /* handled by inline onclick */
+
+  /* ── Side nav scroll spy ── */
+  (function () {
+    var links = document.querySelectorAll('.sidenav a');
+    var sections = [];
+    links.forEach(function (a) {
+      var id = a.getAttribute('href').replace('#', '');
+      var el = document.getElementById(id);
+      if (el) sections.push({ id: id, el: el, link: a });
+    });
+
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          var hit = sections.find(function (s) { return s.el === e.target; });
+          if (hit) hit.link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-52px 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(function (s) { obs.observe(s.el); });
+  })();
+
+  /* ── Quiz ── */
+  var questions = [
+    {
+      code: 'typeof null',
+      ask: 'What does this evaluate to?',
+      opts: ['"null"', '"undefined"', '"object"', '"boolean"'],
+      ans: 2,
+      expl: 'This is JavaScript\'s most famous bug and it\'s staying forever for backwards compatibility. When JS was first implemented, values were stored as a type tag + value. null was represented as a null pointer (0x00) — the same tag as objects. So <code>typeof null === "object"</code> has been wrong since 1995.'
+    },
+    {
+      code: '[] + []',
+      ask: 'What does this evaluate to?',
+      opts: ['[]', '""', '0', 'NaN'],
+      ans: 1,
+      expl: 'Arrays get converted to strings before <code>+</code> runs. <code>[].toString()</code> is <code>""</code> (empty string). So it\'s <code>"" + ""</code> = <code>""</code>. This surprises people who expect array concatenation to produce another array — use <code>Array.prototype.concat</code> or spread for that.'
+    },
+    {
+      code: 'setTimeout(() => console.log("A"), 0);\nPromise.resolve().then(() => console.log("B"));\nconsole.log("C");',
+      ask: 'What is the output order?',
+      opts: ['C, A, B', 'C, B, A', 'A, B, C', 'B, C, A'],
+      ans: 1,
+      expl: 'Synchronous code runs first (C). Then the event loop drains microtasks — Promise callbacks are microtasks (B). Only then does it process macrotasks — setTimeout callbacks (A). Output: C → B → A.'
+    },
+    {
+      code: 'for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}\n// What gets logged?',
+      ask: 'What are the three logged values?',
+      opts: ['0, 1, 2', '3, 3, 3', '2, 2, 2', 'undefined, undefined, undefined'],
+      ans: 1,
+      expl: 'All three closures share the same <code>var i</code> variable. The loop finishes (i = 3) before any callback fires. When they do fire, all three see i = 3. Replace <code>var</code> with <code>let</code> to get 0, 1, 2 — <code>let</code> creates a fresh binding per iteration.'
+    },
+    {
+      code: '0.1 + 0.2 === 0.3',
+      ask: 'What does this evaluate to?',
+      opts: ['true', 'false'],
+      ans: 1,
+      expl: 'Floating-point arithmetic. <code>0.1 + 0.2</code> in IEEE 754 binary64 is actually <code>0.30000000000000004</code> — not exactly <code>0.3</code>. This is not a JS bug; it\'s how floating-point works in virtually every language. Check within an epsilon: <code>Math.abs(a - b) &lt; Number.EPSILON</code>.'
+    },
+    {
+      code: '"5" - 3',
+      ask: 'What does this evaluate to?',
+      opts: ['"53"', '"5-3"', '2', 'NaN'],
+      ans: 2,
+      expl: 'The <code>-</code> operator always means numeric subtraction — it has no string mode. Both operands are coerced to numbers: <code>Number("5")</code> = <code>5</code>, so <code>5 - 3</code> = <code>2</code>. Compare with <code>"5" + 3</code> = <code>"53"</code>, where <code>+</code> switches to string mode.'
+    },
+    {
+      code: 'null == undefined',
+      ask: 'What does this evaluate to?',
+      opts: ['true', 'false', 'TypeError'],
+      ans: 0,
+      expl: 'The Abstract Equality Comparison spec explicitly states that <code>null == undefined</code> is <code>true</code> and that null/undefined only loosely equal each other — nothing else. This is the one legitimate use case for <code>==</code>: <code>if (x == null)</code> catches both <code>null</code> and <code>undefined</code>.'
+    },
+    {
+      code: 'typeof NaN',
+      ask: 'What does this evaluate to?',
+      opts: ['"NaN"', '"number"', '"undefined"', '"object"'],
+      ans: 1,
+      expl: '<code>NaN</code> stands for "Not a Number" but its type is <code>"number"</code>. It represents the result of an invalid numeric operation (like <code>0/0</code> or <code>parseInt("hello")</code>). It\'s also the only value not equal to itself: <code>NaN !== NaN</code>. Use <code>Number.isNaN(x)</code> to detect it safely.'
+    },
+    {
+      code: 'console.log(3 > 2 > 1);',
+      ask: 'What does this log?',
+      opts: ['true', 'false', 'TypeError', 'NaN'],
+      ans: 1,
+      expl: 'Evaluated left to right: <code>3 > 2</code> = <code>true</code>. Then <code>true > 1</code> coerces <code>true</code> to <code>1</code>: <code>1 > 1</code> = <code>false</code>. For comparison: <code>1 < 2 < 3</code> = <code>true</code> because <code>1 < 2</code> = <code>true</code> → <code>1 < 3</code> = <code>true</code>. Don\'t chain comparisons in JS.'
+    },
+    {
+      code: '!!"false"',
+      ask: 'What does this evaluate to?',
+      opts: ['true', 'false'],
+      ans: 0,
+      expl: '<code>"false"</code> is a non-empty string. Non-empty strings are truthy. <code>!"false"</code> = <code>false</code>. <code>!!"false"</code> = <code>!false</code> = <code>true</code>. The string <code>"false"</code> and the boolean <code>false</code> are completely different values — only the string <code>""</code> (empty) is falsy.'
+    }
+  ];
+
+  var score = 0;
+  var answered = 0;
+  var total = questions.length;
+
+  function buildQuiz() {
+    var container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+    score = 0;
+    answered = 0;
+    document.getElementById('score-val').textContent = '0';
+    document.getElementById('pbar-fill').style.width = '0%';
+    document.getElementById('final-box').classList.remove('on');
+
+    questions.forEach(function (q, qi) {
+      var card = document.createElement('div');
+      card.className = 'qcard';
+
+      var lbl = document.createElement('div');
+      lbl.className = 'q-lbl';
+      lbl.textContent = 'Puzzle ' + (qi + 1) + ' of ' + total;
+      card.appendChild(lbl);
+
+      var snip = document.createElement('div');
+      snip.className = 'q-snip';
+      snip.textContent = q.code;
+      card.appendChild(snip);
+
+      var ask = document.createElement('div');
+      ask.className = 'q-ask';
+      ask.textContent = q.ask;
+      card.appendChild(ask);
+
+      var opts = document.createElement('div');
+      opts.className = 'q-opts';
+
+      q.opts.forEach(function (opt, oi) {
+        var btn = document.createElement('button');
+        btn.className = 'qbtn';
+        btn.textContent = opt;
+        btn.addEventListener('click', function () {
+          handleAnswer(qi, oi, q, card, opts);
+        });
+        opts.appendChild(btn);
+      });
+      card.appendChild(opts);
+
+      var expl = document.createElement('div');
+      expl.className = 'q-expl';
+      expl.innerHTML = expl.innerHTML; // placeholder
+      card.appendChild(expl);
+
+      container.appendChild(card);
+
+      /* store ref */
+      card._expl = expl;
+      card._opts = opts;
+      q._card = card;
+    });
+  }
+
+  function handleAnswer(qi, chosen, q, card, opts) {
+    /* disable all buttons */
+    var btns = opts.querySelectorAll('.qbtn');
+    btns.forEach(function (b) { b.disabled = true; });
+
+    var correct = chosen === q.ans;
+
+    /* highlight */
+    btns[q.ans].classList.add('yes');
+    if (!correct) btns[chosen].classList.add('nope');
+
+    card.classList.add(correct ? 'ok' : 'no');
+
+    /* show explanation */
+    var expl = card._expl;
+    expl.innerHTML = q.expl;
+    expl.classList.add('on');
+
+    if (correct) score++;
+    answered++;
+
+    document.getElementById('score-val').textContent = score;
+    document.getElementById('pbar-fill').style.width = Math.round((answered / total) * 100) + '%';
+
+    if (answered === total) {
+      setTimeout(showFinal, 600);
+    }
+  }
+
+  function showFinal() {
+    var box = document.getElementById('final-box');
+    box.classList.add('on');
+    document.getElementById('final-score-big').textContent = score;
+    document.getElementById('final-score-total').textContent = 'out of ' + total;
+
+    var messages = [
+      'WTF is JavaScript? Same. We\'ve all been there.',
+      'WTF is JavaScript? Same. We\'ve all been there.',
+      'WTF is JavaScript? Same. We\'ve all been there.',
+      'WTF is JavaScript? Same. We\'ve all been there.',
+      'Getting there. The quirks are starting to click.',
+      'Getting there. The quirks are starting to click.',
+      'Solid — most devs would struggle here.',
+      'Solid — most devs would struggle here.',
+      'Sharp. You\'d ace the whiteboard round.',
+      'Sharp. You\'d ace the whiteboard round.',
+      'JavaScript Witch Doctor. You see through the illusions.'
+    ];
+    document.getElementById('final-msg').textContent = messages[score] || messages[0];
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetQuiz() {
+    buildQuiz();
+    document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  buildQuiz();
+</script>
+
+<script src="../header.js"></script>
+</body>
+</html>

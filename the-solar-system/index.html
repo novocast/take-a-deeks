@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Solar System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #05050f;
+      --surface: rgba(255,255,255,0.04);
+      --surface-h: rgba(255,255,255,0.07);
+      --text: #dde1f0;
+      --muted: #606090;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+
+    #starfield {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page { position: relative; z-index: 1; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 3rem 1.5rem 1.5rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-bottom: 0.55rem;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { color: var(--muted); font-size: 1rem; max-width: 460px; margin: 0 auto; }
+
+    /* ── Diagram ── */
+    .diagram-section { padding: 1rem 0 0; overflow: hidden; }
+    .diagram-scaler {
+      position: relative;
+      width: 960px;
+      height: 960px;
+      margin: 0 auto;
+      transform-origin: top center;
+    }
+    .diagram-center { position: absolute; inset: 0; }
+
+    .sun {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%, #fffde0 0%, #ffe066 30%, #ff9900 65%, #cc4400 100%);
+      box-shadow:
+        0 0 20px 8px rgba(255,180,0,0.55),
+        0 0 60px 22px rgba(255,140,0,0.28),
+        0 0 110px 45px rgba(255,100,0,0.12);
+      cursor: pointer;
+      z-index: 10;
+      transition: box-shadow 0.3s;
+    }
+    .sun:hover {
+      box-shadow:
+        0 0 28px 12px rgba(255,190,0,0.75),
+        0 0 80px 32px rgba(255,140,0,0.45),
+        0 0 140px 60px rgba(255,100,0,0.2);
+    }
+
+    .orbit-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.055);
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+
+    .orbit-arm {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      transform-origin: 0 0;
+    }
+    @keyframes orbit-spin { to { transform: rotate(360deg); } }
+
+    .planet-dot {
+      position: absolute;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.18s, filter 0.18s;
+    }
+    .planet-dot:hover { transform: scale(2) !important; filter: brightness(1.35); }
+    .planet-dot.active { filter: brightness(1.5); }
+
+    .planet-label {
+      position: absolute;
+      left: 50%; top: 100%;
+      transform: translateX(-50%);
+      margin-top: 5px;
+      font-size: 9px;
+      color: rgba(255,255,255,0.35);
+      white-space: nowrap;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .planet-dot:hover .planet-label { color: rgba(255,255,255,0.85); }
+
+    .saturn-rings-el {
+      position: absolute;
+      top: 50%; left: 50%;
+      border-radius: 50%;
+      border: 3px solid rgba(218,200,140,0.42);
+      pointer-events: none;
+      transform: translate(-50%,-50%) rotateX(68deg);
+    }
+
+    .hint-text {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-style: italic;
+      margin-top: -0.25rem;
+      padding-bottom: 0.5rem;
+    }
+
+    /* ── Info panel ── */
+    .info-panel {
+      max-width: 720px;
+      margin: 0 auto 0.5rem;
+      padding: 0 1.5rem;
+      min-height: 56px;
+    }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+      border-radius: 14px;
+      padding: 1.4rem 1.8rem;
+      animation: fadeUp 0.22s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .ic-name { font-size: 1.55rem; font-weight: 700; color: #fff; margin-bottom: 0.6rem; }
+    .ic-meta { display: flex; flex-wrap: wrap; gap: 0.8rem 2rem; margin-bottom: 0.85rem; }
+    .meta-item { display: flex; flex-direction: column; }
+    .meta-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); }
+    .meta-val   { font-size: 0.87rem; font-weight: 600; }
+    .ic-desc    { font-size: 0.88rem; color: var(--text); line-height: 1.72; }
+
+    /* ── Section ── */
+    .section { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .section-title {
+      font-size: 1.05rem; font-weight: 700; color: #fff;
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Planet cards ── */
+    .planet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 0.7rem;
+    }
+    .planet-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .planet-card:hover { background: var(--surface-h); transform: translateY(-2px); }
+    .pc-swatch { width: 24px; height: 24px; border-radius: 50%; margin-bottom: 0.5rem; }
+    .pc-name { font-size: 0.88rem; font-weight: 700; color: #fff; }
+    .pc-sub  { font-size: 0.73rem; color: var(--muted); margin-top: 0.12rem; }
+
+    /* ── Scale section ── */
+    .scale-section {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 2rem 1.5rem;
+    }
+    .scale-inner { max-width: 900px; margin: 0 auto; }
+    .scale-note  { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .scale-row {
+      display: grid;
+      grid-template-columns: 78px 1fr auto;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.48rem;
+    }
+    .s-name { font-size: 0.76rem; color: var(--muted); text-align: right; }
+    .s-bar-col { position: relative; height: 11px; }
+    .s-bar { position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px; min-width: 2px; }
+    .s-km { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+
+    /* ── Facts ── */
+    .facts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.85rem; }
+    .fact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.15rem;
+    }
+    .f-num   { font-size: 1.65rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .f-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin: 0.2rem 0 0.45rem; }
+    .f-body  { font-size: 0.82rem; color: var(--text); }
+
+    .footer-gap { height: 4rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 980px) {
+      .diagram-scaler { transform: scale(0.58); margin-bottom: -405px; }
+    }
+    @media (max-width: 600px) {
+      .diagram-scaler { transform: scale(0.36); margin-bottom: -615px; }
+      .info-card { padding: 1.1rem 1.2rem; }
+    }
+  </style>
+</head>
+<body data-page-id="the-solar-system" style="--accent: #2563eb;">
+
+<canvas id="starfield"></canvas>
+
+<div class="page">
+
+  <div class="hero">
+    <h1>The <em>Solar System</em></h1>
+    <p>Eight planets, one star, and 4.6 billion years of cosmic history — all held together by gravity.</p>
+  </div>
+
+  <div class="diagram-section">
+    <div class="diagram-scaler">
+      <div class="diagram-center" id="dc">
+        <div class="sun" id="sun-el" title="The Sun"></div>
+      </div>
+    </div>
+    <p class="hint-text">Click any planet (or the Sun) to learn more &darr;</p>
+  </div>
+
+  <div class="info-panel" id="info-panel"></div>
+
+  <div class="section">
+    <div class="section-title">The Eight Planets</div>
+    <div class="planet-grid" id="planet-grid"></div>
+  </div>
+
+  <div class="scale-section">
+    <div class="scale-inner">
+      <div class="section-title">Size comparison</div>
+      <p class="scale-note">Diameters drawn to scale — the Sun fills the full bar width, planets are proportional.</p>
+      <div id="scale-bars"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">By the numbers</div>
+    <div class="facts-grid" id="facts-grid"></div>
+  </div>
+
+  <div class="footer-gap"></div>
+</div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────
+
+const SUN = {
+  name: 'The Sun',
+  color: '#ffcc00',
+  diameter: '1,392,700 km',
+  mass: '99.86% of all solar-system mass',
+  dist: '— (centre)',
+  temp: '5,500°C surface · 15,000,000°C core',
+  period: null,
+  moons: null,
+  desc: 'A middle-aged yellow dwarf containing virtually all the mass in the solar system. Every second it fuses 620 million tonnes of hydrogen into helium, releasing the energy that sustains almost all life on Earth. In about 5 billion years it will swell into a red giant — likely swallowing Mercury, Venus, and possibly Earth — before collapsing into a white dwarf roughly the size of our planet today.'
+};
+
+const PLANETS = [
+  {
+    name: 'Mercury', slug: 'mercury',
+    color: '#aaaaaa', size: 5, orbitR: 68, animDur: 6,
+    diameter: '4,879 km', diamKm: 4879, mass: '0.055× Earth',
+    dist: '57.9M km', temp: '−180 to +430°C', period: '88 days', moons: 0,
+    desc: 'The smallest planet and closest to the Sun. Without an atmosphere to buffer temperatures, it swings more than 600°C between night and day. A Mercurian year is just 88 Earth days, yet a single Mercurian day lasts 59 Earth days — the Sun rises twice per year.'
+  },
+  {
+    name: 'Venus', slug: 'venus',
+    color: '#e8d08a', size: 11, orbitR: 100, animDur: 9.5,
+    diameter: '12,104 km', diamKm: 12104, mass: '0.815× Earth',
+    dist: '108.2M km', temp: '465°C (average)', period: '225 days', moons: 0,
+    desc: 'Earth\'s twin in size, but a hellish world. A thick CO₂ atmosphere traps heat so effectively that Venus is hotter than Mercury despite being farther from the Sun. It rotates backwards and so slowly that one Venusian day is longer than its year. Surface pressure is 90× Earth\'s — equivalent to being 900 m underwater.'
+  },
+  {
+    name: 'Earth', slug: 'earth',
+    color: '#4fa3e0', size: 12, orbitR: 138, animDur: 15,
+    diameter: '12,742 km', diamKm: 12742, mass: '1× (reference)',
+    dist: '149.6M km', temp: '15°C (average)', period: '365.25 days', moons: 1,
+    desc: 'The only known world with liquid surface water and life. Earth\'s large Moon stabilises our axial tilt, moderating seasons and likely making complex life possible. Our magnetic field deflects lethal solar-wind particles — we live inside a planetary force field.'
+  },
+  {
+    name: 'Mars', slug: 'mars',
+    color: '#c1440e', size: 7, orbitR: 182, animDur: 22,
+    diameter: '6,779 km', diamKm: 6779, mass: '0.107× Earth',
+    dist: '227.9M km', temp: '−65°C (average)', period: '687 days', moons: 2,
+    desc: 'The Red Planet, coloured by iron oxide — rust — coating its surface. Home to Olympus Mons, the solar system\'s tallest volcano at 21 km, nearly three times the height of Everest. Mars has a 24.6-hour day and familiar seasons, making it humanity\'s most plausible next home.'
+  },
+  {
+    name: 'Jupiter', slug: 'jupiter',
+    color: '#c88b3a', size: 24, orbitR: 255, animDur: 42,
+    diameter: '139,820 km', diamKm: 139820, mass: '317.8× Earth',
+    dist: '778.5M km', temp: '−110°C (cloud tops)', period: '11.9 years', moons: 95,
+    desc: 'The king — more than twice the mass of all other planets combined. Its Great Red Spot is a storm wider than Earth that has raged for centuries. Jupiter acts as a gravitational shield, deflecting and capturing many comets and asteroids that would otherwise threaten the inner solar system.'
+  },
+  {
+    name: 'Saturn', slug: 'saturn',
+    color: '#e4d191', size: 20, orbitR: 328, animDur: 66, hasRings: true,
+    diameter: '116,460 km', diamKm: 116460, mass: '95.2× Earth',
+    dist: '1.43B km', temp: '−140°C (cloud tops)', period: '29.5 years', moons: 146,
+    desc: 'Famous for its spectacular rings — extending 282,000 km from the planet yet only ~10 m thick in places, made of ice and rock ranging from dust to boulders. Saturn is so low-density it would float on water. Its moon Titan has a thick atmosphere and lakes of liquid methane, making it one of the most intriguing worlds in the solar system.'
+  },
+  {
+    name: 'Uranus', slug: 'uranus',
+    color: '#7de8e8', size: 15, orbitR: 395, animDur: 112,
+    diameter: '50,724 km', diamKm: 50724, mass: '14.5× Earth',
+    dist: '2.87B km', temp: '−195°C', period: '84 years', moons: 28,
+    desc: 'The "sideways" planet: its axial tilt of 98° means it rolls around the Sun on its side, likely knocked over by an ancient collision with an Earth-sized body. An ice giant rich in water, methane, and ammonia ices. Its blue-green colour comes from methane in the atmosphere absorbing red light.'
+  },
+  {
+    name: 'Neptune', slug: 'neptune',
+    color: '#5b6ee8', size: 14, orbitR: 455, animDur: 156,
+    diameter: '49,244 km', diamKm: 49244, mass: '17.1× Earth',
+    dist: '4.50B km', temp: '−200°C', period: '165 years', moons: 16,
+    desc: 'The furthest planet, discovered in 1846 by pure mathematics — astronomers calculated it must exist because Uranus wasn\'t following its predicted orbit. Has the fiercest winds in the solar system at up to 2,100 km/h. Its largest moon Triton orbits backwards and is slowly spiralling inward, destined to be shredded into a ring in ~3.6 billion years.'
+  },
+];
+
+const FACTS = [
+  { num: '4.6 bn', label: 'Years old', body: 'The solar system condensed from a collapsing cloud of interstellar gas and dust — possibly triggered by a nearby supernova shock wave.' },
+  { num: '99.86%', label: 'Sun\'s share of mass', body: 'Every planet, moon, asteroid, and comet combined accounts for just 0.14% of the solar system\'s total mass. Jupiter takes most of the rest.' },
+  { num: '8 min', label: 'Light from Sun to Earth', body: 'Sunlight takes ~8 minutes to reach us. If the Sun vanished right now, we\'d be in the dark 8 minutes later — and gravity would vanish at the same moment.' },
+  { num: '2,100 km/h', label: 'Neptune\'s wind speed', body: 'The fastest winds in the solar system — nearly twice the speed of sound at sea level on Earth, despite Neptune receiving almost no solar energy.' },
+  { num: '~5 bn', label: 'Years until Sun expands', body: 'Our Sun will eventually swell into a red giant, engulf the inner planets, then collapse into a white dwarf roughly the size of Earth today.' },
+  { num: '146', label: 'Moons of Saturn', body: 'The most confirmed moons of any planet. Many were only found recently using wide-field telescope surveys — the count is still rising.' },
+];
+
+// ── Starfield canvas ─────────────────────────────────────────────────
+(function () {
+  const cv = document.getElementById('starfield');
+  const ctx = cv.getContext('2d');
+  function paint() {
+    cv.width  = window.innerWidth;
+    cv.height = window.innerHeight;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    const n = Math.floor(cv.width * cv.height / 3200);
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * cv.width;
+      const y = Math.random() * cv.height;
+      const r = Math.random() * 1.25;
+      const a = 0.2 + Math.random() * 0.8;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${a.toFixed(2)})`;
+      ctx.fill();
+    }
+  }
+  paint();
+  window.addEventListener('resize', paint);
+})();
+
+// ── Build diagram ────────────────────────────────────────────────────
+const dc = document.getElementById('dc');
+const arms = [];
+
+PLANETS.forEach(p => {
+  // Orbit ring (static visual)
+  const ring = document.createElement('div');
+  ring.className = 'orbit-ring';
+  const d = p.orbitR * 2;
+  ring.style.cssText = `width:${d}px;height:${d}px;`;
+  dc.appendChild(ring);
+
+  // Rotating arm
+  const arm = document.createElement('div');
+  arm.className = 'orbit-arm';
+  const delay = -(Math.random() * p.animDur);
+  arm.style.cssText = `animation:orbit-spin ${p.animDur}s linear infinite;animation-delay:${delay.toFixed(2)}s;`;
+  arms.push(arm);
+
+  // Planet dot
+  const dot = document.createElement('div');
+  dot.className = 'planet-dot';
+  dot.id = 'pd-' + p.slug;
+  dot.title = p.name;
+  const top  = -p.orbitR - p.size / 2;
+  const left = -p.size / 2;
+  dot.style.cssText = `width:${p.size}px;height:${p.size}px;top:${top}px;left:${left}px;background:${p.color};box-shadow:0 0 ${Math.round(p.size * 1.5)}px ${Math.ceil(p.size * 0.5)}px ${p.color}66;`;
+  dot.addEventListener('click', () => showInfo(p.name));
+
+  // Label
+  const lbl = document.createElement('span');
+  lbl.className = 'planet-label';
+  lbl.textContent = p.name;
+  dot.appendChild(lbl);
+
+  // Saturn rings
+  if (p.hasRings) {
+    const rw = p.size * 2.8;
+    const rh = p.size * 0.9;
+    const rings = document.createElement('div');
+    rings.className = 'saturn-rings-el';
+    rings.style.cssText = `width:${rw}px;height:${rh}px;`;
+    dot.appendChild(rings);
+  }
+
+  arm.appendChild(dot);
+  dc.appendChild(arm);
+});
+
+document.getElementById('sun-el').addEventListener('click', () => showInfo('sun'));
+
+// ── Info panel ───────────────────────────────────────────────────────
+function showInfo(name) {
+  let data, color;
+  if (name === 'sun') {
+    data = SUN; color = '#ffcc00';
+  } else {
+    data = PLANETS.find(p => p.name === name);
+    color = data.color;
+  }
+
+  // Highlight active dot + lift its arm
+  document.querySelectorAll('.planet-dot').forEach(el => el.classList.remove('active'));
+  arms.forEach(a => a.style.zIndex = '');
+  if (name !== 'sun') {
+    const dot = document.getElementById('pd-' + data.slug);
+    if (dot) {
+      dot.classList.add('active');
+      dot.closest('.orbit-arm').style.zIndex = '30';
+    }
+  }
+
+  const rows = [];
+  if (data.period)   rows.push(['Orbital period', data.period]);
+  if (data.dist)     rows.push(['Distance from Sun', data.dist]);
+  rows.push(['Temperature', data.temp]);
+  if (data.moons !== null && data.moons !== undefined)
+    rows.push(['Moons', data.moons]);
+  rows.push(['Diameter', data.diameter]);
+  rows.push(['Mass', data.mass]);
+
+  const metaHTML = rows.map(([l, v]) => `
+    <div class="meta-item">
+      <span class="meta-label">${l}</span>
+      <span class="meta-val" style="color:${color}">${v}</span>
+    </div>`).join('');
+
+  const panel = document.getElementById('info-panel');
+  panel.innerHTML = `
+    <div class="info-card" style="border-left-color:${color}">
+      <div class="ic-name" style="color:${color}">${data.name}</div>
+      <div class="ic-meta">${metaHTML}</div>
+      <p class="ic-desc">${data.desc}</p>
+    </div>`;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Planet cards ──────────────────────────────────────────────────────
+const cardGrid = document.getElementById('planet-grid');
+PLANETS.forEach(p => {
+  const c = document.createElement('div');
+  c.className = 'planet-card';
+  c.innerHTML = `
+    <div class="pc-swatch" style="background:${p.color};box-shadow:0 0 8px 3px ${p.color}55;"></div>
+    <div class="pc-name">${p.name}</div>
+    <div class="pc-sub">${p.period} &middot; ${p.moons} moon${p.moons !== 1 ? 's' : ''}</div>`;
+  c.addEventListener('click', () => showInfo(p.name));
+  cardGrid.appendChild(c);
+});
+
+// ── Scale bars ────────────────────────────────────────────────────────
+const scaleBodies = [
+  { name: 'Sun', color: '#ffcc00', km: 1392700 },
+  ...PLANETS.map(p => ({ name: p.name, color: p.color, km: p.diamKm }))
+];
+const MAX_KM = 1392700;
+const scaleEl = document.getElementById('scale-bars');
+scaleBodies.forEach(b => {
+  const pct = (b.km / MAX_KM) * 100;
+  const label = b.km >= 1000
+    ? (b.km / 1000).toLocaleString() + 'k km'
+    : b.km + ' km';
+  const row = document.createElement('div');
+  row.className = 'scale-row';
+  row.innerHTML = `
+    <span class="s-name">${b.name}</span>
+    <div class="s-bar-col">
+      <div class="s-bar" style="width:${Math.max(pct, 0.18).toFixed(3)}%;background:${b.color};"></div>
+    </div>
+    <span class="s-km">${label}</span>`;
+  scaleEl.appendChild(row);
+});
+
+// ── Facts ──────────────────────────────────────────────────────────────
+const factsEl = document.getElementById('facts-grid');
+FACTS.forEach(f => {
+  const c = document.createElement('div');
+  c.className = 'fact-card';
+  c.innerHTML = `
+    <div class="f-num">${f.num}</div>
+    <div class="f-label">${f.label}</div>
+    <div class="f-body">${f.body}</div>`;
+  factsEl.appendChild(c);
+});
+</script>
+
+<script src="../header.js"></script>
+</body>
+</html>

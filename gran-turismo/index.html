@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gran Turismo — Take a deeks</title>
+  <style>
+    :root {
+      --c1: #e8b020;
+      --c2: #3a6fa0;
+      --bg:   #0c0c0f;
+      --bg2:  #141418;
+      --bg3:  #1e1e24;
+      --border: #28282f;
+      --text: #d8d8d8;
+      --muted: #5a5a6a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* ── Side-rail nav ── */
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      left: 18px;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .side-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .side-nav a .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .side-nav a .nav-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .side-nav a:hover .dot { background: var(--c1); transform: scale(1.4); }
+    .side-nav a:hover .nav-label { opacity: 1; color: var(--c1); }
+    .side-nav a.active .dot { background: var(--accent, #ae1a2e); transform: scale(1.5); }
+    .side-nav a.active .nav-label { opacity: 1; color: var(--text); }
+
+    /* ── Mobile nav ── */
+    details.mobile-nav {
+      display: none;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    details.mobile-nav summary {
+      padding: 10px 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+    }
+    details.mobile-nav summary::after { content: '  ▾'; margin-left: auto; }
+    details.mobile-nav[open] summary::after { content: '  ▴'; }
+    .mnav-links { padding: 6px 20px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .mnav-links a { font-size: 0.88rem; color: var(--text); text-decoration: none; }
+    .mnav-links a.active { color: var(--c1); }
+
+    /* ── Layout ── */
+    .wrap { max-width: 820px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 56px 24px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-stripes {
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px; height: 100%;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent, transparent 12px,
+        rgba(174,26,46,0.07) 12px, rgba(174,26,46,0.07) 14px
+      );
+      pointer-events: none;
+    }
+    .hero-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent, #ae1a2e);
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 7vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .hero h1 em { font-style: normal; color: var(--c1); }
+    .hero-sub { font-size: 1.05rem; color: var(--muted); margin-bottom: 36px; max-width: 480px; }
+    .hero-stats { display: flex; gap: 36px; flex-wrap: wrap; }
+    .hero-stat { display: flex; flex-direction: column; }
+    .hero-stat .val {
+      font-size: 2rem; font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--c1); line-height: 1;
+    }
+    .hero-stat .lbl {
+      font-size: 0.68rem; color: var(--muted);
+      margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* ── Sections ── */
+    section { margin-bottom: 76px; }
+    .sec-label {
+      font-size: 0.63rem; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent, #ae1a2e); margin-bottom: 8px;
+    }
+    h2 { font-size: 1.75rem; font-weight: 700; color: #fff; margin-bottom: 20px; line-height: 1.2; }
+    p { margin-bottom: 16px; color: #aaa; }
+    p:last-child { margin-bottom: 0; }
+    .hl  { color: var(--c1); font-weight: 600; }
+    .hl2 { color: var(--c2); font-weight: 600; }
+
+    .stripe-div {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent, #ae1a2e) 0%, var(--c1) 55%, transparent 100%);
+      margin-bottom: 14px; border-radius: 2px;
+    }
+
+    /* ── Callouts ── */
+    .callout {
+      border-left: 3px solid var(--c1);
+      background: var(--bg2);
+      padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 22px 0;
+    }
+    .callout.red  { border-left-color: var(--accent, #ae1a2e); }
+    .callout.blue { border-left-color: var(--c2); }
+    .callout-title {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--c1); margin-bottom: 6px;
+    }
+    .callout.red .callout-title  { color: var(--accent, #ae1a2e); }
+    .callout.blue .callout-title { color: var(--c2); }
+
+    /* ── License cards (flip) ── */
+    .lic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 16px; margin: 26px 0;
+    }
+    .lic-card { perspective: 700px; height: 190px; cursor: pointer; }
+    .lic-inner {
+      position: relative; width: 100%; height: 100%;
+      transform-style: preserve-3d; transition: transform 0.55s;
+    }
+    .lic-card.flipped .lic-inner { transform: rotateY(180deg); }
+    .lic-front, .lic-back {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: 10px; padding: 20px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .lic-front { background: var(--bg3); border: 2px solid var(--border); }
+    .lic-front .lf-class { font-size: 2.4rem; font-weight: 800; color: var(--c1); line-height: 1; }
+    .lic-front .lf-name  { font-size: 0.85rem; color: #fff; font-weight: 600; }
+    .lic-front .lf-tests { font-size: 0.72rem; color: var(--muted); }
+    .lic-front .lf-hint  { font-size: 0.62rem; color: var(--muted); text-align: right; }
+    .lic-back {
+      background: linear-gradient(135deg, #8b0000, var(--accent, #ae1a2e));
+      transform: rotateY(180deg);
+    }
+    .lic-back .lb-head { font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
+    .lic-back .lb-body { font-size: 0.82rem; color: #fff; line-height: 1.45; flex: 1; }
+    .lic-back .lb-prize {
+      font-size: 0.72rem; background: rgba(255,255,255,0.15);
+      border-radius: 4px; padding: 6px 10px; color: rgba(255,255,255,0.9);
+    }
+    .lic-back .lb-prize strong { color: #fff; }
+
+    /* ── Physics grid ── */
+    .phys-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 12px; margin: 24px 0;
+    }
+    .phys-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px;
+    }
+    .phys-card .pi { font-size: 1.4rem; margin-bottom: 8px; }
+    .phys-card h4 { font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .phys-card p  { font-size: 0.8rem; margin: 0; }
+
+    /* ── Car tabs ── */
+    .car-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .car-tab {
+      padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid var(--border); background: none; color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .car-tab:hover { color: var(--text); border-color: #555; }
+    .car-tab.active { background: var(--c1); color: #000; border-color: var(--c1); }
+
+    .car-panel { display: none; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 24px; }
+    .car-panel.show { display: block; }
+    .car-panel h3 { font-size: 1.1rem; font-weight: 700; color: var(--c1); margin-bottom: 4px; }
+    .car-meta { font-size: 0.72rem; color: var(--muted); margin-bottom: 14px; }
+    .car-panel p { font-size: 0.88rem; }
+    .car-specs {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; margin-top: 16px;
+    }
+    .spec { background: var(--bg3); border-radius: 6px; padding: 10px 12px; }
+    .spec .sv { font-size: 1rem; font-weight: 700; color: var(--c1); }
+    .spec .sl { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Tracks ── */
+    .track-list { display: flex; flex-direction: column; gap: 10px; }
+    .track-item {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+      padding: 15px 20px; display: grid; grid-template-columns: 36px 1fr auto;
+      gap: 16px; align-items: center;
+    }
+    .t-num { font-size: 1.3rem; font-weight: 800; color: var(--border); font-variant-numeric: tabular-nums; }
+    .t-info h4 { font-size: 0.92rem; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .t-info p  { font-size: 0.78rem; color: var(--muted); margin: 0; }
+    .t-badge {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 4px 9px; border-radius: 4px;
+      background: var(--bg3); color: var(--muted); white-space: nowrap;
+    }
+    .t-badge.day   { color: var(--c1);  background: rgba(232,176,32,0.08); }
+    .t-badge.night { color: var(--c2); background: rgba(58,111,160,0.12); }
+
+    /* ── Music split ── */
+    .music-split {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0;
+    }
+    .music-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .music-card h4 { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .music-card p  { font-size: 0.82rem; }
+    .rbadge {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; padding: 3px 9px; border-radius: 4px;
+      display: inline-block; margin-bottom: 10px;
+    }
+    .rbadge.jp   { background: rgba(174,26,46,0.18); color: #d96070; }
+    .rbadge.west { background: rgba(58,111,160,0.18); color: var(--c2); }
+
+    /* ── Legacy numbers ── */
+    .big-numbers {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px; margin: 26px 0;
+    }
+    .big-num-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px 18px; text-align: center;
+    }
+    .big-num-card .bv {
+      font-size: 2rem; font-weight: 800; color: var(--c1);
+      font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .big-num-card.red .bv { color: var(--accent, #ae1a2e); }
+    .big-num-card.blue .bv { color: var(--c2); }
+    .big-num-card .bl {
+      font-size: 0.72rem; color: var(--muted); margin-top: 6px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 6px; top: 4px; bottom: 4px;
+      width: 2px; background: var(--border);
+    }
+    .tl-item { position: relative; margin-bottom: 22px; }
+    .tl-item::before {
+      content: ''; position: absolute; left: -24px; top: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--c1); border: 2px solid var(--bg);
+    }
+    .tl-item.red::before  { background: var(--accent, #ae1a2e); }
+    .tl-item.blue::before { background: var(--c2); }
+    .tl-year { font-size: 0.68rem; font-weight: 700; color: var(--muted); margin-bottom: 2px;
+      text-transform: uppercase; letter-spacing: 0.08em; }
+    .tl-item h4 { font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .tl-item p  { font-size: 0.82rem; margin: 0; }
+
+    /* ── Surprising facts ── */
+    .facts-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+    }
+    .fact-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px; position: relative; overflow: hidden;
+    }
+    .fact-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .fact-card:nth-child(1)::before,
+    .fact-card:nth-child(4)::before { background: var(--c1); }
+    .fact-card:nth-child(2)::before,
+    .fact-card:nth-child(5)::before { background: var(--accent, #ae1a2e); }
+    .fact-card:nth-child(3)::before,
+    .fact-card:nth-child(6)::before { background: var(--c2); }
+    .fact-card .fi { font-size: 1.4rem; margin-bottom: 10px; }
+    .fact-card h4  { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .fact-card p   { font-size: 0.8rem; margin: 0; }
+
+    /* ── Quiz ── */
+    .quiz {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px;
+    }
+    .quiz-pips { display: flex; gap: 5px; margin-bottom: 24px; }
+    .pip { height: 3px; flex: 1; background: var(--border); border-radius: 2px; transition: background 0.3s; }
+    .pip.done { background: var(--c1); }
+    .q-block { display: none; }
+    .q-block.show { display: block; }
+    .q-num {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px;
+    }
+    .q-text { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 18px; line-height: 1.4; }
+    .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .q-opt {
+      padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg3); color: var(--text); font-size: 0.86rem;
+      cursor: pointer; text-align: left; transition: border-color 0.15s, color 0.15s;
+    }
+    .q-opt:hover:not([disabled]) { border-color: var(--c1); color: var(--c1); }
+    .q-opt.correct { border-color: #3db870 !important; background: rgba(61,184,112,0.12); color: #3db870 !important; }
+    .q-opt.wrong   { border-color: var(--accent, #ae1a2e) !important; background: rgba(174,26,46,0.1); color: #d06070 !important; }
+    .q-feedback { margin-top: 12px; font-size: 0.83rem; color: var(--muted); min-height: 20px; }
+    .q-next {
+      margin-top: 16px; padding: 10px 24px; background: var(--c1); color: #000;
+      border: none; border-radius: 6px; font-weight: 700; font-size: 0.86rem;
+      cursor: pointer; display: none;
+    }
+    .quiz-result { display: none; text-align: center; padding: 20px 0; }
+    .result-score { font-size: 3.2rem; font-weight: 800; color: var(--c1); line-height: 1; }
+    .result-msg { color: var(--muted); font-size: 0.9rem; margin-top: 10px; }
+    .quiz-reset {
+      margin-top: 20px; padding: 10px 24px; background: var(--bg3);
+      color: var(--text); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+      font-size: 0.86rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .side-nav { display: none; }
+      details.mobile-nav { display: block; }
+      .phys-grid { grid-template-columns: 1fr; }
+      .music-split { grid-template-columns: 1fr; }
+      .q-opts { grid-template-columns: 1fr; }
+      .car-specs { grid-template-columns: repeat(2, 1fr); }
+      .track-item { grid-template-columns: 28px 1fr; }
+      .t-badge { display: none; }
+      .big-numbers { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body data-page-id="gran-turismo" style="--accent: #ae1a2e;">
+
+  <!-- Mobile collapsible nav -->
+  <details class="mobile-nav">
+    <summary>Sections</summary>
+    <div class="mnav-links">
+      <a href="#birth">The Birth of a Legend</a>
+      <a href="#gt-mode">Your Licence, Please</a>
+      <a href="#physics">Simulating Steel</a>
+      <a href="#cars">The Garage</a>
+      <a href="#circuits">The Circuits</a>
+      <a href="#music">Moon Over The Castle</a>
+      <a href="#legacy">Legacy & Numbers</a>
+      <a href="#facts">Surprising Facts</a>
+      <a href="#quiz">Take the Test</a>
+    </div>
+  </details>
+
+  <!-- Desktop side-rail nav -->
+  <nav class="side-nav" aria-label="Page sections">
+    <a href="#birth"><span class="dot"></span><span class="nav-label">The Birth</span></a>
+    <a href="#gt-mode"><span class="dot"></span><span class="nav-label">Your Licence</span></a>
+    <a href="#physics"><span class="dot"></span><span class="nav-label">Simulating Steel</span></a>
+    <a href="#cars"><span class="dot"></span><span class="nav-label">The Garage</span></a>
+    <a href="#circuits"><span class="dot"></span><span class="nav-label">The Circuits</span></a>
+    <a href="#music"><span class="dot"></span><span class="nav-label">The Music</span></a>
+    <a href="#legacy"><span class="dot"></span><span class="nav-label">Legacy</span></a>
+    <a href="#facts"><span class="dot"></span><span class="nav-label">Surprising Facts</span></a>
+    <a href="#quiz"><span class="dot"></span><span class="nav-label">Take the Test</span></a>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-stripes"></div>
+    <p class="hero-tag">PlayStation · December 1997</p>
+    <h1>Gran <em>Turismo</em></h1>
+    <p class="hero-sub">The game that taught a generation how to drive — and made them desperately want to.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="val">10.85M</span><span class="lbl">Copies Sold</span></div>
+      <div class="hero-stat"><span class="val">5 yrs</span><span class="lbl">In Development</span></div>
+      <div class="hero-stat"><span class="val">~140</span><span class="lbl">Licensed Cars</span></div>
+      <div class="hero-stat"><span class="val">15</span><span class="lbl">Peak Team Size</span></div>
+    </div>
+  </div>
+
+  <main class="wrap">
+
+    <!-- ── 1. Birth ── -->
+    <section id="birth">
+      <div class="stripe-div"></div>
+      <p class="sec-label">History &amp; Discovery</p>
+      <h2>The Birth of a Legend</h2>
+      <p>In the second half of 1992, a young Sony Music Entertainment producer named <span class="hl">Kazunori Yamauchi</span> began sketching a dream: a racing simulator so faithful to real physics that players could feel the weight of a car shifting through a corner. Most industry veterans said it was impossible on a home console. Yamauchi pitched the idea to Sony and was immediately rejected. A realistic driving game was seen as commercially unviable — racing games at the time were all speed and spectacle, with physics purely in service of fun, not fidelity.</p>
+      <p>The turning point came after the unexpected success of Sony's cartoon racers <em>Motor Toon Grand Prix</em> (1994) and its sequel — games that Yamauchi himself had produced. They proved his team could ship. He pitched Gran Turismo again. This time, Sony's business planner <span class="hl">Shuhei Yoshida</span> helped push it through. The project was greenlit.</p>
+
+      <div class="callout">
+        <div class="callout-title">The Smallest Team for the Biggest Game</div>
+        At its largest, the Gran Turismo development team numbered just <strong>fifteen people</strong>. For much of the five-year development, it operated with seven to eleven developers — quietly, and mostly in secret within Sony. The result would become the best-selling PlayStation game of all time.
+      </div>
+
+      <p>Development ran from 1992 to late 1997 on a budget of roughly <span class="hl">$5 million</span> — a figure that alarmed Sony executives who expected games in one to two years. Gran Turismo launched in <span class="hl">Japan in December 1997</span>, reaching North America and Europe by mid-1998. In a final piece of historical irony: the studio responsible for it wasn't even formally named yet when it shipped. <span class="hl">Polyphony Digital</span> was only established in April 1998 — five months after the Japanese launch.</p>
+
+      <div class="callout red">
+        <div class="callout-title">The Shuhei Yoshida Connection</div>
+        The young business planner who helped champion Gran Turismo's second pitch inside Sony was <strong>Shuhei Yoshida</strong> — later the President of Sony Computer Entertainment Worldwide Studios, and one of PlayStation's most recognisable public figures for decades. He was a producer on the original game. Gran Turismo launched two careers simultaneously: Yamauchi's and his.
+      </div>
+    </section>
+
+    <!-- ── 2. GT Mode ── -->
+    <section id="gt-mode">
+      <div class="stripe-div"></div>
+      <p class="sec-label">How It Works</p>
+      <h2>Your Licence, Please</h2>
+      <p>Gran Turismo's structure was unlike any racing game that had come before. Before you could enter most events, you had to <em>earn the right to drive</em>. A series of timed driving tests — <span class="hl">Licence Tests</span> — assessed your competence at specific techniques before gating you into progressively faster championships. It wasn't just clever game design; for many 1997 players, it was their first exposure to concepts like braking zones, trail braking, and managing understeer through a fast corner.</p>
+      <p>Simulation Mode began with a meagre <span class="hl">10,000 credits</span> and a used-car lot. The gap between what you could afford and what you wanted was the whole game. You'd buy a second-hand Honda Civic, grind the Sunday Cup, watch credits accumulate, bolt on a sports exhaust, and slowly — circuit by circuit — work toward cars you'd only ever seen in magazines. Tap the cards below to see what each licence class required.</p>
+
+      <div class="lic-grid">
+        <div class="lic-card" onclick="this.classList.toggle('flipped')">
+          <div class="lic-inner">
+            <div class="lic-front">
+              <div class="lf-class">B</div>
+              <div class="lf-name">National B Licence</div>
+              <div class="lf-tests">8 driving tests</div>
+              <div class="lf-hint">Tap to flip ▶</div>
+            </div>
+            <div class="lic-back">
+              <div class="lb-head">What you'll learn</div>
+              <div class="lb-body">Braking zones, racing lines, and basic corner entry. The fundamentals every driver must master before competing. Accessible but unforgiving if you rush.</div>
+              <div class="lb-prize">All-gold prize: <strong>Dodge Concept Car</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="lic-card" onclick="this.classList.toggle('flipped')">
+          <div class="lic-inner">
+            <div class="lic-front">
+              <div class="lf-class">A</div>
+              <div class="lf-name">National A Licence</div>
+              <div class="lf-tests">8 driving tests</div>
+              <div class="lf-hint">Tap to flip ▶</div>
+            </div>
+            <div class="lic-back">
+              <div class="lb-head">What you'll learn</div>
+              <div class="lb-body">Trail braking into slow corners, weight transfer under load, and managing longer, faster circuits. The step up where real drivers are separated from passengers.</div>
+              <div class="lb-prize">All-gold prize: <strong>TRD 3000GT</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="lic-card" onclick="this.classList.toggle('flipped')">
+          <div class="lic-inner">
+            <div class="lic-front">
+              <div class="lf-class">IA</div>
+              <div class="lf-name">International A Licence</div>
+              <div class="lf-tests">8 driving tests</div>
+              <div class="lf-hint">Tap to flip ▶</div>
+            </div>
+            <div class="lic-back">
+              <div class="lb-head">What you'll learn</div>
+              <div class="lb-body">High-speed corner management, power oversteer, precise throttle control at the limit. The hardest tests in the game, with the game's fastest cars waiting on the other side.</div>
+              <div class="lb-prize">All-gold prize: <strong>Nismo GT-R LM Race Car</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout blue">
+        <div class="callout-title">The Used Car Lot Secret</div>
+        The used car dealership refreshed its inventory periodically and rare vehicles could appear unexpectedly at reduced prices. Savvy players learned to check it obsessively — a Mitsubishi Evolution or a Mazda RX-7 showing up between sessions could completely reshape the trajectory of an entire save file.
+      </div>
+    </section>
+
+    <!-- ── 3. Physics ── -->
+    <section id="physics">
+      <div class="stripe-div"></div>
+      <p class="sec-label">How It Works</p>
+      <h2>Simulating Steel</h2>
+      <p>The heart of Gran Turismo's revolution wasn't the number of cars, or the glossy replays, or even the licence tests. It was the physics. For the first time on a home console, you could <em>feel</em> a car thinking. A rear-wheel-drive coupe would swap ends if you lifted off mid-corner. A front-heavy hatchback would understeer stubbornly into the barrier if you carried too much speed. Tyres lost grip progressively rather than snapping instantly to a spin.</p>
+      <p>Yamauchi's team built on the physics model from <em>Motor Toon Grand Prix</em> — the same programmer, the same underlying algorithms, but pushed into an entirely different register. They simulated effects that had never been modelled on consumer hardware: tyre deformation across a slip angle curve, chassis weight transfer under braking and acceleration, and suspension response over kerbs.</p>
+
+      <div class="phys-grid">
+        <div class="phys-card">
+          <div class="pi">⚖️</div>
+          <h4>Weight Transfer</h4>
+          <p>Braking shifts mass forward, acceleration shifts it back, cornering loads the outside wheels. GT modelled this continuously — the car you drove at corner entry was physically different from the car at the apex.</p>
+        </div>
+        <div class="phys-card">
+          <div class="pi">📐</div>
+          <h4>Slip Angle</h4>
+          <p>Every tyre has a slip angle: the difference between the direction it points and the direction it travels. Too much or too little and grip collapses — GT was one of the first games to simulate this curve realistically.</p>
+        </div>
+        <div class="phys-card">
+          <div class="pi">🔄</div>
+          <h4>Understeer &amp; Oversteer</h4>
+          <p>Front-wheel-drive cars pushed wide. Rear-wheel-drive cars slid the tail. Each car had a distinct, modelled character that demanded different inputs — and rewarded drivers who adapted.</p>
+        </div>
+        <div class="phys-card">
+          <div class="pi">🛞</div>
+          <h4>Suspension Response</h4>
+          <p>Kerbs and bumps transmitted shock through the chassis, momentarily unloading tyres at exactly the wrong instant. Ride height and spring stiffness — adjustable in the garage — directly changed this behaviour.</p>
+        </div>
+      </div>
+
+      <p>This wasn't just impressive — it meant you could get genuinely <em>better</em> at Gran Turismo by understanding real physics. Players who learned to brake later and carry more corner speed became faster. The game was quietly teaching mechanics that transfer to a real car on a real track. Contemporary reviewers struggled to articulate it. IGN called it "the best racing game to date." Edge described it as "rare indeed, almost nonexistent" that a racing game could appeal simultaneously to arcade fans and simulation purists. Neither review was exaggerating.</p>
+    </section>
+
+    <!-- ── 4. Cars ── -->
+    <section id="cars">
+      <div class="stripe-div"></div>
+      <p class="sec-label">The Deep Dive</p>
+      <h2>The Garage</h2>
+      <p>Gran Turismo launched with around <span class="hl">140 licensed cars</span> — a number that would have seemed absurd to the racing game developers of 1995. More importantly, they were real vehicles with real performance data, not approximations. And for Western audiences, a large portion of the roster was genuinely unknown: Japanese domestic market machinery that had never been officially exported, whispered about in import car magazines but never experienced. Gran Turismo didn't just include these cars — it <em>introduced</em> them to a global generation.</p>
+
+      <div class="car-tabs">
+        <button class="car-tab active" onclick="showCar(this,'miata')">Mazda MX-5</button>
+        <button class="car-tab" onclick="showCar(this,'supra')">Toyota Supra</button>
+        <button class="car-tab" onclick="showCar(this,'gtr')">Nissan GT-R</button>
+        <button class="car-tab" onclick="showCar(this,'evo')">Lancer Evo IV</button>
+        <button class="car-tab" onclick="showCar(this,'nsx')">Honda NSX</button>
+        <button class="car-tab" onclick="showCar(this,'rx7')">Mazda RX-7</button>
+      </div>
+
+      <div>
+        <div class="car-panel show" id="car-miata">
+          <h3>Mazda MX-5 (Miata) NA</h3>
+          <p class="car-meta">1989 · Rear-wheel drive · 1.6L inline-4 · Naturally aspirated</p>
+          <p>One of the finest starter cars in GT history — not because it was fast, but because it was <em>honest</em>. The MX-5 was tail-happy enough to teach you about rear-wheel-drive balance, light enough to feel every input, and cheap enough to buy early. Slide it wide, correct it, feel the rear step out and gather again. No other cheap car in the game taught you more. Many players look back on their first MX-5 corner as the moment Gran Turismo clicked.</p>
+          <div class="car-specs">
+            <div class="spec"><span class="sv">115 hp</span><span class="sl">Power (stock)</span></div>
+            <div class="spec"><span class="sv">~960 kg</span><span class="sl">Weight</span></div>
+            <div class="spec"><span class="sv">RWD</span><span class="sl">Drive type</span></div>
+          </div>
+        </div>
+        <div class="car-panel" id="car-supra">
+          <h3>Toyota Supra RZ (A80)</h3>
+          <p class="car-meta">1993 · Rear-wheel drive · 3.0L 2JZ-GTE twin-turbo</p>
+          <p>The A80 Supra with its <span class="hl">2JZ engine</span> was already becoming a legend in real life — 320 hp from the factory, a block famous for handling enormous tuning power, and a chassis that rewarded committed drivers. In Gran Turismo, landing one early gave you a machine capable of carrying you through most mid-game championships. Its smooth power delivery and rear-wheel balance made it forgiving enough for improving drivers but fast enough to matter. The 2JZ's reputation was partly built here.</p>
+          <div class="car-specs">
+            <div class="spec"><span class="sv">320 hp</span><span class="sl">Power (stock)</span></div>
+            <div class="spec"><span class="sv">1580 kg</span><span class="sl">Weight</span></div>
+            <div class="spec"><span class="sv">RWD</span><span class="sl">Drive type</span></div>
+          </div>
+        </div>
+        <div class="car-panel" id="car-gtr">
+          <h3>Nissan Skyline GT-R V·Spec (R33)</h3>
+          <p class="car-meta">1995 · All-wheel drive · 2.6L RB26DETT twin-turbo</p>
+          <p>The GT-R was the aspirational machine — the car everyone saved for. Its <span class="hl">ATTESA E-TS</span> all-wheel-drive system sent torque to the front only when the rears lost grip, giving it almost supernatural composure at speed. In the game, a tuned R33 GT-R was capable of winning almost any race. It was fast. It was stable. It handled in a way that felt slightly unfair compared to ordinary rear-wheel-drive machines. And for Western players who had never heard of a Skyline, it was a revelation. Japan had been building this, and nobody told us.</p>
+          <div class="car-specs">
+            <div class="spec"><span class="sv">280 hp*</span><span class="sl">Power (stock)</span></div>
+            <div class="spec"><span class="sv">1720 kg</span><span class="sl">Weight</span></div>
+            <div class="spec"><span class="sv">AWD</span><span class="sl">Drive type</span></div>
+          </div>
+        </div>
+        <div class="car-panel" id="car-evo">
+          <h3>Mitsubishi Lancer Evolution IV</h3>
+          <p class="car-meta">1996 · All-wheel drive · 2.0L 4G63T turbocharged inline-4</p>
+          <p>The Evo IV was the GT-R's great rival — smaller, lighter, more nimble, and born from the World Rally Championship. Its predecessors had been dominating the WRC for years; the Evo IV brought that rally-bred all-wheel-drive engineering into a compact saloon body. Western players discovering it through Gran Turismo found themselves in an argument that's never really ended: <span class="hl">Evo or Impreza?</span> The Lancer's neutral, agile balance made it a favourite of drivers who prioritised cornering precision over raw straight-line speed.</p>
+          <div class="car-specs">
+            <div class="spec"><span class="sv">280 hp*</span><span class="sl">Power (stock)</span></div>
+            <div class="spec"><span class="sv">1350 kg</span><span class="sl">Weight</span></div>
+            <div class="spec"><span class="sv">AWD</span><span class="sl">Drive type</span></div>
+          </div>
+        </div>
+        <div class="car-panel" id="car-nsx">
+          <h3>Honda NSX Type R</h3>
+          <p class="car-meta">1992 · Rear-wheel drive · 3.0L C30A V6 · Mid-engined</p>
+          <p>Honda's mid-engined supercar was the <span class="hl">A-Licence prize</span> that many players coveted above all others. The NSX was built to a precise philosophy: supercar performance with everyday usability, shaped partly by feedback from <span class="hl">Ayrton Senna</span>, who reportedly found early prototypes too nervous and drove development toward a calmer, more controllable setup. In Gran Turismo, the NSX felt exactly as good as its reputation suggested — a high-revving, perfectly balanced machine that rewarded smooth, precise inputs above all else.</p>
+          <div class="car-specs">
+            <div class="spec"><span class="sv">270 hp</span><span class="sl">Power (stock)</span></div>
+            <div class="spec"><span class="sv">1230 kg</span><span class="sl">Weight</span></div>
+            <div class="spec"><span class="sv">RWD</span><span class="sl">Drive type</span></div>
+          </div>
+        </div>
+        <div class="car-panel" id="car-rx7">
+          <h3>Mazda RX-7 FD3S</h3>
+          <p class="car-meta">1992 · Rear-wheel drive · 1.3L 13B-REW twin-rotor Wankel · Twin-turbo sequential</p>
+          <p>The RX-7 FD was genuinely exotic — not just for its looks but for what sat under the bonnet. A <span class="hl">twin-rotor Wankel engine</span> has no pistons, almost no reciprocating mass, and revs with a smoothness and willingness that no conventional piston engine can match. Its sequential twin-turbo setup added a distinctive urgency to the power delivery: calm below 4,500 rpm, then a surge as the second turbine spun up. In Gran Turismo, the RX-7 was a late-game monster — light, powerful, and wickedly agile. For many players, it was their first encounter with the rotary engine concept, and they never forgot it.</p>
+          <div class="car-specs">
+            <div class="spec"><span class="sv">255 hp</span><span class="sl">Power (stock)</span></div>
+            <div class="spec"><span class="sv">1270 kg</span><span class="sl">Weight</span></div>
+            <div class="spec"><span class="sv">RWD</span><span class="sl">Drive type</span></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:0.72rem;color:var(--muted);margin-top:10px;">*Japan's informal "gentlemen's agreement" between manufacturers nominally capped output at 280 hp; many vehicles quietly exceeded this in practice.</p>
+    </section>
+
+    <!-- ── 5. Circuits ── -->
+    <section id="circuits">
+      <div class="stripe-div"></div>
+      <p class="sec-label">The Circuits</p>
+      <h2>The Circuits</h2>
+      <p>Gran Turismo's tracks were almost entirely fictional — invented circuits with their own personalities, histories, and moods. And yet they felt completely credible. Each layout had an internal logic, a story you could read in the corners: Trial Mountain's blind crests and tunnel sections described exactly what kind of mountain road it was. Grand Valley's long, flowing sweepers had the feel of a purpose-built Grand Prix venue with real heritage. These were not random courses — they were <em>places</em>.</p>
+      <p>Several of these circuits have appeared in every Gran Turismo game made since 1997, a continuity now spanning almost three decades. They are, in a real sense, sacred ground for the community.</p>
+
+      <div class="track-list">
+        <div class="track-item">
+          <div class="t-num">01</div>
+          <div class="t-info">
+            <h4>High Speed Ring</h4>
+            <p>A smooth, wide oval-style circuit. Fast, forgiving, and the natural first track — where you discover what it means to carry speed through a corner without lifting.</p>
+          </div>
+          <div class="t-badge day">Day</div>
+        </div>
+        <div class="track-item">
+          <div class="t-num">02</div>
+          <div class="t-info">
+            <h4>Deep Forest Raceway</h4>
+            <p>Tight, technical, and tree-lined. The canopy closes in and the corners arrive quickly. A fan favourite for the claustrophobic intensity it creates at speed.</p>
+          </div>
+          <div class="t-badge day">Day</div>
+        </div>
+        <div class="track-item">
+          <div class="t-num">03</div>
+          <div class="t-info">
+            <h4>Trial Mountain Circuit</h4>
+            <p>A mountain circuit with blind crests, three tunnel sections, and a long uphill back straight. Every corner requires commitment — you cannot see what is waiting on the other side.</p>
+          </div>
+          <div class="t-badge day">Day</div>
+        </div>
+        <div class="track-item">
+          <div class="t-num">04</div>
+          <div class="t-info">
+            <h4>Grand Valley Speedway</h4>
+            <p>The signature GT circuit — long, sweeping, and dramatic. Split into East and West sections for shorter races, the full layout is the closest thing Gran Turismo has to a home track.</p>
+          </div>
+          <div class="t-badge day">Day</div>
+        </div>
+        <div class="track-item">
+          <div class="t-num">05</div>
+          <div class="t-info">
+            <h4>Special Stage Route 5</h4>
+            <p>An urban night circuit running through tunnels and under flyovers, with damp-looking roads reflecting neon and headlights. One of the most atmospheric tracks in racing game history.</p>
+          </div>
+          <div class="t-badge night">Night</div>
+        </div>
+        <div class="track-item">
+          <div class="t-num">06</div>
+          <div class="t-info">
+            <h4>Special Stage Route 11</h4>
+            <p>SSR5's longer sister circuit — also urban, also at night, with wide boulevards alternating with tight chicanes and a very different rhythm to memorise.</p>
+          </div>
+          <div class="t-badge night">Night</div>
+        </div>
+        <div class="track-item">
+          <div class="t-num">07</div>
+          <div class="t-info">
+            <h4>Autumn Ring</h4>
+            <p>A compact, winding circuit with a shorter Mini variant. The autumn foliage palette made it visually distinctive. Tight enough to punish any mistake immediately and with no margin for optimism.</p>
+          </div>
+          <div class="t-badge day">Day</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. Music ── -->
+    <section id="music">
+      <div class="stripe-div"></div>
+      <p class="sec-label">Cultural Context</p>
+      <h2>Moon Over The Castle</h2>
+      <p>Gran Turismo didn't just sound good — it sounded <em>surprising</em>. Yamauchi's team made an unusual choice for a racing game: jazz fusion. Not smooth background music, but genuinely energetic, technically accomplished jazz with complex harmonics and driving rhythms. It was an unexpected fit that somehow worked perfectly — sophisticated, confident, and completely unlike the guitar riffs and drum machines players expected from action games.</p>
+      <p>The soundtrack for the Japanese version was composed primarily by <span class="hl">Masahiro Andoh</span>, guitarist and bandleader of <strong>T-Square</strong> — one of Japan's most celebrated fusion ensembles, with decades of recordings behind them — alongside composer <span class="hl">Isamu Ohira</span>. The result was unlike anything else in gaming at the time: polished, sophisticated, and oddly appropriate for sitting in a garage at midnight tuning a Skyline.</p>
+
+      <div class="music-split">
+        <div class="music-card">
+          <div class="rbadge jp">Japan</div>
+          <h4>Original Soundtrack</h4>
+          <p>Jazz fusion from Masahiro Andoh and T-Square, with an original score built around complex harmonic structures and live instrumentation. The opening theme — <em>Moon Over The Castle</em> — became the series' eternal signature, an orchestral and jazz piece of quiet grandeur that has appeared in every mainline Gran Turismo title ever made.</p>
+        </div>
+        <div class="music-card">
+          <div class="rbadge west">North America &amp; Europe</div>
+          <h4>Western Soundtrack</h4>
+          <p>Sony Computer Entertainment Europe's <span class="hl2">Jason Page</span> composed a completely different score: harder, more industrial electronic music — more conventionally "video game." For millions of Western players, this <em>was</em> Gran Turismo's sound. They never heard the jazz version at all, and experienced an entirely different emotional atmosphere as a result.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">Two Games in One Room</div>
+        A Japanese player and a British player who both loved Gran Turismo in 1997 were, in a meaningful sense, playing games with different souls. The car physics were identical. The circuits were identical. But the music shaped the atmosphere so completely that the emotional experience was entirely different. Many Western players who first heard <em>Moon Over The Castle</em> in a later entry describe it as a disorienting but beautiful discovery — as if the game they knew had a secret history they'd never been told about.
+      </div>
+
+      <p>A physical album, <em>The Sound of Gran Turismo</em>, was released on EMI Records in November 1998 — an extraordinary publishing move for a video game soundtrack in that era, and a signal of how seriously Yamauchi's team regarded music as a creative pillar of the experience, not just background noise.</p>
+    </section>
+
+    <!-- ── 7. Legacy ── -->
+    <section id="legacy">
+      <div class="stripe-div"></div>
+      <p class="sec-label">Scale &amp; Impact</p>
+      <h2>Legacy &amp; Numbers</h2>
+      <p>Gran Turismo sold <span class="hl">10.85 million copies</span> on the original PlayStation — more than any other game on the platform. It outsold every Mario, every Final Fantasy, and every Crash Bandicoot title in the system's library. It went on to anchor a franchise that, across eight mainline entries, has sold over <span class="hl">90 million copies</span> — one of the most successful racing game series ever made, still active and still critically relevant in 2024.</p>
+
+      <div class="big-numbers">
+        <div class="big-num-card">
+          <div class="bv">10.85M</div>
+          <div class="bl">GT1 copies sold — PS1 all-time #1</div>
+        </div>
+        <div class="big-num-card red">
+          <div class="bv">90M+</div>
+          <div class="bl">Series total copies across 8 games</div>
+        </div>
+        <div class="big-num-card blue">
+          <div class="bv">5 yrs</div>
+          <div class="bl">Development time, 1992–1997</div>
+        </div>
+        <div class="big-num-card">
+          <div class="bv">$5M</div>
+          <div class="bl">Development budget — alarming at the time</div>
+        </div>
+      </div>
+
+      <p>Beyond sales, Gran Turismo changed what the industry expected from racing games. It established a template — deep garage, licence system, tuning, cinematic replays — that dozens of competitors would spend the next decade trying to replicate. It showed definitively that simulation and accessibility weren't opposites: you could have real physics and still sell ten million copies. And it launched an entire JDM car culture among Western audiences who discovered their love of Evolutions and Skylines through a PlayStation controller.</p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-year">December 1997</div>
+          <h4>Japanese Launch</h4>
+          <p>Gran Turismo releases in Japan. The development team is not yet called Polyphony Digital. Sells out immediately in multiple regions.</p>
+        </div>
+        <div class="tl-item red">
+          <div class="tl-year">May 1998</div>
+          <h4>Western Release</h4>
+          <p>North American and European versions launch with a completely different soundtrack. Polyphony Digital formally established six weeks earlier, in April 1998.</p>
+        </div>
+        <div class="tl-item blue">
+          <div class="tl-year">1999</div>
+          <h4>Gran Turismo 2</h4>
+          <p>Sequel ships with over 650 cars and two discs. Proves the franchise has legs and deepens the JDM car catalogue Western players are now hungry for.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">2008–2016</div>
+          <h4>GT Academy</h4>
+          <p>Nissan partners with Polyphony to run a global competition selecting real racing drivers from GT players. Graduate <strong>Lucas Ordóñez</strong> races in the 24 Hours of Le Mans. The game produces professional racing drivers.</p>
+        </div>
+        <div class="tl-item red">
+          <div class="tl-year">2022</div>
+          <h4>Gran Turismo 7</h4>
+          <p>The eighth mainline title returns to the single-player GT Mode structure of the original. <em>Moon Over The Castle</em> plays over the opening cinematic — as it has done in every main GT game since 1997.</p>
+        </div>
+      </div>
+
+      <div class="callout blue">
+        <div class="callout-title">From Controller to Cockpit</div>
+        Nissan's GT Academy programme (2008–2016) took the game's feedback loop to its logical conclusion: real racing licenses awarded to Gran Turismo players who could demonstrate real skill. Several graduates competed professionally in endurance racing — including Le Mans. Gran Turismo had gone full circle: a simulator used to teach real driving skills, producing drivers who won real races.
+      </div>
+    </section>
+
+    <!-- ── 8. Surprising Facts ── -->
+    <section id="facts">
+      <div class="stripe-div"></div>
+      <p class="sec-label">Surprising Details</p>
+      <h2>Pit Stop: Things You Might Not Know</h2>
+
+      <div class="facts-grid">
+        <div class="fact-card">
+          <div class="fi">🚗</div>
+          <h4>No Driving Licence Required</h4>
+          <p>Kazunori Yamauchi reportedly did not hold a driving licence when he began developing Gran Turismo in 1992. His love of cars was for them as machines and objects of engineering — not necessarily as something he drove to work.</p>
+        </div>
+        <div class="fact-card">
+          <div class="fi">🏭</div>
+          <h4>Named After the Game Shipped</h4>
+          <p>Polyphony Digital was only formally established in April 1998 — five months after Gran Turismo launched in Japan. The studio that made one of the greatest PlayStation games of all time didn't have its iconic name when it shipped.</p>
+        </div>
+        <div class="fact-card">
+          <div class="fi">🎮</div>
+          <h4>The Secret Inside Motor Toon</h4>
+          <p>The physics engine powering <em>Motor Toon Grand Prix</em>'s unusually competent handling was quietly being refined for Gran Turismo all along. The cartoonish racer was, in part, a live testbed for the simulation Yamauchi was building in parallel.</p>
+        </div>
+        <div class="fact-card">
+          <div class="fi">🌍</div>
+          <h4>Two Completely Different Games</h4>
+          <p>Beyond the music, the Japanese and Western versions had different car rosters — Japan's release included more JDM-exclusive models not available in the Western version. Players in different territories were genuinely experiencing different garages.</p>
+        </div>
+        <div class="fact-card">
+          <div class="fi">🎵</div>
+          <h4>A Theme That Never Left</h4>
+          <p><em>Moon Over The Castle</em> has featured in every mainline Gran Turismo game from 1997 through GT7 in 2022 — a 25-year musical presence in one franchise. It is one of the longest-running leitmotifs in gaming history.</p>
+        </div>
+        <div class="fact-card">
+          <div class="fi">💸</div>
+          <h4>The Budget That Alarmed Sony</h4>
+          <p>$5 million over five years was considered excessive and borderline reckless by Sony executives — games were not supposed to take that long or cost that much in 1997. It became one of the most profitable pieces of software in PlayStation's history.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9. Quiz ── -->
+    <section id="quiz">
+      <div class="stripe-div"></div>
+      <p class="sec-label">Take the Test</p>
+      <h2>B Licence Quiz</h2>
+      <p>Five questions. All gold or you fail. The licence test doesn't grade on a curve.</p>
+
+      <div class="quiz">
+        <div class="quiz-pips">
+          <div class="pip" id="pip0"></div>
+          <div class="pip" id="pip1"></div>
+          <div class="pip" id="pip2"></div>
+          <div class="pip" id="pip3"></div>
+          <div class="pip" id="pip4"></div>
+        </div>
+
+        <div class="q-block show" id="q0">
+          <div class="q-num">Question 1 of 5</div>
+          <div class="q-text">How long did Kazunori Yamauchi and his team take to develop the original Gran Turismo?</div>
+          <div class="q-opts">
+            <button class="q-opt" onclick="answer(this,0,false)">2 years</button>
+            <button class="q-opt" onclick="answer(this,0,false)">3 years</button>
+            <button class="q-opt" onclick="answer(this,0,true)">5 years</button>
+            <button class="q-opt" onclick="answer(this,0,false)">7 years</button>
+          </div>
+          <div class="q-feedback" id="fb0"></div>
+          <button class="q-next" id="nx0" onclick="nextQ(1)">Next →</button>
+        </div>
+
+        <div class="q-block" id="q1">
+          <div class="q-num">Question 2 of 5</div>
+          <div class="q-text">What genre of music featured on the original Japanese version of Gran Turismo?</div>
+          <div class="q-opts">
+            <button class="q-opt" onclick="answer(this,1,false)">Heavy metal</button>
+            <button class="q-opt" onclick="answer(this,1,true)">Jazz fusion</button>
+            <button class="q-opt" onclick="answer(this,1,false)">Drum and bass</button>
+            <button class="q-opt" onclick="answer(this,1,false)">Classical orchestral</button>
+          </div>
+          <div class="q-feedback" id="fb1"></div>
+          <button class="q-next" id="nx1" onclick="nextQ(2)">Next →</button>
+        </div>
+
+        <div class="q-block" id="q2">
+          <div class="q-num">Question 3 of 5</div>
+          <div class="q-text">Gran Turismo became the PS1's all-time best-selling game. Approximately how many copies did it sell?</div>
+          <div class="q-opts">
+            <button class="q-opt" onclick="answer(this,2,false)">6.2 million</button>
+            <button class="q-opt" onclick="answer(this,2,false)">8.4 million</button>
+            <button class="q-opt" onclick="answer(this,2,true)">10.85 million</button>
+            <button class="q-opt" onclick="answer(this,2,false)">14.5 million</button>
+          </div>
+          <div class="q-feedback" id="fb2"></div>
+          <button class="q-next" id="nx2" onclick="nextQ(3)">Next →</button>
+        </div>
+
+        <div class="q-block" id="q3">
+          <div class="q-num">Question 4 of 5</div>
+          <div class="q-text">Which earlier Sony game's physics engine formed the secret foundation of Gran Turismo's driving model?</div>
+          <div class="q-opts">
+            <button class="q-opt" onclick="answer(this,3,false)">Ridge Racer</button>
+            <button class="q-opt" onclick="answer(this,3,false)">Destruction Derby</button>
+            <button class="q-opt" onclick="answer(this,3,true)">Motor Toon Grand Prix</button>
+            <button class="q-opt" onclick="answer(this,3,false)">Wipeout</button>
+          </div>
+          <div class="q-feedback" id="fb3"></div>
+          <button class="q-next" id="nx3" onclick="nextQ(4)">Next →</button>
+        </div>
+
+        <div class="q-block" id="q4">
+          <div class="q-num">Question 5 of 5</div>
+          <div class="q-text">How many individual driving tests make up each licence class in Gran Turismo?</div>
+          <div class="q-opts">
+            <button class="q-opt" onclick="answer(this,4,false)">5</button>
+            <button class="q-opt" onclick="answer(this,4,false)">6</button>
+            <button class="q-opt" onclick="answer(this,4,true)">8</button>
+            <button class="q-opt" onclick="answer(this,4,false)">10</button>
+          </div>
+          <div class="q-feedback" id="fb4"></div>
+          <button class="q-next" id="nx4" onclick="showResult()">See Results →</button>
+        </div>
+
+        <div class="quiz-result" id="quiz-result">
+          <div class="result-score" id="result-score"></div>
+          <div class="result-msg" id="result-msg"></div>
+          <button class="quiz-reset" onclick="resetQuiz()">Try Again</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── IntersectionObserver: active nav ──
+    var sects   = document.querySelectorAll('section[id]');
+    var sideAs  = document.querySelectorAll('.side-nav a');
+    var mobileAs = document.querySelectorAll('.mnav-links a');
+
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (!e.isIntersecting) return;
+        var id = e.target.id;
+        sideAs.forEach(function(a)   { a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+        mobileAs.forEach(function(a) { a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+    sects.forEach(function(s) { io.observe(s); });
+
+    // ── Car tabs ──
+    function showCar(btn, id) {
+      document.querySelectorAll('.car-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.car-panel').forEach(function(p) { p.classList.remove('show'); });
+      btn.classList.add('active');
+      document.getElementById('car-' + id).classList.add('show');
+    }
+
+    // ── Quiz ──
+    var score    = 0;
+    var answered = [false, false, false, false, false];
+
+    function answer(btn, qi, correct) {
+      if (answered[qi]) return;
+      answered[qi] = true;
+      var opts = btn.closest('.q-opts').querySelectorAll('.q-opt');
+      opts.forEach(function(o) { o.disabled = true; });
+      if (correct) {
+        btn.classList.add('correct');
+        score++;
+        document.getElementById('fb' + qi).textContent = 'Correct. Well driven.';
+      } else {
+        btn.classList.add('wrong');
+        document.getElementById('fb' + qi).textContent = 'Not quite — keep reading.';
+        opts.forEach(function(o) {
+          if (o.onclick.toString().includes('true')) o.classList.add('correct');
+        });
+      }
+      document.getElementById('pip' + qi).classList.add('done');
+      document.getElementById('nx' + qi).style.display = 'block';
+    }
+
+    function nextQ(idx) {
+      document.querySelectorAll('.q-block').forEach(function(q) { q.classList.remove('show'); });
+      document.getElementById('q' + idx).classList.add('show');
+    }
+
+    function showResult() {
+      document.querySelectorAll('.q-block').forEach(function(q) { q.classList.remove('show'); });
+      var msgs = [
+        'Back to the driving school.',
+        'Not quite ready for a race licence.',
+        'Halfway there. Decent effort.',
+        'Licence passed. You know your GT.',
+        'Four out of five — nearly perfect.',
+        'All gold. You clearly love this game.'
+      ];
+      document.getElementById('result-score').textContent = score + '/5';
+      document.getElementById('result-msg').textContent = msgs[score];
+      document.getElementById('quiz-result').style.display = 'block';
+    }
+
+    function resetQuiz() {
+      score = 0;
+      answered = [false, false, false, false, false];
+      document.querySelectorAll('.q-opt').forEach(function(o) {
+        o.classList.remove('correct','wrong'); o.disabled = false;
+      });
+      document.querySelectorAll('.q-feedback').forEach(function(f) { f.textContent = ''; });
+      document.querySelectorAll('.q-next').forEach(function(b) { b.style.display = 'none'; });
+      document.querySelectorAll('.pip').forEach(function(p) { p.classList.remove('done'); });
+      document.getElementById('quiz-result').style.display = 'none';
+      document.querySelectorAll('.q-block').forEach(function(q) { q.classList.remove('show'); });
+      document.getElementById('q0').classList.add('show');
+    }
+
+    // Close mobile nav after clicking a section link
+    document.querySelectorAll('.mnav-links a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        var d = document.querySelector('details.mobile-nav');
+        if (d) d.removeAttribute('open');
+      });
+    });
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>

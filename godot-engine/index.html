@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Godot Engine — Take a deeks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #478cbf;
+      --c2: #2d9e6b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #080e12;
+      color: #c0ccd4;
+      min-height: 100vh;
+      line-height: 1.75;
+    }
+
+    /* ── Layout ─────────────────────────────────── */
+    .page-wrap {
+      display: flex;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+      gap: 48px;
+    }
+
+    /* ── Side nav ───────────────────────────────── */
+    .side-nav {
+      width: 192px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+      height: fit-content;
+      padding: 32px 0;
+    }
+
+    .side-nav ul { list-style: none; border-left: 2px solid #111d24; }
+
+    .side-nav a {
+      display: block;
+      padding: 6px 16px;
+      font-size: 0.77rem;
+      color: #384858;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      margin-left: -2px;
+      transition: color 0.18s, border-color 0.18s;
+      line-height: 1.35;
+    }
+
+    .side-nav a:hover { color: #7a9aaa; }
+    .side-nav a.active { color: var(--c1); border-left-color: var(--c1); }
+
+    /* ── Main ───────────────────────────────────── */
+    main { flex: 1; min-width: 0; padding: 44px 0 120px; }
+
+    /* ── Hero ───────────────────────────────────── */
+    .hero { margin-bottom: 72px; }
+
+    .hero-eyebrow {
+      font-size: 0.71rem;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--c2);
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-size: 3.1rem;
+      font-weight: 800;
+      color: #e8f2f8;
+      line-height: 1.04;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 span { color: var(--c1); }
+
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: #5a7080;
+      max-width: 600px;
+      line-height: 1.65;
+    }
+
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #0c1820;
+      color: var(--c1);
+      border: 1px solid #1a2e3a;
+    }
+
+    .tag.green { color: var(--c2); background: #081410; border-color: #0e2a1e; }
+
+    /* ── Sections ───────────────────────────────── */
+    section { margin-bottom: 84px; }
+
+    section h2 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #0e1c26;
+    }
+
+    section h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #c8dce8;
+      margin: 30px 0 10px;
+    }
+
+    p { margin-bottom: 14px; color: #8ca0b0; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: #d8ecf8; }
+    em { color: #9ab4c4; font-style: italic; }
+    a { color: var(--c1); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Callouts ───────────────────────────────── */
+    .callout {
+      background: #091420;
+      border-left: 3px solid var(--c1);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 22px 0;
+      font-size: 0.88rem;
+      color: #8ca0b0;
+    }
+
+    .callout.green { border-left-color: var(--c2); }
+    .callout.amber { border-left-color: #d4a027; }
+
+    .callout-label {
+      font-size: 0.64rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--c1);
+      margin-bottom: 5px;
+    }
+
+    .callout.green .callout-label { color: var(--c2); }
+    .callout.amber .callout-label { color: #d4a027; }
+
+    /* ── Code blocks ────────────────────────────── */
+    .code-block {
+      background: #040b10;
+      border: 1px solid #112030;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 18px 0;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+
+    .code-block .ln { display: block; }
+    .kw  { color: #478cbf; }
+    .ty  { color: #2d9e6b; }
+    .fn  { color: #f5c842; }
+    .cm  { color: #2e4858; font-style: italic; }
+    .st  { color: #85c88a; }
+    .nm  { color: #e07b54; }
+    .at  { color: #9b7fd4; }
+    .op  { color: #6a8fa0; }
+
+    /* ── Timeline ───────────────────────────────── */
+    .timeline { position: relative; padding-left: 32px; margin: 28px 0; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 9px; top: 8px; bottom: 8px;
+      width: 2px; background: #0e1e2a;
+    }
+
+    .tl-item { position: relative; margin-bottom: 28px; }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -24px; top: 6px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--c1);
+      border: 2px solid #080e12;
+    }
+
+    .tl-item.green::before { background: var(--c2); }
+
+    .tl-year {
+      font-size: 0.71rem; font-weight: 700;
+      color: var(--c2);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 2px;
+    }
+
+    .tl-title { font-size: 0.92rem; font-weight: 600; color: #c8dce8; margin-bottom: 3px; }
+    .tl-body  { font-size: 0.82rem; color: #4a6070; margin: 0; }
+
+    /* ── Comparison table ───────────────────────── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 0.85rem; }
+
+    .compare-table th {
+      background: #091420;
+      color: var(--c1);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #112030;
+    }
+
+    .compare-table th:first-child { color: #40606e; }
+
+    .compare-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #0a1820;
+      color: #7090a0;
+      vertical-align: top;
+    }
+
+    .compare-table tr:last-child td { border-bottom: none; }
+
+    .compare-table td:first-child { color: #8ca4b4; font-weight: 600; }
+
+    .compare-table .good { color: #2d9e6b; }
+    .compare-table .warn { color: #d4a027; }
+    .compare-table .bad  { color: #b84040; }
+
+    /* ── Scene tree demo ────────────────────────── */
+    .scene-demo {
+      background: #050e16;
+      border: 1px solid #0e2030;
+      border-radius: 12px;
+      padding: 22px;
+      margin: 24px 0;
+    }
+
+    .demo-label {
+      font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--c1); margin-bottom: 4px;
+    }
+
+    .demo-hint { font-size: 0.78rem; color: #2a4050; margin-bottom: 18px; }
+
+    .scene-cols { display: flex; gap: 20px; flex-wrap: wrap; }
+
+    .tree-col { flex: 0 0 220px; }
+    .info-col { flex: 1; min-width: 220px; }
+
+    .panel-lbl {
+      font-size: 0.64rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: #1e3040; margin-bottom: 8px;
+    }
+
+    .tree-node {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 6px;
+      font-size: 0.82rem; color: #6a8898;
+      cursor: pointer; margin-bottom: 2px;
+      border: 1px solid transparent;
+      transition: all 0.14s;
+      user-select: none;
+    }
+
+    .tree-node:hover { background: #0c1c28; color: #a8c4d4; }
+    .tree-node.selected { background: #0e2030; color: var(--c1); border-color: #1a3448; }
+    .tree-node .indent { display: inline-block; width: 14px; flex-shrink: 0; }
+    .tree-node .icon { font-size: 0.9rem; flex-shrink: 0; }
+
+    .info-card {
+      background: #0a1820;
+      border: 1px solid #102030;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+    }
+
+    .info-card-name { font-size: 0.85rem; font-weight: 600; color: #c0d8e8; margin-bottom: 2px; }
+    .info-card-type { font-size: 0.71rem; color: var(--c2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .info-card-desc { font-size: 0.8rem; color: #4a6070; }
+    .no-sel-msg { color: #1e3040; font-size: 0.83rem; font-style: italic; padding: 8px 0; }
+
+    /* ── Signal flow diagram ────────────────────── */
+    .signal-diagram {
+      background: #050e16;
+      border: 1px solid #0e2030;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: center;
+    }
+
+    .sig-row { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+
+    .sig-node {
+      background: #0a1e2c;
+      border: 1px solid #1a3448;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.82rem;
+      color: #8ab0c8;
+      min-width: 120px;
+    }
+
+    .sig-node.emitter { border-color: var(--c1); color: var(--c1); }
+    .sig-node.receiver { border-color: var(--c2); color: var(--c2); }
+
+    .sig-arrow {
+      font-size: 1.1rem;
+      color: #1e3848;
+      padding: 0 10px;
+      flex-shrink: 0;
+    }
+
+    .sig-label {
+      font-size: 0.72rem;
+      color: #f5c842;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      margin: 6px auto 14px;
+      background: #100e04;
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+    }
+
+    .sig-multi { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ── Engine cards ───────────────────────────── */
+    .engine-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px; margin: 22px 0;
+    }
+
+    .engine-card {
+      background: #080f18;
+      border: 1px solid #0e1e2c;
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .engine-card-name {
+      font-size: 0.88rem; font-weight: 700;
+      color: #c8dce8; margin-bottom: 6px;
+    }
+
+    .engine-card-tag {
+      font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 12px;
+    }
+
+    .engine-card-tag.blue { color: var(--c1); }
+    .engine-card-tag.green { color: var(--c2); }
+    .engine-card-tag.orange { color: #e08040; }
+
+    .engine-card ul { list-style: none; }
+    .engine-card li {
+      font-size: 0.8rem; color: #4a6070;
+      padding: 3px 0; border-bottom: 1px solid #0a1820;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+
+    .engine-card li:last-child { border-bottom: none; }
+    .engine-card li::before { content: '›'; color: #1e3848; flex-shrink: 0; }
+
+    /* ── Game showcase ──────────────────────────── */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px; margin: 22px 0;
+    }
+
+    .game-card {
+      background: #080f18;
+      border: 1px solid #0e1e2c;
+      border-radius: 10px;
+      padding: 16px;
+      transition: border-color 0.16s, background 0.16s;
+    }
+
+    .game-card:hover { background: #0c1820; border-color: #1a3448; }
+
+    .game-title { font-size: 0.88rem; font-weight: 700; color: #c8dce8; margin-bottom: 4px; }
+    .game-dev   { font-size: 0.72rem; color: var(--c2); margin-bottom: 8px; font-weight: 600; }
+    .game-desc  { font-size: 0.78rem; color: #405060; line-height: 1.5; }
+
+    /* ── Quirk cards ─────────────────────────────── */
+    .quirk-list { display: flex; flex-direction: column; gap: 14px; margin: 20px 0; }
+
+    .quirk-card {
+      background: #080f18;
+      border: 1px solid #0e1e2c;
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+
+    .quirk-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+    .quirk-title { font-size: 0.88rem; font-weight: 700; color: #c8dce8; margin-bottom: 4px; }
+    .quirk-body  { font-size: 0.82rem; color: #405060; line-height: 1.55; }
+
+    /* ── Resource list ──────────────────────────── */
+    .resource-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+
+    .resource-item {
+      background: #080f18;
+      border: 1px solid #0e1e2c;
+      border-radius: 8px;
+      padding: 13px 16px;
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .resource-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+    .resource-name {
+      font-size: 0.88rem; font-weight: 600; color: var(--c1);
+      margin-bottom: 2px;
+    }
+
+    .resource-name a { color: inherit; }
+    .resource-desc { font-size: 0.78rem; color: #405060; }
+    .resource-badge {
+      margin-left: auto; flex-shrink: 0;
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 3px 9px; border-radius: 999px;
+      background: #081410; color: var(--c2); border: 1px solid #0e2a1e;
+    }
+
+    /* ── Version bar ─────────────────────────────── */
+    .version-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px; margin: 20px 0;
+    }
+
+    .version-card {
+      background: #080f18;
+      border: 1px solid #0e1e2c;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .version-num {
+      font-size: 1.3rem; font-weight: 800;
+      color: var(--c1); margin-bottom: 2px;
+    }
+
+    .version-date { font-size: 0.7rem; color: #2d9e6b; font-weight: 600; margin-bottom: 8px; }
+    .version-desc { font-size: 0.76rem; color: #405060; line-height: 1.45; }
+
+    /* ── Quiz ───────────────────────────────────── */
+    .quiz-block {
+      background: #050e16;
+      border: 1px solid #0e2030;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 28px 0;
+    }
+
+    .quiz-q { font-size: 0.95rem; font-weight: 600; color: #c8dce8; margin-bottom: 16px; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+
+    .quiz-opt {
+      background: #0a1820;
+      border: 1px solid #102030;
+      border-radius: 7px;
+      padding: 10px 14px;
+      font-size: 0.85rem; color: #6a8898;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+
+    .quiz-opt:hover { background: #0e2030; color: #a8c4d4; }
+    .quiz-opt.correct { border-color: var(--c2); color: var(--c2); background: #081410; }
+    .quiz-opt.wrong   { border-color: #802020; color: #804040; background: #100808; }
+
+    .quiz-feedback {
+      margin-top: 14px;
+      font-size: 0.84rem;
+      padding: 10px 14px;
+      border-radius: 7px;
+      display: none;
+    }
+
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct { background: #081410; color: #2d9e6b; border: 1px solid #0e2a1e; }
+    .quiz-feedback.wrong   { background: #100808; color: #a06060; border: 1px solid #2a1010; }
+
+    /* ── Mobile nav ─────────────────────────────── */
+    .mobile-nav {
+      display: none;
+      background: #050e16;
+      border-bottom: 1px solid #0e1e2c;
+      padding: 10px 20px;
+    }
+
+    .mobile-nav summary {
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--c1); cursor: pointer;
+      list-style: none;
+    }
+
+    .mobile-nav summary::-webkit-details-marker { display: none; }
+
+    .mobile-nav ul { list-style: none; padding: 12px 0 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .mobile-nav a {
+      font-size: 0.76rem; color: #4a6070;
+      background: #0a1820; border: 1px solid #102030;
+      padding: 4px 10px; border-radius: 999px;
+      text-decoration: none; transition: color 0.15s;
+    }
+
+    .mobile-nav a:hover { color: var(--c1); }
+
+    /* ── Responsive ─────────────────────────────── */
+    @media (max-width: 820px) {
+      .side-nav { display: none; }
+      .mobile-nav { display: block; }
+      .hero h1 { font-size: 2.1rem; }
+      .scene-cols { flex-direction: column; }
+      .tree-col { flex: none; width: 100%; }
+    }
+  </style>
+</head>
+<body data-page-id="godot-engine" style="--accent: #1a3a52;">
+
+  <!-- Mobile nav -->
+  <details class="mobile-nav">
+    <summary>Contents ▾</summary>
+    <ul>
+      <li><a href="#history">History</a></li>
+      <li><a href="#comparison">vs Unity / Unreal</a></li>
+      <li><a href="#scene-system">Scene System</a></li>
+      <li><a href="#gdscript">GDScript</a></li>
+      <li><a href="#signals">Signals</a></li>
+      <li><a href="#2d-3d">2D vs 3D</a></li>
+      <li><a href="#games">Notable Games</a></li>
+      <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#godot-4">Godot 4.x</a></li>
+      <li><a href="#quirks">Surprises</a></li>
+      <li><a href="#resources">Resources</a></li>
+    </ul>
+  </details>
+
+  <div class="page-wrap">
+
+    <!-- Side nav -->
+    <nav class="side-nav" aria-label="Page sections">
+      <ul>
+        <li><a href="#history">History &amp; Origin</a></li>
+        <li><a href="#comparison">vs Unity &amp; Unreal</a></li>
+        <li><a href="#scene-system">Scene / Node System</a></li>
+        <li><a href="#gdscript">GDScript</a></li>
+        <li><a href="#signals">Signals</a></li>
+        <li><a href="#2d-3d">2D vs 3D</a></li>
+        <li><a href="#games">Notable Games</a></li>
+        <li><a href="#getting-started">Getting Started</a></li>
+        <li><a href="#godot-4">Godot 4.x</a></li>
+        <li><a href="#quirks">Counterintuitive Facts</a></li>
+        <li><a href="#resources">Free Resources</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-eyebrow">Game Engine</div>
+        <h1>Godot <span>Engine</span></h1>
+        <p class="subtitle">The free, open-source game engine that went from Argentine side project to the most-starred game engine on GitHub — and what makes its architecture genuinely different from everything else.</p>
+        <div class="tag-row">
+          <span class="tag">MIT License</span>
+          <span class="tag">Open Source</span>
+          <span class="tag green">Free Forever</span>
+          <span class="tag">GDScript</span>
+          <span class="tag">2D + 3D</span>
+          <span class="tag green">No Royalties</span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 1 — HISTORY
+      ══════════════════════════════════════════ -->
+      <section id="history">
+        <h2>History &amp; Origin</h2>
+
+        <p>Godot's story starts not in Silicon Valley but in <strong>Buenos Aires, Argentina</strong>, where two developers — <strong>Juan Linietsky</strong> and <strong>Ariel Manzur</strong> — spent years building and rebuilding a game engine for hire. Beginning around 2001, they cycled through a series of internal codenames — Larvotor, Legacy, NG3D, Larvita — before settling on the name "Godot" sometime around 2007 when the engine took on the shape it would eventually ship in.</p>
+
+        <p>The name is a deliberate reference to Samuel Beckett's absurdist play <em>Waiting for Godot</em>. Linietsky chose it to capture the feeling of game-engine development: you are always waiting to reach "feature complete," always adding one more thing, and that moment never quite arrives. It's a rare engine name that doubles as an honest philosophical statement about the medium.</p>
+
+        <p>For nearly a decade, Godot remained a closed-source, proprietary tool. Linietsky and Manzur's studio, OKAM, licensed it to Latin American game companies and to larger clients including a project with <strong>Square Enix</strong>. The engine worked — but Argentina's economic instability made it difficult to sustain the business model. When Linietsky decided to leave Argentina in late 2013, he faced a choice about what to do with the engine.</p>
+
+        <div class="callout green">
+          <div class="callout-label">The Open Source Moment</div>
+          On <strong>January 14, 2014</strong>, Linietsky pushed Godot's source code to GitHub under the <strong>MIT License</strong> — one of the most permissive open-source licenses available. You can use it commercially, modify it, redistribute it, and never owe anyone a cent. That decision changed the trajectory of independent game development.
+        </div>
+
+        <h3>Rémi Verschelde and the community era</h3>
+        <p>The engine attracted contributors quickly, but the figure who shaped its community practice was <strong>Rémi Verschelde</strong> (online handle: Akien), a veteran free-software developer who started contributing in 2015. Verschelde became Godot's project manager and release manager, establishing the pull-request review workflows, triaging contributor submissions, and merging over 3,000 PRs in three years alone. In 2019 a Patreon campaign raised enough to hire both Linietsky and Verschelde full time — a pivotal moment for any open-source project.</p>
+
+        <p>In 2023 Verschelde co-founded <strong>W4 Games</strong>, a commercial entity designed to help studios adopt Godot at scale, bridging the open-source community with businesses that need enterprise-level support. He continues to serve as project maintainer.</p>
+
+        <h3>Major versions</h3>
+
+        <div class="version-cards">
+          <div class="version-card">
+            <div class="version-num">1.0</div>
+            <div class="version-date">Dec 2014</div>
+            <div class="version-desc">First public stable release. GDScript, scene system, 2D and basic 3D.</div>
+          </div>
+          <div class="version-card">
+            <div class="version-num">2.0</div>
+            <div class="version-date">Feb 2016</div>
+            <div class="version-desc">Enhanced debugger, improved scene instancing, visual scripting groundwork.</div>
+          </div>
+          <div class="version-card">
+            <div class="version-num">3.0</div>
+            <div class="version-date">Jan 2018</div>
+            <div class="version-desc">PBR renderer, VR support, C# via Mono (funded by a $24k Microsoft donation), new asset pipeline.</div>
+          </div>
+          <div class="version-card">
+            <div class="version-num">3.5</div>
+            <div class="version-date">Aug 2022</div>
+            <div class="version-desc">Stable long-term branch maintained by Verschelde's team while 4.0 was in development.</div>
+          </div>
+          <div class="version-card">
+            <div class="version-num">4.0</div>
+            <div class="version-date">Mar 2023</div>
+            <div class="version-desc">Complete rendering overhaul with Vulkan, new GI systems, GDExtension, many breaking changes.</div>
+          </div>
+          <div class="version-card">
+            <div class="version-num">4.4</div>
+            <div class="version-date">Mar 2025</div>
+            <div class="version-desc">Jolt physics engine integrated as default. .NET 8 support. ~3,000 commits.</div>
+          </div>
+          <div class="version-card">
+            <div class="version-num">4.6</div>
+            <div class="version-date">Jan 2026</div>
+            <div class="version-desc">Engine can now be built as a standalone library. New default theme.</div>
+          </div>
+        </div>
+
+        <h3>The Unity incident and Godot's unlikely windfall</h3>
+        <p>In September 2023, Unity announced a controversial "Runtime Fee" — a per-install charge that would apply retroactively to existing games. The backlash was immediate and severe. Developers flooded Godot's Discord, Patreon, and GitHub with pledges and pull requests. Re-Logic (creators of <em>Terraria</em>) donated $100,000 outright and pledged $1,000 per month ongoing. Epic Games had already given $250,000 in 2020. Godot's funding reportedly doubled within two years of the controversy.</p>
+
+        <p>Linietsky and Verschelde's reaction was notably cautious: they publicly worried that a sudden influx of "Unity refugees" expecting instant feature parity might strain the project. They were relieved to find that most migrating developers were patient and willing to meet the engine where it was. Unity eventually cancelled the Runtime Fee after several months of backlash — but the developers who had already left largely stayed gone.</p>
+
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-year">2001–2007</div>
+            <div class="tl-title">Private development begins in Buenos Aires</div>
+            <div class="tl-body">Linietsky and Manzur build engine iterations for Latin American clients under various code names.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">Jan 2014</div>
+            <div class="tl-title">MIT open-source release on GitHub</div>
+            <div class="tl-body">Source code published. Community development begins almost immediately.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">Nov 2015</div>
+            <div class="tl-title">Joins Software Freedom Conservancy</div>
+            <div class="tl-body">Gives the project legal and fiscal infrastructure as a nonprofit.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2016–2020</div>
+            <div class="tl-title">Major institutional funding</div>
+            <div class="tl-body">Mozilla $20k (WebAssembly), Microsoft $24k (C#), Epic Games $250k (graphics / GDScript).</div>
+          </div>
+          <div class="tl-item green">
+            <div class="tl-year">Mar 2023</div>
+            <div class="tl-title">Godot 4.0 ships</div>
+            <div class="tl-body">Four years of development. Vulkan renderer, new GI, complete scripting improvements.</div>
+          </div>
+          <div class="tl-item green">
+            <div class="tl-year">Sep 2023</div>
+            <div class="tl-title">Unity Runtime Fee controversy</div>
+            <div class="tl-body">Godot becomes the primary landing point for fleeing developers. Funding doubles.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 2 — COMPARISON
+      ══════════════════════════════════════════ -->
+      <section id="comparison">
+        <h2>Godot vs Unity vs Unreal</h2>
+
+        <p>There is no universally "best" engine. The right choice depends on the type of game, team size, budget, and tolerance for learning curves. Here is an honest account of where each engine wins and where it loses.</p>
+
+        <div class="engine-cards">
+          <div class="engine-card">
+            <div class="engine-card-name">Godot</div>
+            <div class="engine-card-tag blue">Best for 2D &amp; indie</div>
+            <ul>
+              <li>MIT licensed — zero fees, no royalties, forever</li>
+              <li>Tiny install: ~100 MB, launches in seconds</li>
+              <li>Purpose-built 2D pipeline — not a 3D engine bolted on</li>
+              <li>Steep 3D ceiling vs Unity / Unreal</li>
+              <li>Smaller asset marketplace (Godot Asset Library)</li>
+              <li>C# support present but GDScript is first class</li>
+            </ul>
+          </div>
+          <div class="engine-card">
+            <div class="engine-card-name">Unity</div>
+            <div class="engine-card-tag orange">Best for mobile / XR</div>
+            <ul>
+              <li>Widest platform support of any engine</li>
+              <li>Massive Asset Store ecosystem</li>
+              <li>Best-in-class AR/VR (ARCore, ARKit, XRSDK)</li>
+              <li>Three render pipelines (BRP/URP/HDRP) — confusing</li>
+              <li>Licensing changes created trust issues (2023)</li>
+              <li>C# — more familiar to enterprise developers</li>
+            </ul>
+          </div>
+          <div class="engine-card">
+            <div class="engine-card-name">Unreal Engine</div>
+            <div class="engine-card-tag orange">Best for AAA 3D</div>
+            <ul>
+              <li>Lumen (dynamic GI) and Nanite (virtualized geometry)</li>
+              <li>5% royalty after $1M lifetime revenue</li>
+              <li>Blueprints visual scripting — powerful but heavy</li>
+              <li>C++ is the primary low-level language</li>
+              <li>Enormous install size (50–100 GB projects common)</li>
+              <li>Overkill for most indie games</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Licensing — the real difference</h3>
+        <p>This is where Godot is genuinely incomparable. <strong>MIT License</strong> means: do anything, owe nothing, to no one, ever. You can ship a commercial game, modify the engine source, redistribute the editor, create your own fork, embed it in another product — without asking permission or paying fees. Unity's model involves per-seat or per-revenue subscriptions. Unreal takes 5% of revenue above $1M. These aren't unreasonable, but they are legally binding obligations that can change. Godot's MIT terms cannot be revoked retroactively for code already released under them.</p>
+
+        <h3>When to choose each</h3>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Godot</th>
+              <th>Unity</th>
+              <th>Unreal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2D indie game (any genre)</td>
+              <td class="good">Strong pick</td>
+              <td class="warn">Works, not ideal</td>
+              <td class="bad">Overkill</td>
+            </tr>
+            <tr>
+              <td>Mobile game (iOS/Android)</td>
+              <td class="warn">Possible, less mature</td>
+              <td class="good">Industry standard</td>
+              <td class="warn">Possible but heavy</td>
+            </tr>
+            <tr>
+              <td>Stylized 3D (low-poly, cel)</td>
+              <td class="good">Excellent</td>
+              <td class="good">Excellent</td>
+              <td class="warn">Capable but heavy</td>
+            </tr>
+            <tr>
+              <td>Photorealistic 3D / AAA</td>
+              <td class="bad">Not there yet</td>
+              <td class="warn">With HDRP, possible</td>
+              <td class="good">Best in class</td>
+            </tr>
+            <tr>
+              <td>Solo / tiny team</td>
+              <td class="good">Best fit</td>
+              <td class="warn">Fine, more overhead</td>
+              <td class="bad">Hard to maintain</td>
+            </tr>
+            <tr>
+              <td>AR / VR</td>
+              <td class="warn">Improving, limited</td>
+              <td class="good">Industry standard</td>
+              <td class="good">Strong</td>
+            </tr>
+            <tr>
+              <td>Game jam / rapid prototyping</td>
+              <td class="good">Fastest to spin up</td>
+              <td class="warn">Heavier setup</td>
+              <td class="bad">Too complex</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout amber">
+          <div class="callout-label">Time to basic proficiency</div>
+          Across community surveys and tutorials: <strong>Godot ~1–2 months</strong> to build something real, Unity ~2–4 months, Unreal ~4–6 months. Godot's small surface area and GDScript's approachability genuinely compress the learning curve.
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 3 — SCENE SYSTEM
+      ══════════════════════════════════════════ -->
+      <section id="scene-system">
+        <h2>The Scene &amp; Node System</h2>
+
+        <p>Godot's architecture rests on one core idea that is deceptively simple: <strong>everything is a node</strong>. A node is an object with a name, a set of properties, and the ability to have children. That's it. From this single primitive, Godot builds sprites, physics bodies, cameras, sound players, UI elements, timers, shaders — all as specialised node types.</p>
+
+        <p>A <strong>scene</strong> is a tree of nodes with exactly one root node. You might build a "Player" scene that has a CharacterBody2D at the root, with children: a Sprite2D (for graphics), a CollisionShape2D (for physics), and an AnimationPlayer (for frame sequences). Each child can itself have children, forming a hierarchy as deep as you need. When you save that tree to a <code>.tscn</code> file, that file <em>is</em> the scene.</p>
+
+        <div class="callout">
+          <div class="callout-label">The Mental Model</div>
+          Think of a node as a building block. A scene is a blueprint made of those blocks. You compose blueprints out of smaller blueprints. The whole game is one big tree of scenes — each scene a tree of nodes. There is no separate "prefab" concept, no "component" system, no "entity" layer. Scenes are reusable by definition.
+        </div>
+
+        <h3>Scene instancing — Godot's superpower</h3>
+        <p>The most powerful thing about Godot's scene system is that <strong>any scene can be instanced inside any other scene</strong>. When you drag your Player.tscn into your World.tscn, you are not copying data — you are referencing the original. Change the Player scene (add a new animation, adjust the hitbox), and every instance of it updates automatically. You can place fifty enemies in a level, and they all share one Enemy.tscn. This is not unlike Unity's prefabs conceptually, but in Godot the system is more consistent: there is no distinction between "scenes" and "prefabs" — everything is a scene.</p>
+
+        <p>Crucially, you can also <strong>extend a scene via inheritance</strong>. Create a base Enemy scene, then make a FastEnemy that inherits it — overriding just the speed variable and one animation — without duplicating any of the base structure. This "scene inheritance" is a natural fit for game-design patterns like enemy variants, weapon tiers, or UI widget families.</p>
+
+        <!-- Interactive scene tree demo -->
+        <div class="scene-demo">
+          <div class="demo-label">Interactive Demo — Player Scene Tree</div>
+          <div class="demo-hint">Click any node to see what it does.</div>
+          <div class="scene-cols">
+            <div class="tree-col">
+              <div class="panel-lbl">Scene Tree</div>
+              <div class="tree-node" data-node="root">
+                <span class="indent"></span>
+                <span class="icon">⬡</span>
+                <span>Player</span>
+              </div>
+              <div class="tree-node" data-node="sprite">
+                <span class="indent">╰</span>
+                <span class="icon">🖼</span>
+                <span>Sprite2D</span>
+              </div>
+              <div class="tree-node" data-node="anim">
+                <span class="indent">╰</span>
+                <span class="icon">▶</span>
+                <span>AnimationPlayer</span>
+              </div>
+              <div class="tree-node" data-node="coll">
+                <span class="indent">╰</span>
+                <span class="icon">⬛</span>
+                <span>CollisionShape2D</span>
+              </div>
+              <div class="tree-node" data-node="cam">
+                <span class="indent">╰</span>
+                <span class="icon">📷</span>
+                <span>Camera2D</span>
+              </div>
+              <div class="tree-node" data-node="audio">
+                <span class="indent">╰</span>
+                <span class="icon">🔊</span>
+                <span>AudioStreamPlayer</span>
+              </div>
+            </div>
+            <div class="info-col">
+              <div class="panel-lbl">Node Info</div>
+              <div id="node-info">
+                <div class="no-sel-msg">← Select a node to inspect it.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3>The editor itself is a Godot scene</h3>
+        <p>Here's a fact that speaks to the engine's design integrity: the Godot editor is built using the Godot engine's own UI system. It runs on the game engine. This means the same APIs you use to build your game's interface are the APIs used to build the editor's interface. You can extend the editor using the same GDScript you use for your game, via the <code>@tool</code> annotation that runs scripts inside the editor rather than at runtime.</p>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 4 — GDSCRIPT
+      ══════════════════════════════════════════ -->
+      <section id="gdscript">
+        <h2>GDScript</h2>
+
+        <p>Godot ships with its own scripting language: <strong>GDScript</strong>. At a glance it looks like Python — indentation-based, no braces, readable English-ish syntax. But GDScript is not Python. It is a purpose-built language that compiles to Godot's bytecode at edit-time and is deeply integrated with the engine's type system, node hierarchy, and signal mechanism.</p>
+
+        <h3>Why a custom language?</h3>
+        <p>The original team considered shipping Python directly. The problem was that Python carries enormous overhead (interpreter startup, GIL, reference counting), and game loops run 60+ times per second with tight latency budgets. More importantly, Python has no built-in concept of <code>Vector2</code>, <code>Transform3D</code>, <code>Color</code>, <code>Node</code>, or signals. Shoehorning all of that in via libraries produces ugly, fragile code. GDScript was designed from scratch to treat those types as first-class citizens, keep the learning curve gentle, and integrate with the editor's autocompletion perfectly.</p>
+
+        <p>The result: GDScript compiles fast, produces readable errors with editor line-highlighting, lets you write <code>position += velocity * delta</code> as naturally as you'd write arithmetic, and enables the editor to give you meaningful type hints and property dropdowns. It is a language designed to get out of your way.</p>
+
+        <h3>Key differences from Python</h3>
+        <table class="compare-table">
+          <thead>
+            <tr><th>Feature</th><th>Python</th><th>GDScript</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Function keyword</td><td><code>def</code></td><td><code>func</code></td></tr>
+            <tr><td>Constructor</td><td><code>__init__(self)</code></td><td><code>_init()</code> (single underscore)</td></tr>
+            <tr><td>Negative indexing</td><td><code>list[-1]</code> works</td><td>Must use <code>list[list.size()-1]</code></td></tr>
+            <tr><td>Class declaration</td><td>Explicit <code>class Foo:</code></td><td>Each script file <em>is</em> a class; <code>extends Node</code> sets parent</td></tr>
+            <tr><td>Type hints</td><td>PEP 484, optional, not enforced</td><td><code>var x: float = 1.0</code> — optional but fully enforced if present</td></tr>
+            <tr><td>Built-in game types</td><td>None</td><td><code>Vector2</code>, <code>Rect2</code>, <code>Color</code>, <code>Node</code>, etc. — first-class</td></tr>
+            <tr><td>Signals</td><td>No built-in concept</td><td><code>signal</code> keyword, first-class</td></tr>
+            <tr><td>Frame callbacks</td><td>No built-in concept</td><td><code>_process(delta)</code>, <code>_physics_process(delta)</code> — engine calls automatically</td></tr>
+          </tbody>
+        </table>
+
+        <h3>A complete, runnable example</h3>
+        <p>This script makes a Sprite2D node spin and orbit around a centre point — the official "first script" in Godot's documentation:</p>
+
+        <div class="code-block">
+<span class="ln"><span class="kw">extends</span> <span class="ty">Sprite2D</span>      <span class="cm"># This script is attached to a Sprite2D node</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">var</span> speed <span class="op">=</span> <span class="nm">400</span>           <span class="cm"># pixels per second</span></span>
+<span class="ln"><span class="kw">var</span> angular_speed <span class="op">=</span> PI    <span class="cm"># radians per second — half a full rotation</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_process</span>(delta):     <span class="cm"># called every frame; delta = seconds since last frame</span></span>
+<span class="ln">    rotation <span class="op">+=</span> angular_speed <span class="op">*</span> delta</span>
+<span class="ln">    <span class="kw">var</span> velocity <span class="op">=</span> <span class="ty">Vector2</span>.UP.<span class="fn">rotated</span>(rotation) <span class="op">*</span> speed</span>
+<span class="ln">    position <span class="op">+=</span> velocity <span class="op">*</span> delta</span>
+        </div>
+
+        <p>Notice what you don't see: no <code>import</code> statements, no boilerplate class declaration, no <code>self.</code> prefixes on properties. <code>rotation</code>, <code>position</code>, and <code>Vector2</code> are all native to the node context. You <code>extends</code> the node type, write your callbacks, and the engine handles the rest.</p>
+
+        <h3>A health system with typed variables</h3>
+
+        <div class="code-block">
+<span class="ln"><span class="kw">extends</span> <span class="ty">CharacterBody2D</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="at">@export</span> <span class="kw">var</span> max_health: <span class="ty">int</span> <span class="op">=</span> <span class="nm">100</span>   <span class="cm"># @export makes this editable in the Inspector</span></span>
+<span class="ln"><span class="kw">var</span> health: <span class="ty">int</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">signal</span> <span class="fn">health_changed</span>(new_val: <span class="ty">int</span>)</span>
+<span class="ln"><span class="kw">signal</span> <span class="fn">died</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_ready</span>():             <span class="cm"># called once when the node enters the scene</span></span>
+<span class="ln">    health <span class="op">=</span> max_health</span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">take_damage</span>(amount: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">void</span>:</span>
+<span class="ln">    health <span class="op">=</span> <span class="fn">clamp</span>(health <span class="op">-</span> amount, <span class="nm">0</span>, max_health)</span>
+<span class="ln">    health_changed.<span class="fn">emit</span>(health)</span>
+<span class="ln">    <span class="kw">if</span> health <span class="op">==</span> <span class="nm">0</span>:</span>
+<span class="ln">        died.<span class="fn">emit</span>()</span>
+        </div>
+
+        <p>The <code>@export</code> annotation is particularly useful: it exposes a variable to the Godot Inspector panel, letting you tweak values without touching code. The <code>-></code> return-type annotation and typed parameters are optional but improve editor autocomplete and catch bugs at parse time rather than runtime.</p>
+
+        <div class="callout">
+          <div class="callout-label">C# is also available</div>
+          If you prefer C#, Godot fully supports it via .NET 8 (as of 4.4). The ecosystem is smaller and some Godot-specific features (like <code>@export</code>) have slightly different syntax, but it's a first-class language. Most tutorials and community resources are GDScript-first.
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 5 — SIGNALS
+      ══════════════════════════════════════════ -->
+      <section id="signals">
+        <h2>The Signal System</h2>
+
+        <p>Godot's signal system is its solution to a universal game-development problem: <em>how do you let distant parts of your game communicate without turning the codebase into a tangled web of direct references?</em></p>
+
+        <p>In a naive approach, you might write <code>hud.update_health(player.health)</code> directly inside the player script. That works until you need the health system to also trigger a screen flash, a sound effect, a save-state update, and an achievement check — at which point your Player script is importing and referencing half the game, making everything fragile and untestable.</p>
+
+        <p>Signals implement the <strong>Observer pattern</strong>: an emitter declares that a thing happened; listeners react if they care. The emitter knows nothing about its listeners. You can add, remove, or swap listeners without touching the emitter at all.</p>
+
+        <div class="signal-diagram">
+          <div style="font-size:0.72rem; color:#1e3848; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:14px;">Signal flow — player takes damage</div>
+          <div class="sig-row">
+            <div class="sig-node emitter">Player<br><small style="font-size:0.7rem; opacity:0.7;">emits signal</small></div>
+            <div class="sig-arrow">──────►</div>
+            <div class="sig-node" style="background:#070e14;">Signal Bus<br><small style="font-size:0.7rem; opacity:0.5;">health_changed</small></div>
+          </div>
+          <div class="sig-label">health_changed.emit(new_health)</div>
+          <div class="sig-multi">
+            <div class="sig-node receiver">HealthBar UI<br><small style="font-size:0.7rem; opacity:0.7;">updates bar</small></div>
+            <div class="sig-node receiver">SoundManager<br><small style="font-size:0.7rem; opacity:0.7;">plays grunt</small></div>
+            <div class="sig-node receiver">ScreenFlash<br><small style="font-size:0.7rem; opacity:0.7;">red vignette</small></div>
+            <div class="sig-node receiver">SaveSystem<br><small style="font-size:0.7rem; opacity:0.7;">marks dirty</small></div>
+          </div>
+        </div>
+
+        <h3>Declaring and emitting</h3>
+
+        <div class="code-block">
+<span class="ln"><span class="cm"># In the emitting node (e.g. Player.gd)</span></span>
+<span class="ln"><span class="kw">signal</span> <span class="fn">health_changed</span>(new_health: <span class="ty">int</span>)</span>
+<span class="ln"><span class="kw">signal</span> <span class="fn">died</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">take_damage</span>(amount: <span class="ty">int</span>):</span>
+<span class="ln">    health <span class="op">-=</span> amount</span>
+<span class="ln">    health_changed.<span class="fn">emit</span>(health)  <span class="cm"># broadcast to all listeners</span></span>
+<span class="ln">    <span class="kw">if</span> health <span class="op">&lt;=</span> <span class="nm">0</span>:</span>
+<span class="ln">        died.<span class="fn">emit</span>()</span>
+        </div>
+
+        <h3>Connecting (subscribing)</h3>
+
+        <div class="code-block">
+<span class="ln"><span class="cm"># In the HUD script — connect in _ready()</span></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_ready</span>():</span>
+<span class="ln">    <span class="cm"># get_node() walks the scene tree by path</span></span>
+<span class="ln">    <span class="kw">var</span> player <span class="op">=</span> <span class="fn">get_node</span>(<span class="st">"/root/World/Player"</span>)</span>
+<span class="ln">    player.health_changed.<span class="fn">connect</span>(_on_health_changed)</span>
+<span class="ln">    player.died.<span class="fn">connect</span>(_on_player_died)</span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_on_health_changed</span>(new_health: <span class="ty">int</span>):</span>
+<span class="ln">    $HealthBar.value <span class="op">=</span> new_health   <span class="cm"># $ is shorthand for get_node()</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_on_player_died</span>():</span>
+<span class="ln">    $GameOverScreen.<span class="fn">show</span>()</span>
+        </div>
+
+        <p>You can also connect signals via the Godot editor's Node panel (a visual wiring interface) rather than in code — the editor generates the callback stub for you. This hybrid approach makes signals accessible to designers who don't want to write connection code by hand.</p>
+
+        <h3>Why this matters for game design</h3>
+        <p>The signal pattern keeps scenes decoupled. A Player scene has no reference to the HUD, the sound manager, or the save system. It just announces what happened. This means you can drag the Player scene into a completely different game project and it still compiles — nothing broke because you didn't bring the HUD along. For a solo developer iterating rapidly, that kind of modularity saves enormous amounts of debugging time.</p>
+
+        <div class="callout green">
+          <div class="callout-label">Godot 4 improvement</div>
+          In Godot 3, signals were emitted via <code>emit_signal("health_changed", value)</code> — a string-based API prone to typos. Godot 4 replaced this with <code>health_changed.emit(value)</code> — the signal itself is now a proper typed object. This means the editor can autocomplete signal names and catch mismatches at parse time.
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 6 — 2D vs 3D
+      ══════════════════════════════════════════ -->
+      <section id="2d-3d">
+        <h2>2D vs 3D Capabilities</h2>
+
+        <p>One of Godot's most distinctive architectural choices is that <strong>2D and 3D are entirely separate rendering pipelines</strong>. This is not how Unity or Unreal work — those engines run 2D through the 3D renderer (with orthographic cameras and sprite quads). Godot's 2D engine is built from scratch for 2D: coordinates are in pixels, transforms are 2D matrices, physics is a dedicated 2D simulation. The result is exceptional performance and correctness for 2D games, without 3D overhead.</p>
+
+        <h3>2D — where Godot leads</h3>
+        <p>For 2D game development, Godot is arguably the best free option available. It ships with pixel-perfect rendering, a TileMap system for level design, a CanvasLayer system for parallax and HUD layering, dedicated 2D physics bodies (StaticBody2D, RigidBody2D, CharacterBody2D), and an animation system designed specifically for sprite sequences and tween-based motion. The separation of coordinate spaces means a <code>position</code> of <code>Vector2(100, 200)</code> means exactly 100 pixels right and 200 pixels down — no surprises from projection.</p>
+
+        <p>Notable 2D strengths: <strong>Brotato</strong> runs tens of enemies and projectiles on screen simultaneously with excellent performance. <strong>Cassette Beasts</strong> is a full turn-based RPG with elaborate animations and a large world — built entirely in Godot's 2D pipeline. These are not toy examples.</p>
+
+        <h3>3D — capable but honest</h3>
+        <p>Godot 4.0's rendering overhaul dramatically raised the 3D ceiling. The engine now supports <strong>SDFGI</strong> (Signed Distance Field Global Illumination, designed for open-world use), <strong>VoxelGI</strong> for medium indoor environments, volumetric fog, sky shaders, GPU particles with attractors and collision, and a physically-based rendering pipeline that produces convincing results for stylized or mid-fidelity work.</p>
+
+        <p>What Godot cannot currently match: Unreal's Lumen and Nanite, which allow photorealistic real-time global illumination at runtime and effectively unlimited polygon counts through LOD virtualization. Godot is excellent for stylized 3D — think cel-shaded, low-poly, retro-3D, or mid-poly indie aesthetics. It is not yet the right tool for games where photorealism is the primary selling point.</p>
+
+        <div class="callout amber">
+          <div class="callout-label">Honest assessment</div>
+          If your 3D game looks like something a mid-size indie team would ship — think <em>A Short Hike</em>, <em>Prodeus</em>, <em>Tunic</em> — Godot can do it. If it looks like <em>The Witcher 4</em> or <em>Horizon Forbidden West</em>, use Unreal. Most indie games fall clearly in the first category.
+        </div>
+
+        <h3>A note on 3D workflows</h3>
+        <p>Godot does not have its own 3D modeling tools. You create assets in Blender (or any DCC) and import via <code>.glb</code> / <code>.gltf</code> files, which Godot handles well. The Godot 4.x import pipeline supports embedded animations, materials, and LODs from glTF. Skinned mesh animation, blend shapes, retargeting, and IK are all present. The animator workflow is different from Unity's Animator/Mecanim system — Godot uses AnimationTree with state machine or blend tree nodes — but it's powerful once learned.</p>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 7 — NOTABLE GAMES
+      ══════════════════════════════════════════ -->
+      <section id="games">
+        <h2>Notable Games Made with Godot</h2>
+
+        <p>For much of its early life, Godot was dismissed as "not production-ready." The following games argue otherwise.</p>
+
+        <div class="game-grid">
+          <div class="game-card">
+            <div class="game-title">Brotato</div>
+            <div class="game-dev">Blobfish</div>
+            <div class="game-desc">Top-down arena shooter roguelite where you play as a potato wielding up to six weapons at once. Over <strong>10 million copies sold</strong> by 2025. Proof that a solo developer with Godot can reach massive scale.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">Cassette Beasts</div>
+            <div class="game-dev">Bytten Studio</div>
+            <div class="game-desc">Turn-based monster-collecting RPG set on a mysterious island. Published by Raw Fury. Acclaimed for its writing and fusion mechanic. Complex overworld, dialogue systems, and animations entirely in 2D Godot.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">Dome Keeper</div>
+            <div class="game-dev">Bippinbits</div>
+            <div class="game-desc">Roguelite survival miner where you dig for resources and defend your dome from waves of aliens. Published by Raw Fury. Notable for elegant game-feel in a tiny scope.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">Slay the Spire 2</div>
+            <div class="game-dev">Mega Crit</div>
+            <div class="game-desc">The sequel to one of the most influential indie games ever made — switched from Unity to Godot after the 2023 Runtime Fee controversy. A major signal that professional studios trust Godot for sequels.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">Buckshot Roulette</div>
+            <div class="game-dev">Mike Klubnika</div>
+            <div class="game-desc">Tense psychological horror game — a single developer built this stylish, atmospheric 3D game in Godot. Available on Switch, PlayStation, and Xbox. Demonstrates Godot's 3D capabilities in expert hands.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">The Case of the Golden Idol</div>
+            <div class="game-dev">Color Gray Games</div>
+            <div class="game-desc">Award-winning mystery puzzle game released on all major platforms. Shows Godot handling complex UI-heavy game design elegantly.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">Halls of Torment</div>
+            <div class="game-dev">Chasing Carrots</div>
+            <div class="game-desc">Vampire Survivors-style retro hack-and-slash with hundreds of projectiles and enemies. Excellent performance benchmark for Godot's 2D renderer.</div>
+          </div>
+          <div class="game-card">
+            <div class="game-title">Sonic Colors: Ultimate</div>
+            <div class="game-dev">Sega / Blind Squirrel</div>
+            <div class="game-desc">The 2021 remaster of Sega's 2010 Wii platformer. A rare example of a major IP shipping in Godot — produced by Blind Squirrel Games for Sega.</div>
+          </div>
+        </div>
+
+        <div class="callout green">
+          <div class="callout-label">Also worth noting</div>
+          <strong>Road to Vostok</strong> (solo dev survival game) switched from Unity to Godot after the 2023 controversy and documented the migration publicly. <strong>Until Then</strong> (Philippine narrative game, PS5 launch title) demonstrated Godot's ability to produce polished, cinematic 2D on console. Browse the full showcase at <a href="https://godotengine.org/showcase/" target="_blank">godotengine.org/showcase</a>.
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 8 — GETTING STARTED
+      ══════════════════════════════════════════ -->
+      <section id="getting-started">
+        <h2>Getting Started Workflow</h2>
+
+        <h3>1. Download</h3>
+        <p>Go to <a href="https://godotengine.org/download/" target="_blank">godotengine.org/download</a>. The standard build is a <strong>single executable under 100 MB</strong> — no installer, no Visual Studio requirement, no redistributables. Extract it anywhere. On first launch it opens directly to the Project Manager. There is no "free trial" or account required.</p>
+
+        <p>Two variants exist: the standard build (GDScript + VisualShader + GDExtension) and the .NET build (adds C# support, requires the .NET SDK separately). If you're new to Godot, start with the standard build.</p>
+
+        <h3>2. Create a project</h3>
+        <p>Click <strong>"+ Create New Project"</strong> in the Project Manager. Give it a name, choose a directory, and select a renderer: <em>Forward+</em> (Vulkan, best 3D), <em>Mobile</em> (Vulkan subset, better for lower-end), or <em>Compatibility</em> (OpenGL ES 3.0, widest device support). For 2D games, Compatibility is often the best choice — it runs everywhere and 2D doesn't need Vulkan's features.</p>
+
+        <h3>3. Create your first scene</h3>
+        <p>The editor opens to an empty scene. Click <strong>"2D Scene"</strong> (or "3D Scene") in the centre panel to create a root node. Every scene needs a root. The Scene panel on the left now shows your root node. You can right-click it to add children — try adding a <strong>Sprite2D</strong> and a <strong>Label</strong>.</p>
+
+        <p>With a Sprite2D selected, look at the <strong>Inspector</strong> on the right. Drag an image file from the FileSystem panel (bottom-left) into the <em>Texture</em> property. The sprite appears in the 2D viewport. Move it by dragging.</p>
+
+        <h3>4. Attach your first script</h3>
+        <p>Select your root node in the Scene panel. Click the script icon (or press Ctrl+Shift+A). Choose "New Script", leave the language as GDScript, and click Create. The script editor opens with a stub:</p>
+
+        <div class="code-block">
+<span class="ln"><span class="kw">extends</span> <span class="ty">Node2D</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="cm"># Called when the node enters the scene tree for the first time.</span></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_ready</span>():</span>
+<span class="ln">    <span class="fn">print</span>(<span class="st">"Hello, Godot!"</span>)</span>
+<span class="ln"></span>
+<span class="ln"><span class="cm"># Called every frame. 'delta' is the elapsed time since the previous frame.</span></span>
+<span class="ln"><span class="kw">func</span> <span class="fn">_process</span>(delta):</span>
+<span class="ln">    <span class="kw">pass</span></span>
+        </div>
+
+        <h3>5. Run the game</h3>
+        <p>Press <strong>F5</strong> (or the Play button at the top). Godot will ask you to save the scene if you haven't. It will ask you to designate a "Main Scene" (the entry point). After that, your game opens in a separate window. The output panel shows your <code>print()</code> calls. Press F8 or close the window to stop.</p>
+
+        <div class="callout green">
+          <div class="callout-label">Key editor shortcuts</div>
+          <strong>F5</strong> — run project · <strong>F6</strong> — run current scene only · <strong>Ctrl+S</strong> — save scene · <strong>Q/W/E/R</strong> — select/move/rotate/scale tool in viewport · <strong>Ctrl+D</strong> — duplicate selected node · <strong>$NodeName</strong> in GDScript — get a child node by name
+        </div>
+
+        <h3>The project structure</h3>
+        <p>Everything lives in your project folder. Godot stores scene files as <code>.tscn</code> (text-based, human-readable), scripts as <code>.gd</code>, and maintains a <code>project.godot</code> config file. The <code>res://</code> path prefix in GDScript refers to your project root — <code>res://player/Player.tscn</code> is your player scene file. There is no "Build" step for development; you edit and play instantly. Export (building a distributable binary) is a separate step done when you're ready to ship.</p>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 9 — GODOT 4
+      ══════════════════════════════════════════ -->
+      <section id="godot-4">
+        <h2>Godot 4.x — What Changed</h2>
+
+        <p>Godot 4.0 (March 2023) was not an incremental update. It was a four-year rewrite of the engine's core, and it introduced breaking changes significant enough that Godot 3.x continues to receive maintenance releases as a parallel branch. If you search tutorials, pay attention to which version they target — the APIs are different enough to cause confusion.</p>
+
+        <h3>Vulkan and the new renderer</h3>
+        <p>Godot 3.x used an OpenGL ES 3.0 renderer. Godot 4.x ships with <strong>three rendering backends</strong>:</p>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; margin:16px 0;">
+          <li style="background:#080f18; border:1px solid #0e1e2c; border-radius:8px; padding:12px 16px;">
+            <strong style="color:#c8dce8;">Forward+</strong> <span style="color:#478cbf; font-size:0.72rem; font-weight:700; text-transform:uppercase; margin-left:8px;">Vulkan</span>
+            <p style="margin:4px 0 0; font-size:0.82rem; color:#405060;">Full rendering feature set. Cluster-based forward renderer. Best for desktop 3D games. Supports SDFGI, VoxelGI, volumetric fog, decals.</p>
+          </li>
+          <li style="background:#080f18; border:1px solid #0e1e2c; border-radius:8px; padding:12px 16px;">
+            <strong style="color:#c8dce8;">Mobile</strong> <span style="color:#478cbf; font-size:0.72rem; font-weight:700; text-transform:uppercase; margin-left:8px;">Vulkan subset</span>
+            <p style="margin:4px 0 0; font-size:0.82rem; color:#405060;">Reduced feature set optimised for mobile GPUs. Drops some post-processing effects in exchange for battery life and compatibility.</p>
+          </li>
+          <li style="background:#080f18; border:1px solid #0e1e2c; border-radius:8px; padding:12px 16px;">
+            <strong style="color:#c8dce8;">Compatibility</strong> <span style="color:#2d9e6b; font-size:0.72rem; font-weight:700; text-transform:uppercase; margin-left:8px;">OpenGL ES 3.0</span>
+            <p style="margin:4px 0 0; font-size:0.82rem; color:#405060;">Broadest device support. Works on old GPUs, web export, and low-end mobile. Ideal for 2D games. Fewer 3D features.</p>
+          </li>
+        </ul>
+
+        <h3>GDExtension — replacing GDNative</h3>
+        <p>Godot 3.x had GDNative, which allowed C++ plugins — but it was fragile: plugins had to be recompiled for every new Godot version, and the API stability was poor. Godot 4 replaced this with <strong>GDExtension</strong>, a stable binary interface that allows C++, Rust, Swift, and other languages to write engine modules that <em>don't require recompiling the engine itself</em>.</p>
+
+        <p>This matters enormously for the ecosystem. High-performance game systems (pathfinding, physics, procedural generation) can be written in C++ and dropped into a GDScript project as a compiled <code>.gdextension</code> plugin. The Jolt physics engine integration (now default in Godot 4.4) was delivered this way before being officially merged.</p>
+
+        <h3>Other significant 4.x changes</h3>
+        <table class="compare-table">
+          <thead><tr><th>Feature</th><th>Godot 3.x</th><th>Godot 4.x</th></tr></thead>
+          <tbody>
+            <tr><td>Signal emission</td><td><code>emit_signal("name", val)</code></td><td><code>signal_name.emit(val)</code></td></tr>
+            <tr><td>String path nodes</td><td><code>get_node("Path/Child")</code></td><td><code>$Path/Child</code> or typed</td></tr>
+            <tr><td>Physics engine</td><td>Bullet (3.x)</td><td>Godot Physics → Jolt (4.4+)</td></tr>
+            <tr><td>GI technique</td><td>BakedLightmap only</td><td>SDFGI, VoxelGI, LightmapGI</td></tr>
+            <tr><td>C# runtime</td><td>Mono</td><td>.NET 6 → .NET 8 (4.4)</td></tr>
+            <tr><td>Native plugins</td><td>GDNative (fragile)</td><td>GDExtension (stable ABI)</td></tr>
+            <tr><td>Animation system</td><td>AnimationPlayer only</td><td>AnimationTree with blend trees</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <div class="callout-label">Which version to use?</div>
+          <strong>New projects: use Godot 4.x</strong>. The ecosystem has caught up — most major plugins are available, and the documentation is mature. Only use 3.x if you're maintaining an existing 3.x project or need a feature that specifically regressed in the 4.x port (rare).
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 10 — COUNTERINTUITIVE FACTS
+      ══════════════════════════════════════════ -->
+      <section id="quirks">
+        <h2>Counterintuitive &amp; Surprising Facts</h2>
+
+        <div class="quirk-list">
+          <div class="quirk-card">
+            <div class="quirk-icon">🎭</div>
+            <div>
+              <div class="quirk-title">There are no prefabs — scenes ARE the prefab system</div>
+              <div class="quirk-body">Unity developers often ask "where are the prefabs?" They don't exist as a separate concept. Every scene is a prefab. Save any branch of your scene tree as its own <code>.tscn</code> file and it becomes reusable across projects. The uniformity is deliberate — one concept instead of two.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">🧩</div>
+            <div>
+              <div class="quirk-title">There are no components — hierarchy is the composition model</div>
+              <div class="quirk-body">In Unity you add a Collider <em>component</em> to a GameObject. In Godot you make the collision shape a <em>child node</em>. The physics body itself (CharacterBody2D, RigidBody3D) is a separate node type, and child nodes define its shape. This feels strange at first but makes the scene tree a complete, visual representation of game logic — you can literally see the hierarchy and understand the physics setup without reading code.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">🪟</div>
+            <div>
+              <div class="quirk-title">Games run in a separate window, not inside the editor</div>
+              <div class="quirk-body">Unity and Unreal run your game embedded inside the editor viewport. Godot launches your game as a completely separate OS window. This feels primitive at first, but it eliminates an entire class of "it works in editor but not in build" bugs. The window you're testing in IS the game window. What you see is exactly what will ship.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">📏</div>
+            <div>
+              <div class="quirk-title">Y-axis points DOWN in 2D (not up)</div>
+              <div class="quirk-body">In Godot's 2D coordinate system, increasing Y moves <em>down</em> the screen — consistent with how screen pixels are numbered, but the opposite of most mathematical conventions and most 3D engines. A position of <code>Vector2(0, 100)</code> is 100 pixels below the top of the screen. In 3D, Y points up as usual. Getting confused between 2D and 3D transforms is a common early gotcha.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">⚡</div>
+            <div>
+              <div class="quirk-title">The editor is the engine — @tool scripts run in-editor</div>
+              <div class="quirk-body">Adding the <code>@tool</code> annotation to any GDScript makes it run inside the Godot editor itself, not just at game runtime. This lets you build custom procedural level generation tools, property visualisers, or inspector helpers using the same GDScript you write games in — no separate editor plugin language required.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">🔢</div>
+            <div>
+              <div class="quirk-title">GDScript's int division is integer, not float</div>
+              <div class="quirk-body"><code>5 / 2</code> in GDScript evaluates to <code>2</code>, not <code>2.5</code>. This is consistent with languages like Python 3 only if you use the <code>//</code> floor-division operator — but GDScript uses <code>/</code> for integer division when both operands are integers. Write <code>5.0 / 2</code> or <code>float(5) / 2</code> if you want <code>2.5</code>. This bites almost every newcomer once.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">📦</div>
+            <div>
+              <div class="quirk-title">The entire engine is under 100 MB — and it includes everything</div>
+              <div class="quirk-body">The Godot 4.x editor download is around 80–100 MB and contains the full IDE, 2D editor, 3D editor, shader editor, animation editor, profiler, debugger, and asset importer. Unity's installer alone is hundreds of megabytes, and the Editor Hub, engine modules, and build tools add gigabytes more. Godot's tiny size isn't a limitation — it's because it has no unnecessary dependencies and compresses aggressively.</div>
+            </div>
+          </div>
+          <div class="quirk-card">
+            <div class="quirk-icon">🔤</div>
+            <div>
+              <div class="quirk-title">The name is pronounced "Go-DOH" — like Beckett's play</div>
+              <div class="quirk-body">It's not "GOD-oh" or "GOD-ott." The engine is named after Samuel Beckett's <em>En attendant Godot</em>, which in English is usually rendered as "Go-DOH." Linietsky has confirmed this repeatedly. Saying it wrong won't confuse anyone, but you'll fit in better with the community if you know.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini quiz -->
+        <div class="quiz-block">
+          <div class="quiz-q">Quick check: In Godot's 2D coordinate system, which direction does positive Y point?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" data-ans="wrong">Up (same as mathematical convention)</div>
+            <div class="quiz-opt" data-ans="correct">Down (same as screen pixel numbering)</div>
+            <div class="quiz-opt" data-ans="wrong">Right (matching the X axis)</div>
+            <div class="quiz-opt" data-ans="wrong">It depends on the Camera2D zoom setting</div>
+          </div>
+          <div class="quiz-feedback" id="quiz1-fb"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+           SECTION 11 — RESOURCES
+      ══════════════════════════════════════════ -->
+      <section id="resources">
+        <h2>Free Learning Resources</h2>
+
+        <p>The Godot community has produced exceptional free learning material. The official documentation is unusually good for an open-source project — well-written, accurate, and versioned. These are the resources worth starting with:</p>
+
+        <div class="resource-list">
+          <div class="resource-item">
+            <div class="resource-icon">📖</div>
+            <div>
+              <div class="resource-name"><a href="https://docs.godotengine.org/en/stable/" target="_blank">Official Godot Documentation</a></div>
+              <div class="resource-desc">The step-by-step introduction, node reference, and class API. Unusually well-written. Start with "Getting Started → Step by Step." Available offline.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon">🎮</div>
+            <div>
+              <div class="resource-name"><a href="https://gdquest.github.io/learn-gdscript/" target="_blank">GDQuest — Learn GDScript From Zero</a></div>
+              <div class="resource-desc">Interactive browser-based course for absolute beginners. Runs entirely in browser, no download needed. Open source. Exercises with instant feedback.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon">🎬</div>
+            <div>
+              <div class="resource-name"><a href="https://www.gdquest.com/tutorial/godot/" target="_blank">GDQuest Tutorials</a></div>
+              <div class="resource-desc">Large library of free Godot 4 tutorials — from first 2D game to roguelite systems, shaders, and 3D FPS. GDQuest is the highest-quality free Godot channel.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon">🏫</div>
+            <div>
+              <div class="resource-name"><a href="https://godotengine.org/education/" target="_blank">Godot Education Page</a></div>
+              <div class="resource-desc">Official list of recommended courses, books, and community resources. Updated with each major release.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon">📋</div>
+            <div>
+              <div class="resource-name"><a href="https://docs.godotengine.org/en/stable/community/tutorials.html" target="_blank">Community Tutorials List</a></div>
+              <div class="resource-desc">Official curated list of community-made tutorials, videos, and written guides organised by topic.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon">💬</div>
+            <div>
+              <div class="resource-name"><a href="https://discord.gg/4JBkykG" target="_blank">Official Godot Discord</a></div>
+              <div class="resource-desc">Active community. Separate channels for 2D, 3D, GDScript, C#, shaders, and help-desk. Fast answers from experienced developers.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon">🛒</div>
+            <div>
+              <div class="resource-name"><a href="https://godotengine.org/asset-library/" target="_blank">Godot Asset Library</a></div>
+              <div class="resource-desc">In-engine browser for free plugins, shaders, and project templates. Smaller than Unity's Asset Store but growing. Most content is MIT or CC0 licensed.</div>
+            </div>
+            <div class="resource-badge">Free</div>
+          </div>
+        </div>
+
+        <div class="callout green">
+          <div class="callout-label">Recommended path for a complete beginner</div>
+          1. Work through <strong>GDQuest's Learn GDScript From Zero</strong> (browser, ~2 hours) to understand the language. 2. Follow the <strong>official "Your First 2D Game"</strong> tutorial in the docs. 3. Build something small and bad on your own — this is the essential step everyone skips. 4. Return to GDQuest for specific systems you need (physics, UI, shaders). The documentation's class reference is your ongoing companion throughout.
+        </div>
+      </section>
+
+    </main>
+  </div><!-- /.page-wrap -->
+
+  <script>
+    /* ── Scene tree interactive demo ── */
+    const nodeData = {
+      root: {
+        name: 'Player',
+        type: 'CharacterBody2D',
+        desc: 'The root node. CharacterBody2D is Godot\'s physics body for player-controlled characters. It exposes move_and_slide() which handles collision response automatically. Your movement script attaches here.'
+      },
+      sprite: {
+        name: 'Sprite2D',
+        type: 'Sprite2D',
+        desc: 'Renders a 2D texture. Set its Texture property to an image file. Can be animated via an AnimationPlayer sibling or by directly changing the frame property for sprite sheets.'
+      },
+      anim: {
+        name: 'AnimationPlayer',
+        type: 'AnimationPlayer',
+        desc: 'A timeline-based animation engine. Can animate ANY property on ANY node in the scene — not just visuals. Change position, rotation, modulate colour, or call functions at specific keyframes. Attach to the root and target children.'
+      },
+      coll: {
+        name: 'CollisionShape2D',
+        type: 'CollisionShape2D',
+        desc: 'Defines the physical footprint of the CharacterBody2D parent for collision detection. Set the Shape property to CapsuleShape2D, RectangleShape2D, CircleShape2D, etc. Multiple CollisionShape2D children = complex hitbox.'
+      },
+      cam: {
+        name: 'Camera2D',
+        type: 'Camera2D',
+        desc: 'Makes this node\'s position the camera origin. Because it\'s a child of Player, it automatically follows the player. Set drag margins, smoothing, and limits to control how the camera lags or constrains to level bounds.'
+      },
+      audio: {
+        name: 'AudioStreamPlayer',
+        type: 'AudioStreamPlayer',
+        desc: 'Plays audio non-positionally (same volume everywhere). Assign an AudioStream resource (OGG, WAV, MP3). Call .play() from code or animation. For positional audio (volume by distance), use AudioStreamPlayer2D instead.'
+      }
+    };
+
+    document.querySelectorAll('.tree-node').forEach(node => {
+      node.addEventListener('click', () => {
+        document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('selected'));
+        node.classList.add('selected');
+        const key = node.dataset.node;
+        const d = nodeData[key];
+        const info = document.getElementById('node-info');
+        info.innerHTML = `
+          <div class="info-card">
+            <div class="info-card-name">${d.name}</div>
+            <div class="info-card-type">${d.type}</div>
+            <div class="info-card-desc">${d.desc}</div>
+          </div>`;
+      });
+    });
+
+    /* ── Quiz ── */
+    document.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const block = opt.closest('.quiz-block');
+        if (block.dataset.answered) return;
+        block.dataset.answered = '1';
+        const fb = block.querySelector('.quiz-feedback');
+        if (opt.dataset.ans === 'correct') {
+          opt.classList.add('correct');
+          fb.textContent = 'Correct. Y increases downward, matching screen pixel coordinates. This is the standard for 2D canvas systems but opposite to mathematical graph convention.';
+          fb.className = 'quiz-feedback show correct';
+        } else {
+          opt.classList.add('wrong');
+          block.querySelector('[data-ans="correct"]').classList.add('correct');
+          fb.textContent = 'Not quite. Positive Y points DOWN in Godot 2D — increasing Y moves a node further down the screen.';
+          fb.className = 'quiz-feedback show wrong';
+        }
+      });
+    });
+
+    /* ── Intersection Observer for nav ── */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.side-nav a');
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => obs.observe(s));
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>

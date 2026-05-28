@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unity Game Engine — Take a deeks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #7986cb;
+      --c2: #ff6f00;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0e0e14;
+      color: #c8c8d8;
+      min-height: 100vh;
+      line-height: 1.75;
+    }
+
+    /* ── Layout ───────────────────────────────── */
+    .page-wrap {
+      display: flex;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+      gap: 48px;
+    }
+
+    /* ── Side nav ─────────────────────────────── */
+    .side-nav {
+      width: 188px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+      height: fit-content;
+      padding: 32px 0;
+    }
+
+    .side-nav ul { list-style: none; border-left: 2px solid #1c1c2e; }
+
+    .side-nav a {
+      display: block;
+      padding: 6px 16px;
+      font-size: 0.78rem;
+      color: #505060;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      margin-left: -2px;
+      transition: color 0.18s, border-color 0.18s;
+      line-height: 1.4;
+    }
+
+    .side-nav a:hover { color: #999; }
+    .side-nav a.active { color: var(--c1); border-left-color: var(--c1); }
+
+    /* ── Main ─────────────────────────────────── */
+    main { flex: 1; min-width: 0; padding: 44px 0 100px; }
+
+    /* ── Hero ─────────────────────────────────── */
+    .hero { margin-bottom: 64px; }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--c2);
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: #70708a;
+      max-width: 580px;
+      line-height: 1.6;
+    }
+
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      background: #14142a;
+      color: var(--c1);
+      border: 1px solid #24244a;
+    }
+
+    .tag.amber { color: var(--c2); background: #180e00; border-color: #382200; }
+
+    /* ── Sections ─────────────────────────────── */
+    section { margin-bottom: 80px; }
+
+    section h2 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    section h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #d8d8ee;
+      margin: 28px 0 10px;
+    }
+
+    p { margin-bottom: 14px; color: #a8a8c0; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: #e8e8f8; }
+    em { color: #b8b8d0; font-style: italic; }
+
+    /* ── Callouts ─────────────────────────────── */
+    .callout {
+      background: #0e0e22;
+      border-left: 3px solid var(--c1);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 22px 0;
+      font-size: 0.88rem;
+    }
+
+    .callout.amber { border-left-color: var(--c2); }
+
+    .callout-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--c1);
+      margin-bottom: 5px;
+    }
+
+    .callout.amber .callout-label { color: var(--c2); }
+
+    /* ── Code blocks ──────────────────────────── */
+    .code-block {
+      background: #06060f;
+      border: 1px solid #18183a;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 18px 0;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+
+    .code-block .ln { display: block; }
+    .kw  { color: #7986cb; }
+    .ty  { color: #80cbc4; }
+    .fn  { color: #ffe082; }
+    .cm  { color: #3d4f5a; font-style: italic; }
+    .st  { color: #a5d6a7; }
+    .nm  { color: #ff8a65; }
+
+    /* ── Timeline ─────────────────────────────── */
+    .timeline { position: relative; padding-left: 30px; margin: 24px 0; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 9px; top: 8px; bottom: 8px;
+      width: 2px; background: #1c1c30;
+    }
+
+    .tl-item { position: relative; margin-bottom: 26px; }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -24px; top: 7px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--c1);
+      border: 2px solid #0e0e14;
+    }
+
+    .tl-year {
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--c2);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 3px;
+    }
+
+    .tl-title {
+      font-size: 0.92rem; font-weight: 600;
+      color: #d8d8ee; margin-bottom: 3px;
+    }
+
+    .tl-body { font-size: 0.82rem; color: #60607a; margin: 0; }
+
+    /* ── Scene explorer ───────────────────────── */
+    .scene-demo {
+      background: #07070f;
+      border: 1px solid #1c1c38;
+      border-radius: 12px;
+      padding: 22px;
+      margin: 24px 0;
+    }
+
+    .demo-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--c1);
+      margin-bottom: 6px;
+    }
+
+    .demo-hint { font-size: 0.78rem; color: #40405a; margin-bottom: 18px; }
+
+    .scene-flex { display: flex; gap: 18px; flex-wrap: wrap; }
+
+    .hier-col { flex: 0 0 190px; }
+    .insp-col { flex: 1; min-width: 220px; }
+
+    .panel-label {
+      font-size: 0.66rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: #333350; margin-bottom: 8px;
+    }
+
+    .go-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 11px; border-radius: 6px;
+      font-size: 0.83rem; color: #888898;
+      cursor: pointer; margin-bottom: 3px;
+      border: 1px solid transparent;
+      transition: all 0.14s;
+    }
+
+    .go-item:hover { background: #10102a; color: #cccce0; }
+
+    .go-item.selected {
+      background: #16163a;
+      color: var(--c1);
+      border-color: #26265a;
+    }
+
+    .comp-card {
+      background: #0e0e24;
+      border: 1px solid #1c1c36;
+      border-radius: 7px;
+      padding: 11px 13px;
+      margin-bottom: 7px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+
+    .comp-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+    .comp-name { font-size: 0.83rem; font-weight: 600; color: #d0d0e8; margin-bottom: 2px; }
+    .comp-desc { font-size: 0.73rem; color: #4a4a64; }
+    .no-sel { color: #30304a; font-size: 0.83rem; font-style: italic; padding: 8px 0; }
+
+    /* ── Pipeline cards ───────────────────────── */
+    .pipeline-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px; margin: 22px 0;
+    }
+
+    .pipeline-card {
+      background: #0e0e20;
+      border: 1px solid #1c1c36;
+      border-radius: 10px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pipeline-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .pc-builtin::before { background: #546e7a; }
+    .pc-urp::before     { background: var(--c1); }
+    .pc-hdrp::before    { background: var(--c2); }
+
+    .pipeline-card h3 { font-size: 0.9rem; margin: 0 0 5px; color: #e0e0f0; }
+
+    .pipeline-badge {
+      display: inline-block;
+      padding: 2px 8px; border-radius: 4px;
+      font-size: 0.68rem; font-weight: 700;
+      margin-bottom: 9px;
+    }
+
+    .pc-builtin .pipeline-badge { background: #182028; color: #546e7a; }
+    .pc-urp .pipeline-badge     { background: #141430; color: var(--c1); }
+    .pc-hdrp .pipeline-badge    { background: #180e00; color: var(--c2); }
+
+    .pipeline-card p { font-size: 0.78rem; color: #545470; margin: 0; }
+
+    /* ── Steps list ───────────────────────────── */
+    .steps { list-style: none; margin: 22px 0; counter-reset: step; }
+
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #141430;
+      border: 1px solid var(--c1);
+      color: var(--c1);
+      font-size: 0.78rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-body h4 { font-size: 0.92rem; font-weight: 600; color: #e0e0f0; margin-bottom: 4px; }
+    .step-body p  { font-size: 0.83rem; color: #606078; margin: 0; }
+
+    /* ── Games grid ───────────────────────────── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 11px; margin: 22px 0;
+    }
+
+    .game-card {
+      background: #0e0e20;
+      border: 1px solid #1c1c36;
+      border-radius: 9px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: border-color 0.18s, transform 0.14s;
+      cursor: default;
+    }
+
+    .game-card:hover { border-color: var(--c1); transform: translateY(-3px); }
+
+    .game-emoji { font-size: 1.9rem; margin-bottom: 8px; }
+    .game-title { font-size: 0.82rem; font-weight: 600; color: #d8d8f0; margin-bottom: 3px; }
+    .game-studio { font-size: 0.7rem; color: #404058; }
+
+    /* ── VS table ─────────────────────────────── */
+    .vs-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.83rem; }
+
+    .vs-table th {
+      background: #0e0e20; padding: 10px 14px;
+      text-align: left; color: #555570; font-weight: 600;
+      border-bottom: 1px solid #1c1c30;
+    }
+
+    .vs-table th:nth-child(2) { color: var(--c1); }
+    .vs-table th:nth-child(3) { color: #ff7043; }
+
+    .vs-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #141424;
+      color: #9090a8; vertical-align: top;
+    }
+
+    .vs-table tr:hover td { background: #0a0a18; }
+
+    /* ── Controversy box ──────────────────────── */
+    .controversy-box {
+      background: #180e00;
+      border: 1px solid #3a1e00;
+      border-radius: 10px;
+      padding: 22px; margin: 22px 0;
+    }
+
+    .controversy-box h3 { color: var(--c2); margin: 0 0 12px; }
+
+    /* ── Quiz ─────────────────────────────────── */
+    .quiz-wrap { display: flex; flex-direction: column; gap: 24px; }
+
+    .quiz-q {
+      background: #0e0e20;
+      border: 1px solid #1c1c36;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .q-text { font-size: 0.92rem; font-weight: 600; color: #d8d8f0; margin-bottom: 14px; }
+
+    .quiz-options { display: flex; flex-direction: column; gap: 7px; }
+
+    .quiz-opt {
+      padding: 10px 14px;
+      background: #08081a;
+      border: 1px solid #1c1c30;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.83rem;
+      color: #888898;
+      transition: all 0.16s;
+      text-align: left;
+    }
+
+    .quiz-opt:hover:not(.disabled) { border-color: #36365a; color: #d0d0e8; }
+    .quiz-opt.correct  { border-color: #4caf50; background: #081a0a; color: #81c784; }
+    .quiz-opt.wrong    { border-color: #f44336; background: #1a0808; color: #e57373; }
+    .quiz-opt.disabled { cursor: default; pointer-events: none; }
+
+    .q-feedback {
+      margin-top: 11px;
+      font-size: 0.8rem;
+      color: #50506a;
+      display: none;
+      line-height: 1.55;
+    }
+
+    .q-feedback.show { display: block; }
+
+    .quiz-submit {
+      margin-top: 16px;
+      padding: 12px 30px;
+      background: var(--c1);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: inline-block;
+    }
+
+    .quiz-submit:hover { opacity: 0.85; }
+    .quiz-submit:disabled { opacity: 0.38; cursor: default; }
+
+    .quiz-score {
+      display: none;
+      margin-top: 18px;
+      text-align: center;
+      background: #0e0e20;
+      border: 1px solid #1c1c36;
+      border-radius: 10px;
+      padding: 24px;
+    }
+
+    .quiz-score.show { display: block; }
+    .score-num { font-size: 2.6rem; font-weight: 800; color: var(--c1); }
+    .score-label { color: #60607a; font-size: 0.88rem; margin-top: 4px; }
+
+    /* ── Image wrap ───────────────────────────── */
+    .img-wrap { margin: 22px 0; text-align: center; }
+    .img-wrap img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #1c1c36;
+    }
+    .img-caption { font-size: 0.72rem; color: #36364a; margin-top: 7px; }
+
+    /* ── Mobile nav ───────────────────────────── */
+    .mobile-nav {
+      display: none;
+      background: #0e0e20;
+      border-bottom: 1px solid #1c1c30;
+      padding: 0 20px;
+      position: sticky;
+      top: 58px;
+      z-index: 90;
+    }
+
+    .mob-toggle {
+      background: none; border: none;
+      color: var(--c1); font-size: 0.83rem;
+      padding: 12px 0; cursor: pointer;
+      width: 100%; text-align: left;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .mob-list { display: none; flex-direction: column; padding: 6px 0 14px; gap: 1px; }
+    .mob-list.open { display: flex; }
+
+    .mob-list a {
+      padding: 8px 0; font-size: 0.83rem;
+      color: #666680; text-decoration: none;
+    }
+
+    .mob-list a:hover { color: var(--c1); }
+
+    @media (max-width: 820px) {
+      .side-nav { display: none; }
+      .mobile-nav { display: block; }
+      .page-wrap { padding: 0 16px; gap: 0; }
+      .hero h1 { font-size: 2.1rem; }
+      main { padding-top: 24px; }
+    }
+  </style>
+</head>
+<body data-page-id="unity" style="--accent: #1a237e;">
+
+  <!-- Mobile nav -->
+  <nav class="mobile-nav">
+    <button class="mob-toggle" id="mobToggle">&#9776;&nbsp; Sections</button>
+    <ul class="mob-list" id="mobList">
+      <li><a href="#what-is-unity">What Is Unity?</a></li>
+      <li><a href="#history">History</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#render-pipelines">Render Pipelines</a></li>
+      <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#famous-games">Famous Games</a></li>
+      <li><a href="#unity-vs-unreal">Unity vs Unreal</a></li>
+      <li><a href="#controversy">The Controversy</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrap">
+
+    <!-- Desktop side nav -->
+    <nav class="side-nav">
+      <ul id="sideNav">
+        <li><a href="#what-is-unity">What Is Unity?</a></li>
+        <li><a href="#history">History</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#render-pipelines">Render Pipelines</a></li>
+        <li><a href="#getting-started">Getting Started</a></li>
+        <li><a href="#famous-games">Famous Games</a></li>
+        <li><a href="#unity-vs-unreal">Unity vs Unreal</a></li>
+        <li><a href="#controversy">The Controversy</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+      </ul>
+    </nav>
+
+    <main>
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-eyebrow">Game Engine</div>
+        <h1>Unity</h1>
+        <p class="subtitle">The engine behind half the world's games — from Pokémon GO to Hollow Knight to Genshin Impact. Here's how it works and how to get started.</p>
+        <div class="tag-row">
+          <span class="tag">C# Scripting</span>
+          <span class="tag">Real-time 3D</span>
+          <span class="tag amber">25+ Platforms</span>
+          <span class="tag">Founded 2004</span>
+          <span class="tag amber">Unity 6 (2024)</span>
+        </div>
+      </div>
+
+      <!-- 1. What Is Unity -->
+      <section id="what-is-unity">
+        <h2>What Is Unity?</h2>
+        <p>Unity is a <strong>real-time development platform</strong> — a game engine, scene editor, and build toolchain bundled together. You build a level by placing objects in a 3D viewport, attaching behaviour scripts written in C#, and hitting Play to run the game instantly inside the editor. When you're done, Unity can export to over 25 platforms: iOS, Android, Windows, Mac, Linux, PlayStation, Xbox, Nintendo Switch, and WebGL — all from one project, with minimal platform-specific code.</p>
+        <p>It's not just for games, either. Unity powers car configurators, architecture walkthroughs, medical training simulations, and film VFX. Weta Digital used it for previsualization on major productions. But at its core, Unity was built by game developers for game developers — and that's where it shines most clearly.</p>
+
+        <div class="callout">
+          <div class="callout-label">Scale</div>
+          <strong>71% of the top 1,000 mobile games</strong> are built with Unity. On Steam, roughly half of all released titles use it. More games run on Unity than on any other engine — by a wide margin.
+        </div>
+
+        <div class="img-wrap">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Unity_Technologies_logo.svg/600px-Unity_Technologies_logo.svg.png"
+               alt="Unity Technologies logo"
+               style="max-width:260px; background:#fff; padding:20px 30px; border-radius:8px;">
+          <div class="img-caption">Unity Technologies logo. Source: Wikimedia Commons (Unity Technologies, public domain).</div>
+        </div>
+      </section>
+
+      <!-- 2. History -->
+      <section id="history">
+        <h2>History</h2>
+        <p>Unity's story starts not with a grand vision but with a <strong>failed game</strong>. In 2004, three developers in Copenhagen — <strong>David Helgason</strong> (CEO), <strong>Nicholas Francis</strong> (CCO), and <strong>Joachim Ante</strong> (CTO) — founded a company called Over the Edge Entertainment. Their goal was to make games.</p>
+        <p>In 2005 they finished their debut title, <em>GooBall</em>, a physics puzzle game for Mac. It sold almost nothing. But the <em>engine they'd built to make it</em> was genuinely impressive: drag-and-drop assets, instant play-in-editor, a visual workflow they'd inspired themselves to build after admiring Apple's Final Cut Pro. They pivoted immediately and decided to sell the engine itself.</p>
+
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-year">August 2004</div>
+            <div class="tl-title">Founded in Copenhagen</div>
+            <p class="tl-body">Over the Edge Entertainment incorporated. Three developers. Goal: ship games. Budget: minimal.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">June 2005</div>
+            <div class="tl-title">GooBall ships. Unity 1.0 debuts at Apple WWDC.</div>
+            <p class="tl-body">GooBall flops commercially. But the engine underneath earns a standing ovation from Mac developers at Apple's developer conference. The pivot is instant.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2008</div>
+            <div class="tl-title">iPhone SDK support — perfect timing</div>
+            <p class="tl-body">Apple opens the App Store. Unity adds iOS export that same year. The mobile gold rush and Unity grow together, almost symbiotically, for the next decade.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2009</div>
+            <div class="tl-title">Unity goes free</div>
+            <p class="tl-body">A free tier removes the financial barrier. Developer adoption explodes. "Democratize game development" shifts from slogan to actual policy.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2016</div>
+            <div class="tl-title">Pokémon GO — and Unity's public moment</div>
+            <p class="tl-body">Niantic ships Pokémon GO on Unity. It becomes the fastest app ever to reach $500M in revenue. Unity's name appears in mainstream press for the first time.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">September 2020</div>
+            <div class="tl-title">IPO on the NYSE</div>
+            <p class="tl-body">Unity goes public at a $13.7 billion valuation — cementing its status as infrastructure for the entire industry, not just indie developers.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">September 2023</div>
+            <div class="tl-title">The Runtime Fee crisis</div>
+            <p class="tl-body">Unity announces a per-install fee, retroactive for existing games. Developers revolt en masse. The CEO resigns within weeks. (Full story below.)</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">October 2024</div>
+            <div class="tl-title">Unity 6 launched</div>
+            <p class="tl-body">Runtime fee formally cancelled. Unity 6 ships with improved GPU Resident Drawer, a rebuilt multiplayer stack, better WebGPU support, and URP feature parity with HDRP for most use cases.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. How It Works -->
+      <section id="how-it-works">
+        <h2>How It Works</h2>
+        <p>Unity is built around one central idea: <strong>everything in your game is a GameObject</strong>. A player character, a camera, a lamp, a sound trigger, a piece of invisible collision geometry — all GameObjects. They are <em>empty containers</em>. Their behaviour comes entirely from <strong>Components</strong> you attach to them.</p>
+
+        <h3>The Component model</h3>
+        <p>This architecture replaces the deep inheritance hierarchies common in older engines. Instead of subclassing a <code>CollidingMovingRenderedEntity</code>, you attach a <code>Rigidbody</code>, a <code>MeshRenderer</code>, a <code>Collider</code>, and your own <code>PlayerController</code> script. Each component does one job. GameObjects compose them freely. Adding a new ability means writing a new component and attaching it — not refactoring a class tree.</p>
+        <p>Every GameObject automatically carries a <strong>Transform</strong> component that cannot be removed. It stores position, rotation, and scale in 3D space, and the parent-child relationship that lets you build nested object hierarchies (a hand attached to an arm attached to a body, all moving together).</p>
+
+        <!-- Interactive scene explorer -->
+        <div class="scene-demo">
+          <div class="demo-label">Interactive — Scene Explorer</div>
+          <div class="demo-hint">Click a GameObject in the Hierarchy to see its Components — just like Unity's Inspector panel.</div>
+          <div class="scene-flex">
+            <div class="hier-col">
+              <div class="panel-label">Hierarchy</div>
+              <div class="go-item" data-go="player" onclick="selectGO(this)">🧍 Player</div>
+              <div class="go-item" data-go="camera"  onclick="selectGO(this)">🎥 Main Camera</div>
+              <div class="go-item" data-go="light"   onclick="selectGO(this)">💡 Directional Light</div>
+              <div class="go-item" data-go="enemy"   onclick="selectGO(this)">👾 Enemy</div>
+              <div class="go-item" data-go="terrain" onclick="selectGO(this)">🌿 Terrain</div>
+            </div>
+            <div class="insp-col">
+              <div class="panel-label">Inspector — Components</div>
+              <div id="compDisplay"><p class="no-sel">← Select a GameObject</p></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Scenes</h3>
+        <p>A <strong>Scene</strong> is a discrete level or screen — the main menu, world 1-1, the boss arena. Your game can contain many scenes and load them additively or sequentially. Unity's <strong>game loop</strong> runs continuously while a scene is active: process input → run physics → call each script's <code>Update()</code> → render the frame → repeat. At 60 fps this ticks 60 times per second. You never write the loop — Unity calls your methods into it.</p>
+
+        <h3>C# Scripting</h3>
+        <p>Scripts are C# classes that extend <code>MonoBehaviour</code>, Unity's base class for anything that lives in a scene. Two lifecycle methods are enough to get started:</p>
+
+        <div class="code-block">
+<span class="ln"><span class="kw">using</span> UnityEngine;</span>
+<span class="ln"></span>
+<span class="ln"><span class="kw">public class</span> <span class="ty">PlayerController</span> : <span class="ty">MonoBehaviour</span></span>
+<span class="ln">{</span>
+<span class="ln">    <span class="kw">public float</span> speed = <span class="nm">5f</span>;</span>
+<span class="ln">    <span class="kw">private</span> <span class="ty">Rigidbody</span> rb;</span>
+<span class="ln"></span>
+<span class="ln">    <span class="cm">// Called once, before the first frame renders</span></span>
+<span class="ln">    <span class="kw">void</span> <span class="fn">Start</span>()</span>
+<span class="ln">    {</span>
+<span class="ln">        rb = <span class="fn">GetComponent</span>&lt;<span class="ty">Rigidbody</span>&gt;();</span>
+<span class="ln">    }</span>
+<span class="ln"></span>
+<span class="ln">    <span class="cm">// Called every frame — ~60× per second at 60 fps</span></span>
+<span class="ln">    <span class="kw">void</span> <span class="fn">Update</span>()</span>
+<span class="ln">    {</span>
+<span class="ln">        <span class="kw">float</span> h = <span class="ty">Input</span>.<span class="fn">GetAxis</span>(<span class="st">"Horizontal"</span>);</span>
+<span class="ln">        <span class="kw">float</span> v = <span class="ty">Input</span>.<span class="fn">GetAxis</span>(<span class="st">"Vertical"</span>);</span>
+<span class="ln">        <span class="ty">Vector3</span> move = <span class="kw">new</span> <span class="ty">Vector3</span>(h, <span class="nm">0f</span>, v) * speed;</span>
+<span class="ln">        rb.velocity = move;</span>
+<span class="ln">    }</span>
+<span class="ln">}</span>
+        </div>
+
+        <p>That's a complete, working player controller — about 20 lines. Notice the pattern: <code>Start()</code> to initialise once, <code>Update()</code> to tick every frame. Unity calls these automatically; you write the <em>what</em>, not the <em>when</em>.</p>
+
+        <div class="callout amber">
+          <div class="callout-label">Surprising detail</div>
+          Unity compiles your C# to an intermediate language, then uses a technique called <strong>IL2CPP</strong> to convert that to C++ source, which is then compiled to native machine code for each target platform. The result is faster runtime performance and makes your game logic much harder to decompile. A consequence: stack traces on device can look alien compared to what you see in the editor.
+        </div>
+
+        <h3>The event execution order</h3>
+        <p>Unity calls MonoBehaviour methods in a specific order. Knowing this order prevents a whole class of bugs:</p>
+
+        <div class="code-block">
+<span class="ln"><span class="cm">// Initialisation (once per object lifetime)</span></span>
+<span class="ln"><span class="fn">Awake</span>()        <span class="cm">// even if the component is disabled — use for self-setup</span></span>
+<span class="ln"><span class="fn">OnEnable</span>()     <span class="cm">// every time the object is activated</span></span>
+<span class="ln"><span class="fn">Start</span>()        <span class="cm">// before the first frame, if enabled — use for cross-object wiring</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="cm">// Per-frame (variable rate)</span></span>
+<span class="ln"><span class="fn">Update</span>()       <span class="cm">// input, game logic, timers</span></span>
+<span class="ln"><span class="fn">LateUpdate</span>()   <span class="cm">// after ALL Update()s — camera follow goes here</span></span>
+<span class="ln"></span>
+<span class="ln"><span class="cm">// Fixed timestep (default 50 Hz — decoupled from framerate)</span></span>
+<span class="ln"><span class="fn">FixedUpdate</span>()  <span class="cm">// all physics forces and velocity changes go here, NOT Update()</span></span>
+        </div>
+
+        <p>The single most common beginner mistake: putting physics forces in <code>Update()</code>. Because <code>Update()</code> runs at the display framerate (variable), physics driven from it becomes framerate-dependent — running faster on a 144 Hz monitor than a 30 Hz phone. <code>FixedUpdate()</code> runs at a fixed 50 Hz by default, completely decoupled from rendering.</p>
+
+        <h3>Prefabs</h3>
+        <p>A <strong>Prefab</strong> is a saved template of a configured GameObject and all its components. Drag a prefab into a scene to spawn an instance. Change the prefab template and every instance updates automatically. This is how you create 200 identical enemies without configuring 200 separate objects — and how you safely update them all in one edit.</p>
+      </section>
+
+      <!-- 4. Render Pipelines -->
+      <section id="render-pipelines">
+        <h2>Render Pipelines</h2>
+        <p>One of Unity's most confusing aspects for newcomers: it has <strong>three distinct rendering backends</strong>. You choose one per project at creation time. The choice affects which shaders work, which post-processing effects are available, and how lighting behaves. Switching pipelines later is painful — it requires converting all materials.</p>
+
+        <div class="pipeline-cards">
+          <div class="pipeline-card pc-builtin">
+            <h3>Built-In Pipeline</h3>
+            <div class="pipeline-badge">Legacy</div>
+            <p>Unity's original renderer. Supports almost everything but is not extensible or particularly performant. Still used by thousands of older tutorials online. Do not start new projects with it — you'll hit walls quickly.</p>
+          </div>
+          <div class="pipeline-card pc-urp">
+            <h3>Universal Render Pipeline</h3>
+            <div class="pipeline-badge">Recommended</div>
+            <p>Unity's current default for new projects. Fast across mobile, console, and PC. Built on the Scriptable Render Pipeline — you can customise the rendering pass order in code. Most third-party assets now support URP. This is the right choice for the vast majority of new games.</p>
+          </div>
+          <div class="pipeline-card pc-hdrp">
+            <h3>High Definition Render Pipeline</h3>
+            <div class="pipeline-badge">High-Fidelity</div>
+            <p>Physically-based lighting, volumetric fog, ray tracing, subsurface scattering. Requires powerful hardware — unsuitable for mobile. Used for cinematic-quality PC and console games. Beautiful results, steep learning curve, limited asset store compatibility.</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout-label">Classic gotcha</div>
+          If you find a Unity shader or post-effect tutorial online, check which pipeline it targets. A shader written for HDRP is incompatible with URP and will show as a pink error material. This trips up nearly every beginner at least once.
+        </div>
+      </section>
+
+      <!-- 5. Getting Started -->
+      <section id="getting-started">
+        <h2>Getting Started</h2>
+        <p>Zero to running project takes about 15 minutes. Here's the direct path:</p>
+
+        <ol class="steps">
+          <li>
+            <div class="step-body">
+              <h4>Install Unity Hub</h4>
+              <p>Unity Hub is the launcher and version manager — download it from unity.com. It lets you install multiple Unity versions side-by-side. Always install the latest LTS (Long Term Support) release for new projects. LTS versions receive bug fixes for two years; non-LTS releases are stable but receive fewer patches.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <h4>Create a project from a template</h4>
+              <p>In Unity Hub click New Project. Choose <strong>3D (URP)</strong> for a 3D game or <strong>2D (URP)</strong> for a side-scroller or top-down game. The template pre-configures the render pipeline and asset import settings for you. Do not choose the legacy "3D (Built-In)" template.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <h4>Learn the five core panels</h4>
+              <p><strong>Scene</strong> — your 3D editor viewport. <strong>Hierarchy</strong> — all GameObjects in the active scene. <strong>Project</strong> — your files on disk. <strong>Inspector</strong> — properties of whatever's selected. <strong>Game</strong> — what the player's camera sees. Every tutorial references these five constantly. Recognise them early.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <h4>Write your first C# script</h4>
+              <p>In the Project panel: right-click → Create → C# Script. Name it (no spaces). Double-click to open in Visual Studio or Rider. The file opens with <code>Start()</code> and <code>Update()</code> already stubbed. In the Hierarchy, select a GameObject, then drag your script file onto it in the Inspector. Hit Play.</p>
+            </div>
+          </li>
+          <li>
+            <div class="step-body">
+              <h4>Do the official beginner tutorials</h4>
+              <p>Unity Learn (learn.unity.com) is free and genuinely well-made. The <em>Creator Kit: Beginner Code</em> project hands you a complete action RPG and teaches you to extend it with scripts. Do this before anything else — it teaches the editor, the Hierarchy, Components, and C# fundamentals simultaneously in a real context.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="callout amber">
+          <div class="callout-label">Editor tip</div>
+          For your IDE, consider <strong>JetBrains Rider</strong> over Visual Studio. It has Unity-specific intelligence: it knows which methods are called by the engine (not just your code), warns about expensive calls inside <code>Update()</code>, and autocompletes the full Unity API with documentation inline. A free 30-day trial is enough to know if it suits you.
+        </div>
+      </section>
+
+      <!-- 6. Famous Games -->
+      <section id="famous-games">
+        <h2>Famous Games Built With Unity</h2>
+        <p>Unity's roster spans two-person bedroom studios to 200-person production teams and billion-dollar publishers. The common thread: Unity excels where cross-platform reach, rapid iteration, and a vast asset ecosystem matter more than raw graphical horsepower.</p>
+
+        <div class="games-grid">
+          <div class="game-card">
+            <div class="game-emoji">📱</div>
+            <div class="game-title">Pokémon GO</div>
+            <div class="game-studio">Niantic · 2016</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">🔪</div>
+            <div class="game-title">Among Us</div>
+            <div class="game-studio">Innersloth · 2018</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">🦋</div>
+            <div class="game-title">Hollow Knight</div>
+            <div class="game-studio">Team Cherry · 2017</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">☕</div>
+            <div class="game-title">Cuphead</div>
+            <div class="game-studio">Studio MDHR · 2017</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">⚔️</div>
+            <div class="game-title">Genshin Impact</div>
+            <div class="game-studio">HoYoverse · 2020</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">🃏</div>
+            <div class="game-title">Hearthstone</div>
+            <div class="game-studio">Blizzard · 2014</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">🏙️</div>
+            <div class="game-title">Cities: Skylines</div>
+            <div class="game-studio">Colossal Order · 2015</div>
+          </div>
+          <div class="game-card">
+            <div class="game-emoji">🌲</div>
+            <div class="game-title">Sons of the Forest</div>
+            <div class="game-studio">Endnight · 2024</div>
+          </div>
+        </div>
+
+        <p><strong>Genshin Impact</strong> is arguably the most technically impressive Unity game ever shipped: a fully open-world action RPG running in real-time on iOS, Android, PC, and PlayStation simultaneously, with hundreds of millions of downloads. It dismantled the assumption that Unity had a low ceiling for AAA-scale ambition.</p>
+
+        <p><strong>Cuphead's</strong> 1930s rubber-hose animation — which looks like it was cel-animated on actual film — runs inside Unity's 2D animation system with custom shaders that mimic film grain, projector flicker, and colour bleed. The visual style required vastly more work than the code underneath it.</p>
+
+        <div class="callout">
+          <div class="callout-label">Surprising detail</div>
+          <em>Among Us</em> was released in 2018 to almost zero audience. It sat dormant for two years. Then, in 2020, a handful of large Twitch streamers picked it up during lockdowns, and it exploded to over 500 million active players. The Unity codebase hadn't been optimised for that scale — the developers spent months of emergency patching to keep servers alive. The engine held; the backend infrastructure didn't.
+        </div>
+      </section>
+
+      <!-- 7. Unity vs Unreal -->
+      <section id="unity-vs-unreal">
+        <h2>Unity vs Unreal Engine</h2>
+        <p>The two dominant engines are often framed as rivals. They're better understood as different tools for different jobs — each genuinely better than the other in specific contexts.</p>
+
+        <table class="vs-table">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Unity</th>
+              <th>Unreal Engine 5</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Primary language</strong></td>
+              <td>C# — approachable, excellent tooling</td>
+              <td>C++ and Blueprints (visual scripting)</td>
+            </tr>
+            <tr>
+              <td><strong>Mobile games</strong></td>
+              <td>Dominant — 71% of top 1K mobile titles</td>
+              <td>Possible but uncommon</td>
+            </tr>
+            <tr>
+              <td><strong>AAA visuals</strong></td>
+              <td>Very good via HDRP</td>
+              <td>Industry-leading — Nanite, Lumen, ray tracing</td>
+            </tr>
+            <tr>
+              <td><strong>Asset marketplace</strong></td>
+              <td>Massive — 70,000+ Unity Asset Store items</td>
+              <td>Fab marketplace — growing fast since 2024</td>
+            </tr>
+            <tr>
+              <td><strong>Learning curve</strong></td>
+              <td>Gentler — especially for C# newcomers</td>
+              <td>Steeper — more concepts to understand upfront</td>
+            </tr>
+            <tr>
+              <td><strong>2D games</strong></td>
+              <td>First-class 2D pipeline built-in</td>
+              <td>Possible, but feels like a workaround</td>
+            </tr>
+            <tr>
+              <td><strong>Indie presence</strong></td>
+              <td>Enormous — most indie games use Unity</td>
+              <td>Growing rapidly, historically AAA-only</td>
+            </tr>
+            <tr>
+              <td><strong>Royalties</strong></td>
+              <td>5% on revenue above $200K/year (Unity Pro)</td>
+              <td>5% on revenue above $1M lifetime</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>Honest guidance: if you're making a mobile game, a 2D game, or learning game development for the first time — start with Unity. If your target is a photorealistic first-person PC or console game with cinematic lighting — consider Unreal. There's no universally wrong answer, but there is a better fit for each project type.</p>
+      </section>
+
+      <!-- 8. The Controversy -->
+      <section id="controversy">
+        <h2>The 2023 Runtime Fee Crisis</h2>
+        <p>No honest overview of Unity omits this. It's one of the most spectacular trust failures in the modern games industry — and understanding it matters if you're thinking about building a business on this engine.</p>
+
+        <div class="controversy-box">
+          <h3>What was announced</h3>
+          <p>On <strong>September 12, 2023</strong>, Unity announced a new <em>Runtime Fee</em>: developers would be charged <strong>$0.20 per install</strong> for any game that had crossed $200K in revenue AND 200K lifetime installs. The policy was retroactive — it applied to games already shipped, built under entirely different contractual terms.</p>
+          <p style="margin-top:12px;">The fee was per-<em>install</em>, not per-sale. A game downloaded and deleted repeatedly would accrue fees with zero corresponding revenue. Unity had no technical means to distinguish genuine purchases from piracy, reinstalls, or game pass includes — meaning developers would be billed for copies they never earned a penny from.</p>
+        </div>
+
+        <h3>The developer response</h3>
+        <p>The backlash was immediate and unusually unified. <strong>Innersloth</strong> (Among Us) announced they were evaluating migrating off Unity. <strong>Facepunch</strong> (Rust) declared they would never make another Unity game. <strong>Massive Monster</strong> threatened to delete their game entirely rather than pay retroactive fees. Within days, dozens of studios had published migration timelines to Godot and Unreal Engine.</p>
+        <p>Compounding the problem: Unity CEO John Riccitiello had previously, in an unrelated interview, called developers who didn't think about monetisation from day one <em>"f***ing idiots."</em> That quote resurfaced immediately and destroyed any remaining goodwill.</p>
+
+        <h3>Outcome</h3>
+        <p>Unity reversed course within weeks. The Runtime Fee was formally cancelled. Riccitiello resigned. The policy was replaced with traditional subscription price increases — painful, but comprehensible. The long-term damage, however, was real: <strong>trust eroded substantially</strong>. Godot (the open-source alternative) saw a 300% spike in contributors and downloads. Unity's Steam market share has declined year-on-year since 2023, with Unreal gaining ground.</p>
+
+        <div class="callout amber">
+          <div class="callout-label">The structural lesson</div>
+          The Runtime Fee is now a case study in how <em>not</em> to change platform pricing. The critical mistake wasn't the fee itself — it was the <strong>retroactive application</strong> to games built under different terms, and the per-install trigger that made future costs impossible to model. Developers had built businesses on the assumption that the terms they shipped under would remain. That assumption turned out to be wrong.
+        </div>
+      </section>
+
+      <!-- 9. Quiz -->
+      <section id="quiz">
+        <h2>Quiz</h2>
+        <p>Test what you've picked up. Answer as you go, then hit Check Answers for your score.</p>
+
+        <div class="quiz-wrap" id="quizWrap">
+
+          <div class="quiz-q" data-answer="1">
+            <div class="q-text">1. What is the core building block of a Unity scene?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" data-idx="0">A MonoBehaviour script</button>
+              <button class="quiz-opt" data-idx="1">A GameObject</button>
+              <button class="quiz-opt" data-idx="2">A Prefab</button>
+              <button class="quiz-opt" data-idx="3">A Transform component</button>
+            </div>
+            <div class="q-feedback">GameObjects are empty containers that hold components — including scripts, renderers, colliders, and physics bodies. A Transform is a component <em>on</em> a GameObject. Prefabs are saved templates <em>of</em> GameObjects.</div>
+          </div>
+
+          <div class="quiz-q" data-answer="2">
+            <div class="q-text">2. Where should physics forces and velocity changes be applied in a Unity script?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" data-idx="0">Update()</button>
+              <button class="quiz-opt" data-idx="1">Start()</button>
+              <button class="quiz-opt" data-idx="2">FixedUpdate()</button>
+              <button class="quiz-opt" data-idx="3">LateUpdate()</button>
+            </div>
+            <div class="q-feedback">FixedUpdate() runs on a fixed physics timestep (default 50 Hz), decoupled from the rendering framerate. Driving physics from Update() creates framerate-dependent behaviour — your game runs faster at 144 Hz than at 30 Hz.</div>
+          </div>
+
+          <div class="quiz-q" data-answer="0">
+            <div class="q-text">3. Which render pipeline is Unity's recommended default for new projects in 2024–2026?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" data-idx="0">Universal Render Pipeline (URP)</button>
+              <button class="quiz-opt" data-idx="1">High Definition Render Pipeline (HDRP)</button>
+              <button class="quiz-opt" data-idx="2">Built-In Render Pipeline</button>
+              <button class="quiz-opt" data-idx="3">Scriptable Render Pipeline (SRP)</button>
+            </div>
+            <div class="q-feedback">URP is Unity's current recommended default — it performs well on mobile through to high-end PC. HDRP is for high-fidelity PC/console games only. The Built-In pipeline is legacy. SRP is the framework both URP and HDRP are built on — it's not a pipeline you'd select directly.</div>
+          </div>
+
+          <div class="quiz-q" data-answer="3">
+            <div class="q-text">4. Where and when did Unity 1.0 publicly launch?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" data-idx="0">GDC in San Francisco, 2003</button>
+              <button class="quiz-opt" data-idx="1">E3 in Los Angeles, 2006</button>
+              <button class="quiz-opt" data-idx="2">PAX East, 2004</button>
+              <button class="quiz-opt" data-idx="3">Apple's WWDC in San Francisco, 2005</button>
+            </div>
+            <div class="q-feedback">The three Copenhagen founders demoed Unity 1.0 at Apple's Worldwide Developers Conference in June 2005 — initially as a Mac-only engine. The reaction from Mac developers confirmed their pivot from making games to selling the engine.</div>
+          </div>
+
+          <div class="quiz-q" data-answer="1">
+            <div class="q-text">5. What was the fundamental structural flaw in the 2023 Unity Runtime Fee that made it unworkable for developers?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" data-idx="0">It applied only to mobile games, not PC</button>
+              <button class="quiz-opt" data-idx="1">The fee triggered on installs (not revenue) and was applied retroactively to already-shipped games</button>
+              <button class="quiz-opt" data-idx="2">Unity removed the free tier at the same time</button>
+              <button class="quiz-opt" data-idx="3">The fee was too small to actually collect meaningful revenue</button>
+            </div>
+            <div class="q-feedback">The fee triggered on <em>installs</em>, not revenue — meaning pirated copies, reinstalls, and game pass downloads all counted. It applied retroactively to games already shipped under different terms. Unity also had no technical way to distinguish legitimate installs from ghost ones, making future costs impossible to forecast.</div>
+          </div>
+
+          <div class="quiz-q" data-answer="0">
+            <div class="q-text">6. Approximately what share of the top 1,000 mobile games are built with Unity?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" data-idx="0">Around 71%</button>
+              <button class="quiz-opt" data-idx="1">Around 30%</button>
+              <button class="quiz-opt" data-idx="2">Around 50%</button>
+              <button class="quiz-opt" data-idx="3">Around 90%</button>
+            </div>
+            <div class="q-feedback">71% of the top 1,000 mobile games are Unity titles. On Steam, roughly half of all released games use Unity. No other engine comes close for raw volume — though Unreal games tend to achieve higher individual sales.</div>
+          </div>
+
+        </div>
+
+        <button class="quiz-submit" id="quizSubmit">Check Answers</button>
+        <div class="quiz-score" id="quizScore">
+          <div class="score-num" id="scoreNum"></div>
+          <div class="score-label" id="scoreLabel"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // ── Side nav IntersectionObserver ──────────────
+    (function () {
+      var navLinks = Array.from(document.querySelectorAll('#sideNav a'));
+      var sections = navLinks.map(function (a) {
+        return document.getElementById(a.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            navLinks.forEach(function (a) {
+              a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { rootMargin: '-15% 0px -75% 0px' });
+
+      sections.forEach(function (s) { observer.observe(s); });
+    })();
+
+    // ── Mobile nav toggle ──────────────────────────
+    document.getElementById('mobToggle').addEventListener('click', function () {
+      document.getElementById('mobList').classList.toggle('open');
+    });
+
+    // ── Scene explorer data ────────────────────────
+    var goData = {
+      player: [
+        { i: '📐', n: 'Transform',               d: 'Position (0, 0, 0) · Rotation (0°, 0°, 0°) · Scale (1, 1, 1)' },
+        { i: '🎨', n: 'Mesh Renderer',           d: 'Renders the 3D mesh. Material: PlayerMat. Shadows: Cast & Receive.' },
+        { i: '📦', n: 'Capsule Collider',        d: 'Physics collision shape. Radius: 0.5 · Height: 2.0 · Center: (0, 1, 0)' },
+        { i: '⚖️', n: 'Rigidbody',              d: 'Physics simulation. Mass: 1 kg · Drag: 0 · Freeze Rotation: X, Z' },
+        { i: '🎮', n: 'PlayerController (Script)', d: 'Custom C# script. speed: 5.0 · jumpForce: 8.0' },
+        { i: '❤️', n: 'Health (Script)',          d: 'maxHealth: 100 · currentHealth: 100 · isInvincible: false' },
+      ],
+      camera: [
+        { i: '📐', n: 'Transform',     d: 'Position (0, 2, −5) · Rotation (15°, 0°, 0°) · Scale (1, 1, 1)' },
+        { i: '🎥', n: 'Camera',        d: 'Field of View: 60° · Near Clip: 0.3 · Far Clip: 1000 · Projection: Perspective' },
+        { i: '🔊', n: 'Audio Listener', d: 'Receives all 3D spatial audio. There should be exactly one active per scene.' },
+        { i: '✨', n: 'Volume',         d: 'Post-processing profile: Bloom, Tonemapping (ACES), Vignette, Depth of Field.' },
+      ],
+      light: [
+        { i: '📐', n: 'Transform', d: 'Rotation (50°, −30°, 0°) — direction only, position is irrelevant for Directional lights.' },
+        { i: '💡', n: 'Light',     d: 'Type: Directional · Color: #FFF0D0 (warm white) · Intensity: 1.2 · Shadows: Soft' },
+      ],
+      enemy: [
+        { i: '📐', n: 'Transform',          d: 'Position (10, 0, 5) · Rotation (0°, 180°, 0°)' },
+        { i: '🎨', n: 'Mesh Renderer',      d: 'EnemyMesh with red emissive material.' },
+        { i: '📦', n: 'Box Collider',        d: 'Size (0.9, 1.9, 0.6) · Center (0, 0.95, 0)' },
+        { i: '⚖️', n: 'Rigidbody',         d: 'Mass: 2 kg · Freeze Rotation: X, Z' },
+        { i: '🤖', n: 'EnemyAI (Script)',    d: 'detectionRange: 12 · moveSpeed: 3.5 · state: Patrol' },
+        { i: '❤️', n: 'Health (Script)',     d: 'maxHealth: 60 · currentHealth: 60' },
+      ],
+      terrain: [
+        { i: '📐', n: 'Transform',      d: 'Position (0, 0, 0) · Scale (1, 1, 1)' },
+        { i: '🌿', n: 'Terrain',        d: 'Size: 500 × 500 m · Max Height: 300 m · Heightmap Res: 513 · 4 terrain layers.' },
+        { i: '🧱', n: 'Terrain Collider', d: 'Physics collider matching the terrain heightmap exactly.' },
+      ],
+    };
+
+    function selectGO(el) {
+      document.querySelectorAll('.go-item').forEach(function (x) { x.classList.remove('selected'); });
+      el.classList.add('selected');
+      var data = goData[el.dataset.go] || [];
+      document.getElementById('compDisplay').innerHTML = data.map(function (c) {
+        return '<div class="comp-card"><div class="comp-icon">' + c.i + '</div>'
+             + '<div><div class="comp-name">' + c.n + '</div>'
+             + '<div class="comp-desc">' + c.d + '</div></div></div>';
+      }).join('');
+    }
+
+    // ── Quiz ───────────────────────────────────────
+    var userAnswers = {};
+
+    document.querySelectorAll('.quiz-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var q    = btn.closest('.quiz-q');
+        var qIdx = Array.from(document.querySelectorAll('.quiz-q')).indexOf(q);
+        if (userAnswers[qIdx] !== undefined) return;
+
+        var correct = parseInt(q.dataset.answer, 10);
+        var chosen  = parseInt(btn.dataset.idx, 10);
+        userAnswers[qIdx] = chosen;
+
+        q.querySelectorAll('.quiz-opt').forEach(function (b) {
+          b.classList.add('disabled');
+          if (parseInt(b.dataset.idx, 10) === correct) b.classList.add('correct');
+        });
+        if (chosen !== correct) btn.classList.add('wrong');
+        q.querySelector('.q-feedback').classList.add('show');
+      });
+    });
+
+    document.getElementById('quizSubmit').addEventListener('click', function () {
+      var questions = Array.from(document.querySelectorAll('.quiz-q'));
+      var score = 0;
+
+      questions.forEach(function (q, i) {
+        var correct = parseInt(q.dataset.answer, 10);
+        if (userAnswers[i] === undefined) {
+          q.querySelectorAll('.quiz-opt').forEach(function (b) {
+            b.classList.add('disabled');
+            if (parseInt(b.dataset.idx, 10) === correct) b.classList.add('correct');
+          });
+          q.querySelector('.q-feedback').classList.add('show');
+        } else if (userAnswers[i] === correct) {
+          score++;
+        }
+      });
+
+      var total = questions.length;
+      var pct   = score / total;
+      document.getElementById('scoreNum').textContent  = score + ' / ' + total;
+      document.getElementById('scoreLabel').textContent =
+        pct === 1      ? 'Perfect score. You nailed every question.' :
+        pct >= 4/6     ? 'Strong — you\'ve got the fundamentals down.' :
+        pct >= 3/6     ? 'Solid. A couple of gaps worth revisiting.' :
+        pct >= 2/6     ? 'Not bad — go back through the harder sections.' :
+                         'Keep reading — it\'ll click on a second pass.';
+
+      var scoreEl = document.getElementById('quizScore');
+      scoreEl.classList.add('show');
+      this.disabled = true;
+    });
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>
