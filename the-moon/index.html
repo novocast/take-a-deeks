@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Moon — Take a deeks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #b8cfe8;
+      --c2: #e8960a;
+      --bg: #07090f;
+      --surface: #0d1421;
+      --surface2: #111927;
+      --text: #b8c8d8;
+      --muted: #4e6070;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    #starfield {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── SIDE NAV ─── */
+    .sidenav {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 6px;
+      z-index: 50;
+      background: rgba(7,9,15,0.75);
+      backdrop-filter: blur(8px);
+      border-right: 1px solid rgba(184,207,232,0.07);
+      border-radius: 0 10px 10px 0;
+    }
+
+    .sidenav a {
+      font-size: 0.67rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      border-left: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .sidenav a:hover { color: var(--c1); background: rgba(184,207,232,0.06); }
+    .sidenav a.active { color: var(--c1); border-left-color: var(--accent, #0d1b2a); background: rgba(184,207,232,0.07); }
+
+    /* ─── TOP NAV (mobile) ─── */
+    .topnav {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(7,9,15,0.96);
+      border-bottom: 1px solid rgba(184,207,232,0.07);
+      padding: 8px 16px;
+    }
+
+    .topnav-toggle {
+      background: none;
+      border: 1px solid rgba(184,207,232,0.2);
+      color: var(--c1);
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .topnav-links { display: none; flex-wrap: wrap; gap: 6px; padding-top: 8px; }
+    .topnav-links.open { display: flex; }
+    .topnav-links a {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 4px 10px;
+      border: 1px solid rgba(184,207,232,0.1);
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+    .topnav-links a:hover { color: var(--c1); }
+
+    /* ─── MAIN ─── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 32px 100px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 95vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 0 48px;
+    }
+
+    .moon-wrap {
+      position: relative;
+      width: 420px;
+      height: 420px;
+      margin-bottom: 44px;
+      will-change: transform;
+    }
+
+    .moon-glow {
+      position: absolute;
+      inset: -40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(184,207,232,0.08) 0%, transparent 70%);
+      animation: pulseGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%,100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+
+    .moon-body {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #050505 url('https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg') center/124% no-repeat;
+      box-shadow:
+        0 0 70px rgba(184,207,232,0.13),
+        0 0 200px rgba(184,207,232,0.04);
+      animation: moonFloat 9s ease-in-out infinite;
+      overflow: hidden;
+    }
+
+    /* Limb darkening — very subtle, only the outermost edge */
+    .moon-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, transparent 90%, rgba(0,0,0,0.3) 100%);
+      pointer-events: none;
+    }
+
+    @keyframes moonFloat {
+      0%,100% { transform: translateY(0) rotate(-1.5deg); }
+      50% { transform: translateY(-10px) rotate(1.5deg); }
+    }
+
+    h1.hero-title {
+      font-size: clamp(2.6rem, 7vw, 4.4rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.025em;
+      margin-bottom: 10px;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 48px;
+      line-height: 1.6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.07);
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .stat-val {
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--c1);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.67rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+
+    /* ─── SECTION BASE ─── */
+    section {
+      padding: 72px 0;
+      border-top: 1px solid rgba(184,207,232,0.05);
+    }
+
+    section h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--c1);
+      letter-spacing: -0.015em;
+      margin-bottom: 22px;
+    }
+
+    section h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #dde8f4;
+      margin: 32px 0 10px;
+    }
+
+    p { margin-bottom: 16px; }
+
+    strong { color: #dde8f4; }
+
+    .callout {
+      background: rgba(232,150,10,0.07);
+      border-left: 3px solid var(--c2);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0;
+      font-size: 0.92rem;
+    }
+
+    .callout.blue {
+      background: rgba(184,207,232,0.06);
+      border-left-color: var(--c1);
+    }
+
+    /* ─── TWO COL ─── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .col-block {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.07);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .col-block h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--c1);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .col-block p { font-size: 0.87rem; color: var(--muted); margin: 0; line-height: 1.6; }
+
+    /* ─── FACT GRID ─── */
+    .fact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .fact-card {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.07);
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .fact-card h4 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--c1);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .fact-card p { font-size: 0.84rem; color: var(--muted); margin: 0; line-height: 1.55; }
+
+    /* ─── LAYER DIAGRAM ─── */
+    .layer-diagram {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      margin: 32px 0;
+      flex-wrap: wrap;
+    }
+
+    .layer-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .layer-tab {
+      padding: 5px 14px;
+      font-size: 0.78rem;
+      border-radius: 20px;
+      border: 1px solid rgba(184,207,232,0.14);
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .layer-tab.active { background: var(--c1); color: #07090f; border-color: var(--c1); font-weight: 600; }
+
+    .layer-panel { display: none; background: var(--surface2); border: 1px solid rgba(184,207,232,0.08); border-radius: 8px; padding: 16px 18px; }
+    .layer-panel.active { display: block; }
+    .layer-panel h4 { color: var(--c1); font-size: 0.92rem; margin-bottom: 8px; }
+    .layer-panel p { font-size: 0.87rem; margin: 0; color: var(--muted); line-height: 1.6; }
+
+    /* ─── PHASE WHEEL ─── */
+    .phase-wrap {
+      display: flex;
+      gap: 36px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin: 32px 0;
+    }
+
+    .phase-canvas-col { flex-shrink: 0; }
+
+    #phaseCanvas { display: block; cursor: grab; }
+
+    .phase-slider-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      margin: 12px 0 4px;
+    }
+
+    input[type=range] { width: 100%; accent-color: var(--c1); cursor: pointer; }
+
+    .phase-day-display {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .phase-info-col { flex: 1; min-width: 220px; }
+
+    .phase-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 10px;
+    }
+
+    .phase-desc { font-size: 0.9rem; line-height: 1.65; }
+
+    .eclipse-box {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.08);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+      font-size: 0.84rem;
+    }
+
+    .eclipse-box strong { display: block; color: var(--c1); margin-bottom: 6px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ─── TIMELINE ─── */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+      margin: 32px 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--c1), var(--c2), rgba(184,207,232,0.1));
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--c1);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 6px rgba(184,207,232,0.4);
+    }
+
+    .tl-year { font-size: 0.72rem; color: var(--c2); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tl-title { font-size: 0.95rem; font-weight: 600; color: #dde8f4; margin: 2px 0 5px; }
+    .tl-desc { font-size: 0.85rem; color: var(--muted); margin: 0; line-height: 1.55; }
+
+    /* ─── RECESSION CHART ─── */
+    .recession-chart {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.07);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+
+    .recession-chart h4 {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 20px;
+    }
+
+    .rbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .rbar-label { font-size: 0.78rem; color: var(--muted); width: 110px; flex-shrink: 0; }
+
+    .rbar-track {
+      flex: 1;
+      height: 7px;
+      background: rgba(184,207,232,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .rbar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(to right, var(--c1), var(--c2));
+    }
+
+    .rbar-val { font-size: 0.78rem; color: var(--c2); width: 82px; flex-shrink: 0; }
+
+    /* ─── QUIZ ─── */
+    .quiz-card {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.07);
+      border-radius: 12px;
+      padding: 24px 26px;
+      margin: 16px 0;
+    }
+
+    .quiz-q { font-size: 0.98rem; font-weight: 600; color: #dde8f4; margin-bottom: 16px; }
+
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+
+    .quiz-opt {
+      background: rgba(184,207,232,0.04);
+      border: 1px solid rgba(184,207,232,0.1);
+      border-radius: 8px;
+      padding: 11px 15px;
+      text-align: left;
+      color: var(--text);
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      line-height: 1.4;
+    }
+
+    .quiz-opt:hover:not(:disabled) { background: rgba(184,207,232,0.09); border-color: rgba(184,207,232,0.25); }
+    .quiz-opt.correct { background: rgba(50,200,100,0.12); border-color: #32c864; color: #80e8a4; }
+    .quiz-opt.wrong { background: rgba(200,60,60,0.12); border-color: #c83c3c; color: #e89090; }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 14px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-top: 14px;
+      border-top: 1px solid rgba(184,207,232,0.06);
+    }
+
+    .quiz-feedback.show { display: block; }
+
+    /* ─── SURFACE TYPES ─── */
+    .surface-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .surface-block {
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid rgba(184,207,232,0.07);
+    }
+
+    .surface-block.dark { background: #0c1520; }
+    .surface-block.light { background: #181820; }
+
+    .surface-block .swatch {
+      width: 100%;
+      height: 60px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
+
+    .swatch-dark { background: radial-gradient(circle, #3a3428 20%, #1e1a12 100%); }
+    .swatch-light { background: radial-gradient(circle, #c8c0b0 20%, #908880 100%); }
+
+    .surface-block h4 { font-size: 0.82rem; font-weight: 700; color: var(--c1); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .surface-block p { font-size: 0.84rem; color: var(--muted); margin: 0; line-height: 1.55; }
+
+    /* ─── BIG STAT ─── */
+    .big-stat-row {
+      display: flex;
+      gap: 24px;
+      margin: 24px 0;
+      flex-wrap: wrap;
+    }
+
+    .big-stat {
+      background: var(--surface);
+      border: 1px solid rgba(184,207,232,0.07);
+      border-radius: 10px;
+      padding: 20px 24px;
+      min-width: 140px;
+    }
+
+    .big-stat .num { font-size: 2.2rem; font-weight: 800; color: var(--c1); letter-spacing: -0.03em; line-height: 1; }
+    .big-stat .unit { font-size: 0.85rem; color: var(--c2); margin-top: 2px; }
+    .big-stat .desc { font-size: 0.78rem; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 920px) {
+      main { padding-left: 24px; }
+      .sidenav { display: none; }
+      .topnav { display: block; }
+    }
+
+    @media (max-width: 600px) {
+      main { padding: 0 16px 80px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col, .surface-compare { grid-template-columns: 1fr; }
+      .phase-wrap { flex-direction: column; }
+      .layer-diagram { flex-direction: column; }
+    }
+  </style>
+</head>
+<body data-page-id="the-moon" style="--accent: #0d1b2a;">
+
+  <div id="starfield"></div>
+
+  <!-- Mobile nav -->
+  <nav class="topnav">
+    <button class="topnav-toggle" onclick="this.nextElementSibling.classList.toggle('open')">&#9776; Sections</button>
+    <div class="topnav-links">
+      <a href="#birth">Birth</a>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#surface">Surface</a>
+      <a href="#orbit">Orbit</a>
+      <a href="#tides">Tides</a>
+      <a href="#phases">Phases</a>
+      <a href="#apollo">Apollo</a>
+      <a href="#future">Future</a>
+      <a href="#quiz">Quiz</a>
+    </div>
+  </nav>
+
+  <!-- Desktop side nav -->
+  <nav class="sidenav" aria-label="Page sections">
+    <a href="#hero">Overview</a>
+    <a href="#birth">Birth</a>
+    <a href="#anatomy">Anatomy</a>
+    <a href="#surface">Surface</a>
+    <a href="#orbit">Orbit</a>
+    <a href="#tides">Tides</a>
+    <a href="#phases">Phases</a>
+    <a href="#apollo">Apollo</a>
+    <a href="#future">Future</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+
+  <main>
+
+    <!-- ═══ HERO ═══ -->
+    <div class="hero" id="hero">
+      <div class="moon-wrap">
+        <div class="moon-glow"></div>
+        <div class="moon-body"></div>
+      </div>
+      <h1 class="hero-title">The Moon</h1>
+      <p class="hero-sub">Earth's only natural satellite — a world forged in planetary catastrophe, locked in gravitational conversation with us, and still concealing surprises.</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-val">384,400</span>
+          <span class="stat-label">km mean distance</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">27.32</span>
+          <span class="stat-label">day sidereal orbit</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">1,737</span>
+          <span class="stat-label">km radius</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">0.0123</span>
+          <span class="stat-label">× Earth mass</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">4.51</span>
+          <span class="stat-label">billion years old</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">3.82</span>
+          <span class="stat-label">cm/yr recession</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ BIRTH ═══ -->
+    <section id="birth">
+      <h2>Birth of a World</h2>
+
+      <p>The Moon didn't form quietly. The dominant theory — the <strong>Giant Impact Hypothesis</strong> — holds that roughly 4.51 billion years ago, a Mars-sized protoplanet called <strong>Theia</strong> slammed into the early Earth at a glancing angle. The collision was so violent that both objects were largely vaporised. The debris — mostly Theia's mantle material and Earth's outer layers — coalesced in orbit within perhaps a few thousand years into what we now call the Moon. This model explains why the Moon has almost no iron core (it's made of outer-layer material, not core material), why it's anomalously large for its host planet, and why it orbits so close to Earth's equatorial plane.</p>
+
+      <h3>The isotope crisis</h3>
+      <p>The hypothesis ran into a wall in the early 2000s when geochemists started measuring isotope ratios with extreme precision. Earth and Moon rocks are nearly <em>identical</em> in oxygen, titanium, chromium, and silicon isotopes. In the canonical model, the Moon should be 70–90% Theia material — but if Theia formed in a different part of the solar system (which is expected), it should have had different isotopic fingerprints. The similarity is far too close to be coincidence under the standard model.</p>
+
+      <div class="callout">
+        <strong>The Isotope Crisis, simply:</strong> If I smash a rock from France into a rock from Japan and collect the debris, the debris should look chemically distinct from pure French rock. But Moon rocks look almost identical to Earth rocks. Either Theia formed in exactly the same part of the solar nebula as Earth — which is astronomically unlikely — or the collision mixed everything so thoroughly that any distinction was erased.
+      </div>
+
+      <h3>The Synestia — a more violent solution</h3>
+      <p>A high-energy variant of the impact model, proposed in 2017, sidesteps the isotope problem elegantly. In this scenario, Theia hit at a higher velocity and steeper angle than the canonical model assumes. The result was so energetic that both Earth and Theia were entirely vaporised and merged into a single, rapidly rotating cloud of plasma and vapour called a <strong>synestia</strong> — an extended, donut-shaped structure larger than present-day Earth's orbit. Because everything mixed at the vapour phase, there were no isotopic distinctions to preserve. The Moon then condensed from the outer, cooler rim of this synestia over perhaps a few centuries to millennia.</p>
+
+      <p>A 2023 study in <em>Communications Earth &amp; Environment</em> using calcium and magnesium stable isotopes found compositions "consistent with the Moon's high-energy giant-impact (Synestia) origin and not readily compatible with traditional giant-impact models." The debate remains open, but the evidence increasingly favours the more violent scenario.</p>
+
+      <h3>The Lunar Magma Ocean</h3>
+      <p>Whatever the exact impact geometry, the newborn Moon was molten — a global magma ocean possibly 500 km deep. As it cooled over 100–200 million years, denser olivine and pyroxene crystallised first and sank, building the mantle. Later, lighter plagioclase feldspar crystallised and <em>floated</em> to the surface, solidifying into the bright anorthosite highlands you see today. The dregs of this ocean — enriched in elements that didn't fit neatly into crystal structures — became <strong>KREEP</strong>: the geochemical legacy that still controls the Moon's geology billions of years later.</p>
+    </section>
+
+    <!-- ═══ ANATOMY ═══ -->
+    <section id="anatomy">
+      <h2>Inside the Moon</h2>
+
+      <p>We've never drilled more than a few metres into the Moon. What we know about its interior comes from Apollo seismometers, the GRAIL gravity mission (2012), laser ranging experiments, and careful analysis of returned samples. The picture that emerges is a differentiated body with a structure that formed fast and froze early.</p>
+
+      <div class="layer-diagram">
+        <div style="flex-shrink:0;">
+          <svg viewBox="0 0 240 240" width="224" height="224" style="display:block;">
+            <defs>
+              <radialGradient id="crust-g" cx="40%" cy="35%">
+                <stop offset="0%" stop-color="#9a9088"/>
+                <stop offset="100%" stop-color="#5a5248"/>
+              </radialGradient>
+              <radialGradient id="mantle-g" cx="40%" cy="35%">
+                <stop offset="0%" stop-color="#705848"/>
+                <stop offset="100%" stop-color="#3e302a"/>
+              </radialGradient>
+              <radialGradient id="athen-g" cx="40%" cy="35%">
+                <stop offset="0%" stop-color="#5a4030"/>
+                <stop offset="100%" stop-color="#302018"/>
+              </radialGradient>
+              <radialGradient id="ocore-g" cx="40%" cy="35%">
+                <stop offset="0%" stop-color="#906020"/>
+                <stop offset="100%" stop-color="#4e3010"/>
+              </radialGradient>
+              <radialGradient id="icore-g" cx="40%" cy="35%">
+                <stop offset="0%" stop-color="#d09040"/>
+                <stop offset="100%" stop-color="#805020"/>
+              </radialGradient>
+            </defs>
+            <!-- Layers (outer to inner) -->
+            <circle cx="120" cy="120" r="112" fill="url(#crust-g)" stroke="rgba(184,207,232,0.12)" stroke-width="1"/>
+            <circle cx="120" cy="120" r="88" fill="url(#mantle-g)"/>
+            <circle cx="120" cy="120" r="58" fill="url(#athen-g)"/>
+            <circle cx="120" cy="120" r="34" fill="url(#ocore-g)"/>
+            <circle cx="120" cy="120" r="18" fill="url(#icore-g)"/>
+            <!-- Tick lines + labels -->
+            <line x1="175" y1="42" x2="136" y2="58" stroke="rgba(184,207,232,0.25)" stroke-width="0.8"/>
+            <text x="178" y="40" fill="#b8cfe8" font-size="8.5" font-family="sans-serif">Crust 50–150 km</text>
+            <line x1="175" y1="78" x2="152" y2="86" stroke="rgba(184,207,232,0.2)" stroke-width="0.8"/>
+            <text x="178" y="76" fill="#b8cfe8" font-size="8.5" font-family="sans-serif">Upper mantle</text>
+            <line x1="175" y1="112" x2="162" y2="115" stroke="rgba(184,207,232,0.2)" stroke-width="0.8"/>
+            <text x="178" y="110" fill="#b8cfe8" font-size="8.5" font-family="sans-serif">Athenosphere</text>
+            <line x1="175" y1="142" x2="154" y2="137" stroke="rgba(232,150,10,0.4)" stroke-width="0.8"/>
+            <text x="178" y="140" fill="#e8960a" font-size="8.5" font-family="sans-serif">Outer core</text>
+            <line x1="175" y1="162" x2="155" y2="155" stroke="rgba(232,150,10,0.4)" stroke-width="0.8"/>
+            <text x="178" y="160" fill="#e8960a" font-size="8.5" font-family="sans-serif">Inner core</text>
+          </svg>
+        </div>
+
+        <div style="flex:1; min-width:220px;">
+          <div class="layer-tabs">
+            <button class="layer-tab active" onclick="showLayer(0)">Crust</button>
+            <button class="layer-tab" onclick="showLayer(1)">Mantle</button>
+            <button class="layer-tab" onclick="showLayer(2)">Athenosphere</button>
+            <button class="layer-tab" onclick="showLayer(3)">Core</button>
+          </div>
+          <div class="layer-panel active" id="lp-0">
+            <h4>Crust — 50 to 150 km</h4>
+            <p>Profoundly asymmetric. The nearside averages ~50 km thick; the farside can reach ~150 km. This difference almost certainly explains the nearside–farside volcanic dichotomy: thin nearside crust let magma breach through for billions of years; the thick farside crust didn't. Composition: largely anorthosite — the floating froth from the lunar magma ocean — making it some of the oldest solid material in the solar system at ~4.5 billion years.</p>
+          </div>
+          <div class="layer-panel" id="lp-1">
+            <h4>Mantle — ~1,330 km thick</h4>
+            <p>Olivine and pyroxene minerals, solidified from the magma ocean. The upper mantle is extremely rigid and dry. Apollo seismometers revealed that the Moon rings like a bell after impacts — moonquakes reverberate for up to an hour, whereas Earth's water-saturated mantle damps seismic energy quickly. Deep moonquakes occur at 800–1,000 km depth, possibly driven by tidal stresses from Earth.</p>
+          </div>
+          <div class="layer-panel" id="lp-2">
+            <h4>Partially Molten Zone — ~1,000–1,400 km</h4>
+            <p>Seismic shear waves are attenuated (absorbed) at this depth, which strongly implies partial melting. The athenosphere is an analogue to Earth's own asthenosphere — a weak, partially fluid zone that decouples the outer layers from the deeper interior. Exactly how molten it is, and whether it plays any active geological role today, is uncertain.</p>
+          </div>
+          <div class="layer-panel" id="lp-3">
+            <h4>Core — ~330 km total radius</h4>
+            <p>Tiny by planetary standards — only ~20% of the Moon's radius (compare Earth's 55%). The fluid outer core (~80 km thick) is iron-sulfide; the solid inner core (~240 km radius) is iron. Critically: the Moon has no active magnetic dynamo today. But ancient lunar rocks are magnetised, proving it once had a global magnetic field — probably between ~4.25 and ~3.5 billion years ago. How a core this small sustained a dynamo is an open question.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>KREEP and the Procellarum KREEP Terrane</h3>
+      <p>If you map the Moon's thorium concentrations from orbit (NASA's Lunar Prospector did exactly this), an enormous anomaly jumps out: a vast region on the nearside, centred on <em>Oceanus Procellarum</em> and <em>Mare Imbrium</em>, with thorium levels 10–100× higher than the rest of the Moon. This is the <strong>Procellarum KREEP Terrane (PKT)</strong> — the geological legacy of those magma-ocean dregs. KREEP rocks are enriched in potassium (<strong>K</strong>), rare earth elements (<strong>REE</strong>), phosphorous (<strong>P</strong>), and heat-producing elements like uranium and thorium. Their mild radioactivity kept the nearside interior warmer for longer, sustaining volcanic activity billions of years after the rest of the Moon had gone cold and dark.</p>
+
+      <h3>Mascons</h3>
+      <p>In 1968, mission controllers noticed that Lunar Orbiter spacecraft drifted unexpectedly over certain regions of the Moon — being pulled slightly off their predicted trajectories. The culprit was <strong>mass concentrations</strong> (mascons) — regions where gravity is locally stronger than average. They sit beneath the major nearside impact basins (Mare Imbrium, Mare Serenitatis, Mare Crisium). The mechanism is twofold: a giant asteroid impacts, punching a basin and causing the mantle to elastically rebound upward (dense mantle material sits closer to the surface); then flood basalts fill the basin with dense rock. Both contribute a positive gravity anomaly. The GRAIL spacecraft mapped mascons to extraordinary precision in 2012. Any satellite in low lunar orbit must continually fight mascon-induced drift.</p>
+    </section>
+
+    <!-- ═══ SURFACE ═══ -->
+    <section id="surface">
+      <h2>The Lunar Surface</h2>
+
+      <p>Without plate tectonics, weathering, or volcanism in the past billion years, the Moon is a near-perfect geological archive. A crater struck 3.8 billion years ago is still there, pristine. The surface is a record of the solar system's violent youth.</p>
+
+      <div class="surface-compare">
+        <div class="surface-block dark">
+          <div class="swatch swatch-dark"></div>
+          <h4>Maria (Dark Plains)</h4>
+          <p>Not seas — ancient flood basalts. Lava erupted between 3.9 and ~1.2 billion years ago, flooding giant impact basins. They cover ~17% of the surface and sit almost entirely on the nearside. The largest, Oceanus Procellarum, stretches ~2,500 km. Maria are younger and smoother, with fewer craters per square km.</p>
+        </div>
+        <div class="surface-block light">
+          <div class="swatch swatch-light"></div>
+          <h4>Highlands (Terrae)</h4>
+          <p>Bright, ancient anorthosite crust — the original floating froth of the magma ocean, up to 4.5 billion years old. Heavily cratered, rough, and geologically inert. Cover ~83% of the surface. Nearly all of the far side is highlands. Thousands of metres higher in elevation than the maria on average.</p>
+        </div>
+      </div>
+
+      <h3>Crater formation — the physics</h3>
+      <p>Craters don't scale linearly with impactor size. Below ~3 km diameter: simple bowl shapes, like punching clay. Above ~15 km: the target rocks behave like fluid momentarily — the crater floor rebounds elastically, throwing up a central peak (Tycho's is 1.6 km high). Above ~150 km: multi-ring basins form, as the shockwave propagates outward through the crust and creates concentric ridge systems. The largest confirmed impact feature on the Moon is the <strong>South Pole-Aitken (SPA) Basin</strong>: 2,500 km across, up to 8 km deep, and so ancient (~4.3 billion years) that its floor contains the oldest exposed terrain on the Moon. It may have punched through the crust entirely into the mantle.</p>
+
+      <div class="callout blue">
+        <strong>Chang'e 4 at SPA:</strong> China's Chang'e 4 lander and Yutu-2 rover touched down on the floor of SPA's Von Kármán crater in January 2019 — the first soft landing on the far side. Yutu-2's ground-penetrating radar detected anomalous minerals consistent with olivine and pyroxene — mantle material, possibly excavated by the original SPA impact. In June 2024, Chang'e 6 returned 1.9 kg of SPA samples to Earth — the first farside samples ever — opening a new chapter in lunar science.
+      </div>
+
+      <h3>The far side: a different world</h3>
+      <p>The far side gets just as much sunlight as the nearside — "dark side" is a misnomer. It's simply never visible from Earth due to tidal locking. And it looks strikingly different: almost no maria, a crust 2–3× thicker, and dominated by the enormous SPA basin. The reason for the dichotomy is likely the KREEP terrane: the nearside's radioactive heat source kept the interior warm enough for volcanic eruptions for an extra billion years or more. Without that heat, the far side's interior cooled quickly and its thick crust acted as a geological lid, trapping any residual magma before it could reach the surface.</p>
+
+      <h3>Lunar swirls and magnetic anomalies</h3>
+      <p>Scattered across the Moon are visually striking bright, curvilinear patterns that look nothing like craters or lava flows — <strong>lunar swirls</strong>. Each is associated with a local magnetic anomaly. The most famous, <strong>Reiner Gamma</strong> in Oceanus Procellarum, is a ~70 km elongated swirl visible with a modest telescope. The leading hypothesis: ancient impacts (possibly cometary) deposited magnetised material or generated a transient magnetic field that imprinted in the local crust. This magnetic field then shields the surface from solar wind ions, preventing the space weathering (darkening) that affects surrounding terrain — leaving the swirls anomalously bright. Reiner Gamma's origin remains contested; NASA's Lunar Vertex mission (targeted ~2025–2026) was designed specifically to investigate it from the surface.</p>
+
+      <h3>Regolith — the Moon's skin</h3>
+      <p>The entire surface is buried under regolith: pulverised rock, glass beads, and dust produced by 4 billion years of micrometeorite gardening, ranging from a few metres deep on fresh lava plains to >20 metres in ancient highlands. Crucially, it's not like soil. It contains jagged, glassy shards with enormous surface area, formed when microimpacts melt and quench rock into glass. These shards cling electrostatically and are more abrasive than sandpaper. Apollo astronauts found it penetrated suit seams, ground through boot soles in hours, clogged equipment, and caused eye irritation. Chronic regolith inhalation is one of the biggest health unknowns for long-duration lunar habitation.</p>
+    </section>
+
+    <!-- ═══ ORBIT ═══ -->
+    <section id="orbit">
+      <h2>The Orbital Dance</h2>
+
+      <h3>Tidal locking — why we see one face</h3>
+      <p>The Moon rotates exactly once per orbit — a state called <strong>synchronous rotation</strong>. This isn't coincidence or design; it's the end state of tidal braking. Early in its history, the Moon rotated faster. Earth's gravity raised a permanent tidal bulge in the lunar crust; because the Moon wasn't a perfect sphere, this bulge created a gravitational torque that progressively slowed the rotation. Eventually — around 3 billion years ago — the rotation period matched the orbital period, the bulge locked into alignment with Earth's direction, and the Moon has been showing us the same hemisphere ever since. All large moons in the solar system are tidally locked to their host planets, and many other moons elsewhere are locked to theirs.</p>
+
+      <h3>Libration — why we can see 59% of it</h3>
+      <p>Despite being tidally locked, patient observers can see 59% of the Moon's total surface over time through <strong>libration</strong> — an apparent rocking motion:</p>
+
+      <div class="fact-grid">
+        <div class="fact-card">
+          <h4>Libration in Longitude ±7.9°</h4>
+          <p>The Moon's orbit is elliptical. Near perigee it moves faster than it rotates; near apogee it moves slower. Rotation is constant but orbital speed varies, so the Moon appears to rock east-west, revealing slivers of the eastern and western limb alternately.</p>
+        </div>
+        <div class="fact-card">
+          <h4>Libration in Latitude ±6.9°</h4>
+          <p>The Moon's equator is tilted 6.7° to its orbital plane. During each orbit we look slightly over the north pole, then the south pole — a gentle north-south nod that unveils small sections near each pole that would otherwise be hidden.</p>
+        </div>
+        <div class="fact-card">
+          <h4>Diurnal Libration ±1°</h4>
+          <p>As Earth rotates, an observer's position shifts by up to one Earth diameter over 12 hours — a parallax effect that gives a small additional perspective shift. Tiny, but measurable and historically important for confirming the Moon's distance.</p>
+        </div>
+      </div>
+
+      <h3>The Moon is leaving</h3>
+      <p>The Lunar Laser Ranging Experiment — retroreflectors left by Apollo 11, 14, 15, and Soviet Luna missions, still operational today — bounces laser pulses off the Moon and measures the return time to millimetre precision. The verdict: the Moon is receding from Earth at <strong>3.82 cm per year</strong>. The mechanism is angular momentum transfer: Earth's rotation drags its ocean tidal bulge slightly ahead of the Moon's position. The Moon is gravitationally attracted to this leading bulge, which accelerates it forward in its orbit and boosts its orbital energy — pushing it outward. The energy comes from Earth's rotation, which is slowing correspondingly.</p>
+
+      <div class="recession-chart">
+        <h4>Moon's mean distance across geological time</h4>
+        <div class="rbar">
+          <span class="rbar-label">4.5 Bya (birth)</span>
+          <div class="rbar-track"><div class="rbar-fill" style="width:42%"></div></div>
+          <span class="rbar-val">~250,000 km</span>
+        </div>
+        <div class="rbar">
+          <span class="rbar-label">2.46 Bya</span>
+          <div class="rbar-track"><div class="rbar-fill" style="width:53%"></div></div>
+          <span class="rbar-val">~320,000 km</span>
+        </div>
+        <div class="rbar">
+          <span class="rbar-label">Today</span>
+          <div class="rbar-track"><div class="rbar-fill" style="width:63%"></div></div>
+          <span class="rbar-val">384,400 km</span>
+        </div>
+        <div class="rbar">
+          <span class="rbar-label">+620 Mya</span>
+          <div class="rbar-track"><div class="rbar-fill" style="width:67%"></div></div>
+          <span class="rbar-val">~407,000 km</span>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin:14px 0 0;line-height:1.5;">At ~407,000 km the Moon will subtend a smaller angle than the Sun — total solar eclipses will be replaced by annular (ring) eclipses permanently. We currently live in the one brief window in Earth's history where Moon and Sun appear almost exactly the same angular size (≈0.52°). That's a cosmic coincidence of remarkable precision.</p>
+      </div>
+
+      <h3>Orbital nodes and the Saros cycle</h3>
+      <p>The Moon's orbital plane is tilted 5.1° to the ecliptic. Eclipses only happen when the Moon crosses one of two <strong>nodes</strong> — where the planes intersect — at the right phase (new moon for solar, full moon for lunar). The nodes themselves precess around the orbit in 18.61 years due to Earth's equatorial bulge. The <strong>Saros cycle</strong> (~18 years 11 days 8 hours) is the period after which Earth, Sun, and Moon return to nearly identical geometry, producing a near-identical eclipse. Ancient Babylonian astronomers had discovered the Saros empirically by ~700 BCE — they could predict eclipses purely by pattern-matching without understanding the geometry.</p>
+    </section>
+
+    <!-- ═══ TIDES ═══ -->
+    <section id="tides">
+      <h2>Tides & the Earth–Moon System</h2>
+
+      <p>The ocean tides are the most visible manifestation of something profound: a continuous transfer of energy between two worlds, slowing Earth's rotation and pushing the Moon outward, operating relentlessly for 4.5 billion years.</p>
+
+      <h3>Tidal force — the differential that changes everything</h3>
+      <p>Gravity falls off with the square of distance. The side of Earth facing the Moon experiences stronger gravity than Earth's centre, which in turn experiences stronger gravity than the far side. This <em>differential</em> — the tidal force — stretches Earth along the Earth-Moon axis into a prolate ellipsoid. Solid rock deforms slightly (Earth's solid body tide is ~30 cm). Oceans, being fluid, deform much more visibly.</p>
+
+      <div class="callout">
+        <strong>The far-side bulge explained:</strong> The far-side tidal bulge is one of physics' most counterintuitive results. It exists because the far side is being pulled <em>less</em> than Earth's centre. In the reference frame of Earth's centre, the far side appears to be flung outward. Both the near-side bulge (pulled toward the Moon) and the far-side bulge (left behind by Earth's centre being pulled away) are real. This is why most coastlines experience two high tides per day as Earth rotates under both bulges.
+      </div>
+
+      <h3>Earth's day is getting longer</h3>
+
+      <div class="big-stat-row">
+        <div class="big-stat">
+          <div class="num">~6</div>
+          <div class="unit">hours</div>
+          <div class="desc">Length of Earth's day at Moon's formation, 4.5 Bya</div>
+        </div>
+        <div class="big-stat">
+          <div class="num">21.9</div>
+          <div class="unit">hours</div>
+          <div class="desc">Earth's day 620 million years ago (from tidal rhythmite records)</div>
+        </div>
+        <div class="big-stat">
+          <div class="num">1.4</div>
+          <div class="unit">ms/century</div>
+          <div class="desc">Current rate of day lengthening, confirmed by atomic clocks</div>
+        </div>
+      </div>
+
+      <p>Geologists can read Earth's ancient day length in sedimentary rocks. <strong>Tidal rhythmites</strong> — banded sediment layers deposited by tidal cycles — preserve daily, monthly, and annual tidal patterns in their layering. Precambrian rhythmites from 620 Mya show days of ~21.9 hours. Ancient coral fossils show growth rings indicating ~400 days per year 400 million years ago. The deceleration is real, consistent, and ongoing.</p>
+
+      <h3>The Moon as axial stabiliser</h3>
+      <p>Perhaps the Moon's most underappreciated role: it keeps Earth's axial tilt (obliquity) stable. Earth's obliquity currently varies between only 22.1° and 24.5° on a ~41,000-year cycle — a gentle wobble that contributes to ice age cycles. Computer simulations show that without the Moon, Earth's obliquity could chaotically vary between 0° and 85° on timescales of tens of millions of years, driven by gravitational resonances with other planets. Mars, with no large moon, has experienced obliquity swings between ~10° and ~60°. Extreme obliquity changes would mean extreme climate swings — winters of total darkness at the equator, summers of continuous sunlight. Whether complex life could develop under those conditions is debated. The Moon may be a quiet prerequisite for Earth's climatic habitability.</p>
+
+      <div class="two-col">
+        <div class="col-block">
+          <h4>Spring vs Neap Tides</h4>
+          <p>When Sun, Earth, and Moon align (syzygy — new or full moon), solar and lunar tides reinforce: <strong>spring tides</strong>, roughly 20% above average. At 90° (quarters), they partially cancel: <strong>neap tides</strong>, ~20% below average. The Sun's tidal force is ~46% of the Moon's — remarkable for a body 27 million times more massive, but 400× farther away. Tidal force scales as 1/d³, not 1/d².</p>
+        </div>
+        <div class="col-block">
+          <h4>Early Earth Tides</h4>
+          <p>When the Moon was at ~250,000 km (4.5 Bya), tidal forces were roughly 3–4× stronger. Combined with Earth's ~6-hour rotation, tidal dissipation was enormous. Early ocean tides may have been hundreds of metres high. Some scientists suggest these extreme tides drove hydrothermal circulation and may have influenced the chemistry of early life — mixing nutrients, cycling minerals, powering gradients that proto-metabolisms could exploit.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PHASES ═══ -->
+    <section id="phases">
+      <h2>Phases &amp; Eclipses</h2>
+
+      <p>Lunar phases are purely geometric. The Moon is always half-lit by the Sun; what we see depends entirely on the Sun–Moon–Earth angle. A <strong>synodic month</strong> (new moon to new moon) takes 29.53 days — slightly longer than the 27.32-day sidereal orbit because Earth has also moved ~30° along its own orbit, and the Moon must travel that extra arc to realign with the Sun.</p>
+
+      <div class="phase-wrap">
+        <div class="phase-canvas-col">
+          <canvas id="phaseCanvas" width="240" height="240"></canvas>
+          <label class="phase-slider-label">Day in lunar cycle</label>
+          <input type="range" id="phaseSlider" min="0" max="29" value="0" step="1" oninput="updatePhase(+this.value)">
+          <div class="phase-day-display">Day <span id="phaseDay">0</span> of 29.5</div>
+        </div>
+        <div class="phase-info-col">
+          <div class="phase-name" id="phaseName">New Moon</div>
+          <div class="phase-desc" id="phaseDesc">The Moon lies between Earth and the Sun. Its lit hemisphere faces away from us — the Moon is invisible or appears as a thin crescent only near the horizon. This is the only time solar eclipses can occur. The faint glow sometimes visible on the "dark" crescent is <em>Earthshine</em> — sunlight reflected from Earth onto the Moon and back to us.</div>
+          <div class="eclipse-box">
+            <strong>Eclipse Geometry</strong>
+            <strong style="color:#dde8f4;font-size:0.88rem;text-transform:none;letter-spacing:0;">Solar eclipse</strong> — needs: New Moon + Moon near an orbital node + right distance.<br>
+            <strong style="color:#dde8f4;font-size:0.88rem;text-transform:none;letter-spacing:0;">Lunar eclipse</strong> — needs: Full Moon + Moon near an orbital node.<br><br>
+            The Moon's apparent diameter ranges from 29.4' (apogee) to 33.5' (perigee). The Sun's is ~31.6'. When the Moon is at perigee at new moon: <em>total</em> solar eclipse. When farther: <em>annular</em> (ring of fire). Hybrid eclipses are total along part of the path and annular along the rest.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ APOLLO ═══ -->
+    <section id="apollo">
+      <h2>The Race &amp; Apollo</h2>
+
+      <p>The Space Race compressed a century of aerospace development into 15 years, driven by Cold War rivalry. What it left behind was extraordinary science: 382 kg of lunar samples, seismometers that still define our understanding of the lunar interior, and retroreflectors still bouncing laser pulses back to Earth over 50 years later.</p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-year">Jan 1959</div>
+          <div class="tl-title">Luna 1 — First Earth escape</div>
+          <p class="tl-desc">Soviet probe, the first object to escape Earth's gravity, flew past the Moon at ~6,000 km. Luna 2 (Sep 1959) became the first object to impact the Moon. Luna 3 (Oct 1959) returned the first ever photographs of the lunar far side — a hemisphere no human had seen.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">May 1961</div>
+          <div class="tl-title">Kennedy's deadline</div>
+          <p class="tl-desc">"We choose to go to the Moon." Kennedy committed the US to a crewed lunar landing before the decade's end — at a time when America's total crewed spaceflight experience was a 15-minute suborbital hop by Alan Shepard, three weeks earlier.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">Feb 1966</div>
+          <div class="tl-title">Luna 9 — First soft landing</div>
+          <p class="tl-desc">Ended fears that the Moon's surface was metres deep in soft dust that would swallow a lander. Luna 9 bounced to a stop and transmitted panoramic photographs. Surveyor 1 (US) achieved the same four months later.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">Jul 1969</div>
+          <div class="tl-title">Apollo 11 — Tranquility Base</div>
+          <p class="tl-desc">Neil Armstrong and Buzz Aldrin spent 2h 31m on the surface; Michael Collins orbited above. Returned 21.6 kg of samples. Armstrong's first step was watched live by ~600 million people — roughly 1 in 5 humans alive. The deployed retroreflector array still returns laser pulses today.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">Nov 1969</div>
+          <div class="tl-title">Apollo 12 — Precision &amp; microbes</div>
+          <p class="tl-desc">Demonstrated precision targeting by landing within 183 m of the Surveyor 3 probe. Astronauts retrieved parts of the 2.5-year-old probe — whose foam padding was reportedly colonised by <em>Streptococcus mitis</em>, apparently having survived 31 months of vacuum, radiation, and temperature extremes. (Chain-of-custody questions about lab contamination were never fully resolved.)</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">Apr 1970</div>
+          <div class="tl-title">Apollo 13 — Successful failure</div>
+          <p class="tl-desc">An oxygen tank ruptured 56 hours after launch. The crew sheltered in the Lunar Module as a lifeboat, looped around the Moon without landing, and returned safely. No lives lost. The mission demonstrated both human ingenuity and the fragility of the enterprise.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">1971–72</div>
+          <div class="tl-title">J-missions — Science comes first</div>
+          <p class="tl-desc">Apollos 15, 16, and 17 brought the Lunar Roving Vehicle, dramatically extending surface range. Apollo 15 found the <em>Genesis Rock</em> — a 4.5-billion-year-old anorthosite sample, one of the oldest solid materials ever recovered. Apollo 17 carried Harrison Schmitt, the only professional geologist to walk on the Moon, who identified orange volcanic glass in the regolith.</p>
+        </div>
+        <div class="tl-item">
+          <div class="tl-year">Dec 1972</div>
+          <div class="tl-title">Apollo 17 — The last footsteps</div>
+          <p class="tl-desc">Gene Cernan was the last human to stand on the Moon. "We leave as we came, and God willing, as we shall return." As of 2026, 53 years later, no human has been farther from Earth than low Earth orbit.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FUTURE ═══ -->
+    <section id="future">
+      <h2>Water Ice, Artemis &amp; Open Questions</h2>
+
+      <h3>Ice in eternal shadow</h3>
+      <p>The Moon's axial tilt is only 1.54° — almost perfectly upright compared to Earth's 23.4°. Near the poles, some crater floors are geometrically incapable of receiving direct sunlight. <strong>Permanently shadowed regions (PSRs)</strong> sit at –200°C or below — among the coldest naturally occurring temperatures in the solar system. They act as cold traps: volatile material (water, CO₂, methane) that wanders in via cometary impact or solar wind implantation can remain frozen for billions of years.</p>
+
+      <p>In 2009, NASA's LCROSS mission deliberately slammed a spent rocket stage into Cabeus crater near the south pole and analysed the ejecta plume spectroscopically. Water was confirmed. Subsequent analysis of Chandrayaan-1 infrared data (published 2020) confirmed surface water ice in PSRs. Estimates suggest PSRs may contain <strong>hundreds of millions to billions of tonnes</strong> of water ice, possibly at concentrations of 5–20% by mass in the shallowest layers. The largest PSR, near Haworth crater, has been in permanent shadow for over 3 billion years.</p>
+
+      <div class="callout">
+        <strong>Why it matters for spaceflight:</strong> Water splits into hydrogen (H₂) and oxygen (O₂) — liquid rocket propellant. A lunar propellant depot at the south pole could refuel spacecraft without lifting fuel from Earth's deep gravity well. This is the strategic logic behind both NASA's Artemis programme and competing Chinese and Russian polar landing plans. The south pole is the most geopolitically contested real estate in the solar system right now.
+      </div>
+
+      <h3>Open questions — what we still don't know</h3>
+
+      <div class="fact-grid">
+        <div class="fact-card">
+          <h4>The Origin</h4>
+          <p>No single impact model fully explains the Earth–Moon isotopic similarity. The synestia hypothesis is promising but not proven. We don't even know if "Theia" was one body or several. The Moon's formation remains one of planetary science's most contested problems.</p>
+        </div>
+        <div class="fact-card">
+          <h4>The Ancient Dynamo</h4>
+          <p>Ancient rocks are magnetised. The Moon once had a global magnetic field. But its iron core is too small to drive a standard dynamo by current models. Was the mechanism impact-driven turbulence? Mantle precession? Thermal convection with a different geometry? Unknown.</p>
+        </div>
+        <div class="fact-card">
+          <h4>Reiner Gamma</h4>
+          <p>Was it a cometary impact? Antipodal ejecta from a large farside basin? A gas venting event? No consensus. The Lunar Vertex lander mission was specifically designed to investigate Reiner Gamma from the surface — its fate as of 2026 was uncertain after budget pressures.</p>
+        </div>
+        <div class="fact-card">
+          <h4>Nearside / Farside Asymmetry</h4>
+          <p>Why is the farside crust 2–3× thicker? Why are all major volcanic plains on the nearside? The KREEP-terrane hypothesis is compelling but not conclusively proven. Chang'e 6's farside samples (2024) represent the first direct evidence from this region and will take years to fully analyse.</p>
+        </div>
+        <div class="fact-card">
+          <h4>Ice Accessibility</h4>
+          <p>We know ice exists at the poles. We don't know its depth profile, heterogeneity, or whether it's patchy surface frost or coherent buried deposits. NASA's VIPER rover — designed specifically to map polar ice — was cancelled in 2024 due to cost overruns. A significant gap remains.</p>
+        </div>
+        <div class="fact-card">
+          <h4>Transient Lunar Phenomena</h4>
+          <p>Since the 17th century, observers have reported brief glows, colour flashes, and obscurations on the lunar surface. Some are confirmed as impact flashes. Others remain unexplained. Could there be residual volcanic outgassing? Electrostatic dust clouds? No definitive answer.</p>
+        </div>
+      </div>
+
+      <h3>The new lunar age</h3>
+      <p>The Moon is suddenly crowded with ambitions. India's Chandrayaan-3 achieved the first successful south polar soft landing in August 2023, making India the fourth lunar soft-landing nation. China's Chang'e 6 returned the first-ever farside samples in June 2024 — 1.9 kg from the South Pole-Aitken basin, the most scientifically compelling region on the Moon. NASA's Artemis programme aims to return astronauts to the south polar region (timeline repeatedly delayed). Japan's SLIM lander achieved Japan's first successful lunar touchdown in January 2024, though it landed at an unexpected angle. After a 50-year gap, the Moon is being visited by multiple nations every year — and for the first time, commercial companies are landing there too.</p>
+    </section>
+
+    <!-- ═══ QUIZ ═══ -->
+    <section id="quiz">
+      <h2>Test Yourself</h2>
+
+      <div class="quiz-card" id="q1">
+        <div class="quiz-q">1. Why does the far side of the Moon have almost no maria (dark volcanic plains)?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q1',this)">It receives less sunlight and stays permanently cold</button>
+          <button class="quiz-opt" data-correct="true" onclick="answerQuiz('q1',this)">Its thicker crust and absence of KREEP radioactive heating meant the interior cooled faster, preventing major volcanic eruptions</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q1',this)">Earth's gravity shields the nearside from incoming asteroids, so the farside craters deeper and stays rough</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q1',this)">The far side has weaker gravity, which prevents magma from rising to the surface</button>
+        </div>
+        <div class="quiz-feedback" id="q1-fb">The farside crust averages ~100–150 km thick — 2–3× the nearside. Magma simply couldn't breach through it. And without the nearside's KREEP terrane (with its heat-generating uranium and thorium), the farside interior cooled much more quickly after the magma ocean solidified. Both effects suppressed farside volcanism. The nearside, by contrast, was kept geothermally active for an extra billion years by KREEP's mild radioactivity.</div>
+      </div>
+
+      <div class="quiz-card" id="q2">
+        <div class="quiz-q">2. The Moon is 3.82 cm farther from Earth each year. What consequence will this eventually have for solar eclipses?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q2',this)">Eclipses will become more frequent as the Moon's apparent size decreases</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q2',this)">Solar eclipses will stop occurring entirely in about 600 million years</button>
+          <button class="quiz-opt" data-correct="true" onclick="answerQuiz('q2',this)">Total solar eclipses will be permanently replaced by annular (ring) eclipses, as the Moon will subtend a smaller angle than the Sun</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q2',this)">Eclipses will last longer as the slower-moving Moon takes more time to transit the Sun</button>
+        </div>
+        <div class="quiz-feedback" id="q2-fb">At ~407,000 km (roughly 620 million years from now), the Moon will be too small in apparent diameter to completely cover the Sun's disk. Total solar eclipses — where the Sun's corona blazes into view — will become impossible. Every solar eclipse will be annular: the Moon as a dark disc surrounded by a ring of sunlight. We currently exist in a cosmically brief window where the Moon and Sun appear almost exactly the same angular size — a coincidence that has no known physical necessity.</div>
+      </div>
+
+      <div class="quiz-card" id="q3">
+        <div class="quiz-q">3. What is a "mascon," and what causes the Moon to have them?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q3',this)">A magnetic anomaly caused by iron-rich meteorite impacts</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q3',this)">A region of permanently shadowed crater floor enriched in volatile ice</button>
+          <button class="quiz-opt" data-correct="true" onclick="answerQuiz('q3',this)">A mass concentration — a region of locally stronger gravity — caused by mantle rebound after giant impacts and subsequent lava flooding of the basin</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q3',this)">A surface feature created by the KREEP terrane's radioactive heating causing localised crustal uplift</button>
+        </div>
+        <div class="quiz-feedback" id="q3-fb">Mascons were accidentally discovered in 1968 when Lunar Orbiter spacecraft drifted off predicted trajectories over the large nearside basins. A giant impact punches a basin and the mantle elastically rebounds upward — bringing dense mantle material closer to the surface. Later, flood basalts fill the basin with dense lava. Both effects create a positive gravity anomaly. They were so unexpected at the time that the discovery was initially doubted. Modern low-orbit lunar satellites (like LRO) must fire thrusters regularly to prevent mascon-induced orbital decay.</div>
+      </div>
+
+      <div class="quiz-card" id="q4">
+        <div class="quiz-q">4. Why are Earth and Moon rocks isotopically almost identical — and why is this a problem for the simple Giant Impact model?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q4',this)">They formed from the same cloud of gas and dust at exactly the same time</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q4',this)">Isotopes are uniform across the solar system, so similarity is expected</button>
+          <button class="quiz-opt" data-correct="true" onclick="answerQuiz('q4',this)">In the canonical model, 70–90% of the Moon should be Theia material, which — having formed elsewhere — should have different isotopic ratios. The similarity implies either an unlikely coincidence or far more thorough mixing than the model predicts.</button>
+          <button class="quiz-opt" data-correct="false" onclick="answerQuiz('q4',this)">Earth and Moon have exchanged material via tidal forces over 4.5 billion years, equalising their isotopic composition</button>
+        </div>
+        <div class="quiz-feedback" id="q4-fb">This is the "isotope crisis" that has driven major revisions of Moon-formation models. Bodies that form at different distances from the Sun in a protoplanetary disc inherit different isotope ratios — this has been confirmed across the solar system. Theia almost certainly formed at a different orbital radius to Earth. The canonical impact model predicts the Moon should reflect Theia's chemistry, not Earth's. The synestia model resolves this by proposing the collision was energetic enough to thoroughly vaporise and mix both bodies before the Moon condensed — erasing any compositional distinction.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── STARFIELD ──
+    (function () {
+      var sf = document.getElementById('starfield');
+      var html = '';
+      for (var i = 0; i < 200; i++) {
+        var x = (Math.random() * 100).toFixed(2);
+        var y = (Math.random() * 100).toFixed(2);
+        var r = Math.random();
+        var sz = r < 0.7 ? 1 : r < 0.92 ? 2 : 3;
+        var op = (0.15 + Math.random() * 0.65).toFixed(2);
+        html += '<div style="position:absolute;left:' + x + '%;top:' + y + '%;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:#fff;opacity:' + op + '"></div>';
+      }
+      sf.innerHTML = html;
+    })();
+
+    // ── LAYER TABS ──
+    function showLayer(i) {
+      document.querySelectorAll('.layer-tab').forEach(function (t, j) { t.classList.toggle('active', i === j); });
+      document.querySelectorAll('.layer-panel').forEach(function (p, j) { p.classList.toggle('active', i === j); });
+    }
+
+    // ── PHASE WHEEL ──
+    var canvas = document.getElementById('phaseCanvas');
+    var ctx = canvas.getContext('2d');
+    var W = 240, H = 240, CX = 120, CY = 120, R = 104;
+
+    var phases = [
+      { name: 'New Moon', desc: 'The Moon lies between Earth and the Sun. Its lit hemisphere faces away from us — the Moon is invisible or appears only as a faint crescent near the horizon. The dark limb is sometimes faintly lit by Earthshine — sunlight reflected off Earth\'s oceans and clouds. Solar eclipses can only occur at new moon.' },
+      { name: 'Waxing Crescent', desc: 'A slim crescent in the western sky after sunset. The lit limb is on the right (northern hemisphere). The illuminated fraction is growing (waxing). Earthshine can beautifully illuminate the "dark" portion of the Moon — Leonardo da Vinci was among the first to correctly explain it.' },
+      { name: 'Waxing Crescent', desc: 'Growing crescent — the Sun-Moon-Earth angle (elongation) is increasing, revealing more of the lit hemisphere. The Moon sets progressively later each night.' },
+      { name: 'First Quarter', desc: 'Exactly half the nearside is lit — the right half as seen from the northern hemisphere. The Moon is 90° east of the Sun, rises around noon, and sets around midnight. Solar and lunar tidal forces are at 90° to each other, producing the weakest (neap) tides of the month.' },
+      { name: 'Waxing Gibbous', desc: '"Gibbous" from the Latin for hump — more than half illuminated. The Moon rises in the afternoon and is well placed in the evening sky. Surface features including the prominent ray systems of young craters like Tycho become increasingly prominent.' },
+      { name: 'Waxing Gibbous', desc: 'Approaching full phase. The lit fraction exceeds 80%. Shadow-casting becomes impossible and the Moon is bright enough to disrupt dark-sky astronomical observations.' },
+      { name: 'Waxing Gibbous', desc: 'Nearly full. Rises around sunset. The complete absence of grazing shadows at this phase is why the full Moon looks flat and featureless compared to a quarter Moon — everything is lit straight-on.' },
+      { name: 'Full Moon', desc: 'Earth lies between Sun and Moon — the entire nearside is illuminated. Lunar eclipses can only occur at full moon, when Earth\'s shadow may fall on the Moon. The full Moon is ~400,000× brighter than the faintest stars visible to the naked eye and outshines most deep-sky objects. Spring tides occur at full and new moon.' },
+      { name: 'Waning Gibbous', desc: 'Just past full, the lit fraction begins to decrease (wane). The Moon now rises after sunset and is visible well into the early hours. The previously lit right limb now begins to show shadow.' },
+      { name: 'Waning Gibbous', desc: 'Still well illuminated but clearly past full. The Moon rises later each night, spending more time in the post-midnight sky.' },
+      { name: 'Third Quarter', desc: 'The left half illuminated (northern hemisphere) — mirror image of First Quarter. The Moon rises at midnight, reaches its highest point at dawn, and sets at noon. Another neap tide configuration. The terminator now runs the other way.' },
+      { name: 'Waning Crescent', desc: 'The crescent is now visible in the pre-dawn eastern sky, with its lit limb facing the rising Sun. As the cycle closes, the crescent thins daily. The Moon rises progressively later — a few hours before dawn.' },
+      { name: 'Waning Crescent', desc: 'Thin crescent low in the dawn sky. The cycle is almost complete — within a day or two the Moon will reach conjunction with the Sun and the cycle begins again.' },
+      { name: 'New Moon', desc: 'The Moon returns to conjunction with the Sun. One complete synodic month (29.53 days) has elapsed. The sidereal month (27.32 days) is shorter because Earth has moved ~30° along its orbit, and the Moon must travel extra to re-align with the Sun-Earth line.' }
+    ];
+
+    function drawPhase(day) {
+      ctx.clearRect(0, 0, W, H);
+
+      var frac = day / 29.5;
+
+      // Moon base — dark side
+      ctx.beginPath();
+      ctx.arc(CX, CY, R, 0, Math.PI * 2);
+      ctx.fillStyle = '#101020';
+      ctx.fill();
+
+      // Clip to circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(CX, CY, R, 0, Math.PI * 2);
+      ctx.clip();
+
+      var litColor = '#d8ceb0';
+      var darkColor = '#101020';
+
+      if (frac <= 0.5) {
+        // Waxing: right half lit
+        ctx.beginPath();
+        ctx.arc(CX, CY, R, -Math.PI / 2, Math.PI / 2);
+        ctx.lineTo(CX, CY);
+        ctx.closePath();
+        ctx.fillStyle = litColor;
+        ctx.fill();
+
+        // Ellipse terminator
+        var xscale = Math.cos(frac * Math.PI * 2);
+        ctx.save();
+        ctx.translate(CX, CY);
+        ctx.scale(Math.abs(xscale), 1);
+        ctx.beginPath();
+        if (xscale >= 0) {
+          ctx.arc(0, 0, R, -Math.PI / 2, Math.PI / 2);
+          ctx.lineTo(0, 0);
+          ctx.closePath();
+          ctx.fillStyle = darkColor;
+        } else {
+          ctx.arc(0, 0, R, -Math.PI / 2, Math.PI / 2, true);
+          ctx.lineTo(0, 0);
+          ctx.closePath();
+          ctx.fillStyle = litColor;
+        }
+        ctx.restore();
+        ctx.fill();
+
+      } else {
+        // Waning: left half lit
+        ctx.beginPath();
+        ctx.arc(CX, CY, R, Math.PI / 2, -Math.PI / 2);
+        ctx.lineTo(CX, CY);
+        ctx.closePath();
+        ctx.fillStyle = litColor;
+        ctx.fill();
+
+        var xscale2 = -Math.cos(frac * Math.PI * 2);
+        ctx.save();
+        ctx.translate(CX, CY);
+        ctx.scale(Math.abs(xscale2), 1);
+        ctx.beginPath();
+        if (xscale2 >= 0) {
+          ctx.arc(0, 0, R, Math.PI / 2, -Math.PI / 2);
+          ctx.lineTo(0, 0);
+          ctx.closePath();
+          ctx.fillStyle = darkColor;
+        } else {
+          ctx.arc(0, 0, R, Math.PI / 2, -Math.PI / 2, true);
+          ctx.lineTo(0, 0);
+          ctx.closePath();
+          ctx.fillStyle = litColor;
+        }
+        ctx.restore();
+        ctx.fill();
+      }
+
+      // Maria texture overlay
+      var maria = [
+        [CX - 18, CY - 8, 26, 18],
+        [CX + 24, CY + 18, 18, 13],
+        [CX - 10, CY + 30, 13, 10],
+        [CX + 8, CY - 33, 10, 8],
+        [CX + 35, CY - 8, 14, 10]
+      ];
+      ctx.globalAlpha = 0.18;
+      maria.forEach(function (m) {
+        ctx.save();
+        ctx.translate(m[0], m[1]);
+        ctx.scale(1, m[3] / m[2]);
+        ctx.beginPath();
+        ctx.arc(0, 0, m[2], 0, Math.PI * 2);
+        ctx.fillStyle = '#445';
+        ctx.fill();
+        ctx.restore();
+      });
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+
+      // Full moon glow
+      if (frac > 0.4 && frac < 0.6) {
+        var g = 1 - Math.abs(frac - 0.5) * 10;
+        var grad = ctx.createRadialGradient(CX, CY, R * 0.85, CX, CY, R * 1.35);
+        grad.addColorStop(0, 'rgba(216,206,176,' + (g * 0.35) + ')');
+        grad.addColorStop(1, 'rgba(216,206,176,0)');
+        ctx.beginPath();
+        ctx.arc(CX, CY, R * 1.35, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      // Rim
+      ctx.beginPath();
+      ctx.arc(CX, CY, R, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(184,207,232,0.14)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    function updatePhase(day) {
+      drawPhase(day);
+      var idx = Math.min(Math.round((day / 29) * 13), phases.length - 1);
+      document.getElementById('phaseName').textContent = phases[idx].name;
+      document.getElementById('phaseDesc').textContent = phases[idx].desc;
+      document.getElementById('phaseDay').textContent = day;
+    }
+
+    drawPhase(0);
+
+    // ── QUIZ ──
+    function answerQuiz(qid, btn) {
+      var correct = btn.dataset.correct === 'true';
+      var card = document.getElementById(qid);
+      card.querySelectorAll('.quiz-opt').forEach(function (o) {
+        o.disabled = true;
+        if (o.dataset.correct === 'true') o.classList.add('correct');
+      });
+      if (!correct) btn.classList.add('wrong');
+      document.getElementById(qid + '-fb').classList.add('show');
+    }
+
+    // ── INTERSECTION OBSERVER (nav highlight) ──
+    var allSections = document.querySelectorAll('section[id], .hero[id]');
+    var navLinks = document.querySelectorAll('.sidenav a, .topnav-links a');
+
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          var id = e.target.id;
+          navLinks.forEach(function (a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { threshold: 0.25 });
+
+    allSections.forEach(function (s) { obs.observe(s); });
+  </script>
+
+  <script>
+    // ── MOON SCROLL FX ──
+    (function () {
+      var moonWrap = document.querySelector('.moon-wrap');
+      if (!moonWrap) return;
+      var hero = document.getElementById('hero');
+      var MOON_SIZE = 420;
+      var MAX_SCALE = 4.8;
+      var PEEK = 80; // px of scaled moon visible at top of viewport in end state
+
+      // Capture moon's vertical center in page coordinates before touching the DOM
+      var initScroll = window.scrollY || window.pageYOffset;
+      var initRect = moonWrap.getBoundingClientRect();
+      var moonPageCenterY = initRect.top + initScroll + MOON_SIZE / 2;
+
+      // Insert a same-size placeholder so the hero flex layout stays intact
+      var ph = document.createElement('div');
+      ph.setAttribute('aria-hidden', 'true');
+      ph.style.cssText = 'width:' + MOON_SIZE + 'px;height:' + MOON_SIZE + 'px;margin-bottom:44px;flex-shrink:0;pointer-events:none;';
+      moonWrap.parentNode.insertBefore(ph, moonWrap);
+
+      // Pull the moon out of flow and fix it
+      moonWrap.style.position = 'fixed';
+      moonWrap.style.left = '50%';
+      moonWrap.style.marginBottom = '0';
+      moonWrap.style.zIndex = '0';
+      moonWrap.style.transformOrigin = 'center center';
+
+      // End state: centerY such that exactly PEEK px of the scaled moon shows at the top
+      // visual_top = centerY - (MOON_SIZE * scale / 2)
+      // visual_top should equal -(MOON_SIZE * MIN_SCALE - PEEK)
+      // → centerY = PEEK - (MOON_SIZE * MAX_SCALE / 2)
+      var endCenterY = PEEK - (MOON_SIZE * MAX_SCALE) / 2;
+
+      function easeOut(t) { return 1 - (1 - t) * (1 - t); }
+
+      function update() {
+        var sy = window.scrollY || window.pageYOffset;
+        var heroH = hero.offsetHeight;
+        var raw = Math.max(0, Math.min(1, sy / (heroH * 0.65)));
+        var t = easeOut(raw);
+
+        var scale = 1 + (MAX_SCALE - 1) * t;
+        // Natural viewport center if the moon were still in flow
+        var naturalCY = moonPageCenterY - sy;
+        // Blend toward the docked top position
+        var cy = naturalCY + (endCenterY - naturalCY) * t;
+
+        moonWrap.style.top = (cy - MOON_SIZE / 2) + 'px';
+        moonWrap.style.transform = 'translateX(-50%) scale(' + scale.toFixed(4) + ')';
+        var blurT = Math.max(0, (t - 0.9) / 0.1);
+        moonWrap.style.filter = 'blur(' + (blurT * 4).toFixed(1) + 'px)';
+      }
+
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    })();
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>

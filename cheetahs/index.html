@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheetahs — Take a deeks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #f0b84a;
+      --c2: #3d2010;
+      --bg: #0e0d0b;
+      --surface: #1a1714;
+      --surface2: #221e19;
+      --text: #e8e0d0;
+      --muted: #7a6a55;
+      --max: 860px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    /* ── SIDE NAV ─────────────────────────────────── */
+    #side-nav {
+      position: fixed;
+      top: 50%;
+      left: 1.5rem;
+      transform: translateY(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #side-nav a {
+      display: block;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 5px 10px 5px 0;
+      border-right: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      text-align: right;
+    }
+
+    #side-nav a.active,
+    #side-nav a:hover {
+      color: var(--c1);
+      border-right-color: var(--accent);
+    }
+
+    /* ── MOBILE TOP NAV ───────────────────────────── */
+    #top-nav {
+      display: none;
+      background: var(--surface);
+      border-bottom: 1px solid #2a2520;
+      position: sticky;
+      top: 56px;
+      z-index: 40;
+    }
+
+    #top-nav-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.85rem;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #top-nav-links { display: none; padding: 8px 0 16px; }
+    #top-nav-links.open { display: block; }
+
+    #top-nav-links a {
+      display: block;
+      padding: 8px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    #top-nav-links a.active { color: var(--c1); }
+
+    /* ── HERO ─────────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      transform: translateX(-50%);
+      height: min(72vh, 580px);
+      overflow: hidden;
+      margin-bottom: 60px;
+    }
+
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 28%;
+      display: block;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.05) 0%,
+        rgba(14,13,11,0.0) 30%,
+        rgba(14,13,11,0.92) 100%
+      );
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 40px;
+    }
+
+    .hero-content {
+      max-width: var(--max);
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .hero-caption {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(2.4rem, 7vw, 4.4rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .hero-sub {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: rgba(255,255,255,0.65);
+      margin-top: 12px;
+      max-width: 520px;
+      line-height: 1.5;
+    }
+
+    /* ── MAIN ─────────────────────────────────────── */
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px 96px;
+    }
+
+    section {
+      margin-bottom: 80px;
+      scroll-margin-top: 80px;
+    }
+
+    h2 {
+      font-family: Georgia, serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 6px;
+      line-height: 1.15;
+    }
+
+    .rule {
+      width: 44px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin-bottom: 22px;
+    }
+
+    p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #cfc5b4;
+      margin-bottom: 1.25em;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    em { color: var(--c1); font-style: italic; }
+
+    ul.prose {
+      margin: 0 0 1.4em 1.6em;
+      color: #cfc5b4;
+      line-height: 1.9;
+      font-size: 1.02rem;
+    }
+
+    ul.prose li { margin-bottom: 0.3em; }
+
+    /* ── PHOTOS ───────────────────────────────────── */
+    .photo { border-radius: 8px; overflow: hidden; margin: 28px 0; }
+    .photo img { width: 100%; display: block; border-radius: 8px; }
+
+    .photo-caption {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 7px 4px 0;
+      font-style: italic;
+    }
+
+    .photo-caption a { color: var(--muted); text-decoration: underline; }
+
+    .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 28px 0; }
+    .photo-grid .photo { margin: 0; }
+
+    /* ── STAT CARDS ───────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 30px 0;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--c2);
+      border-radius: 10px;
+      padding: 18px 12px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--c1);
+      line-height: 1;
+    }
+
+    .stat-unit { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
+
+    .stat-label {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── CALLOUT ──────────────────────────────────── */
+    .callout {
+      background: var(--surface);
+      border-left: 4px solid var(--c1);
+      border-radius: 0 10px 10px 0;
+      padding: 20px 24px;
+      margin: 28px 0;
+      font-style: italic;
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    /* ── ANATOMY GRID ─────────────────────────────── */
+    .anatomy {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 28px 0;
+    }
+
+    .anatomy-item {
+      padding: 16px;
+      border-left: 3px solid var(--accent);
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .anatomy-item h4 {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--c1);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+    }
+
+    .anatomy-item p { font-size: 0.87rem; margin: 0; color: var(--muted); line-height: 1.6; }
+
+    /* ── SPEED BARS ───────────────────────────────── */
+    .speed-bars { margin: 28px 0; display: flex; flex-direction: column; gap: 10px; }
+
+    .speed-bar-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 58px;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .speed-bar-label {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.84rem;
+      color: var(--text);
+      text-align: right;
+    }
+
+    .speed-bar-track { background: var(--surface2); border-radius: 4px; height: 22px; overflow: hidden; }
+
+    .speed-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .speed-bar-val {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── SOCIAL UNITS ─────────────────────────────── */
+    .unit-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .unit-icon { font-size: 2.2rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+
+    .unit-body h4 {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 5px;
+    }
+
+    .unit-body p { font-size: 0.88rem; color: var(--muted); margin: 0; line-height: 1.65; }
+
+    /* ── TIMELINE ─────────────────────────────────── */
+    .timeline { margin: 28px 0; padding-left: 26px; position: relative; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px; bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .tl-item { position: relative; margin-bottom: 26px; }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -30px; top: 6px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+    }
+
+    .tl-date {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.72rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: 2px;
+    }
+
+    .tl-title {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .tl-body { font-size: 0.88rem; color: var(--muted); margin: 0; line-height: 1.65; font-family: Georgia, serif; }
+
+    /* ── DNA BARS ─────────────────────────────────── */
+    .dna-bars { margin: 28px 0; display: flex; flex-direction: column; gap: 14px; }
+
+    .dna-row-label {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.82rem;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .dna-track { height: 30px; background: var(--surface2); border-radius: 6px; overflow: hidden; display: flex; }
+
+    .dna-fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 6px 0 0 6px;
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.22,1,0.36,1);
+      white-space: nowrap;
+      padding: 0 8px;
+      overflow: hidden;
+    }
+
+    /* ── SUBSPECIES GRID ──────────────────────────── */
+    .subspecies-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0; }
+
+    .sub-card {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 20px;
+      border-top: 3px solid var(--c2);
+    }
+
+    .sub-card.vulnerable { border-top-color: #d97706; }
+    .sub-card.endangered { border-top-color: #ea580c; }
+    .sub-card.critical   { border-top-color: #dc2626; }
+
+    .sub-card h4 {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .sub-status {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .sub-card.vulnerable .sub-status { color: #fbbf24; }
+    .sub-card.endangered .sub-status { color: #fb923c; }
+    .sub-card.critical   .sub-status { color: #f87171; }
+
+    .pop-num {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--c1);
+      display: block;
+      margin: 8px 0 4px;
+    }
+
+    .sub-card p { font-size: 0.82rem; color: var(--muted); margin: 0; line-height: 1.6; }
+
+    /* ── QUIZ ─────────────────────────────────────── */
+    .quiz { background: var(--surface); border-radius: 16px; padding: 32px; }
+
+    .quiz h3 {
+      font-family: Georgia, serif;
+      font-size: 1.3rem;
+      color: var(--c1);
+      margin-bottom: 28px;
+    }
+
+    .q-item { margin-bottom: 32px; }
+    .q-item:last-child { margin-bottom: 0; }
+
+    .q-text {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.98rem;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .q-options { display: flex; flex-direction: column; gap: 8px; }
+
+    .q-opt {
+      background: var(--surface2);
+      border: 2px solid #2e2820;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.88rem;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+      line-height: 1.4;
+    }
+
+    .q-opt:hover:not([disabled]) { border-color: var(--accent); background: var(--surface); }
+    .q-opt.correct { border-color: #22c55e; background: rgba(34,197,94,0.08); color: #86efac; }
+    .q-opt.wrong   { border-color: #ef4444; background: rgba(239,68,68,0.08); color: #fca5a5; }
+
+    .q-explain {
+      display: none;
+      margin-top: 12px;
+      font-size: 0.87rem;
+      color: var(--muted);
+      font-style: italic;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 6px;
+      border-left: 3px solid var(--accent);
+      line-height: 1.65;
+    }
+
+    .q-explain.show { display: block; }
+
+    .quiz-score {
+      display: none;
+      margin-top: 28px;
+      padding: 24px;
+      background: var(--surface2);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .quiz-score.show { display: block; }
+
+    .score-num {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--c1);
+      line-height: 1;
+    }
+
+    .score-msg {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    /* ── RESPONSIVE ───────────────────────────────── */
+    @media (max-width: 920px) {
+      #side-nav { display: none; }
+      #top-nav { display: block; }
+    }
+
+    @media (max-width: 600px) {
+      .photo-grid { grid-template-columns: 1fr; }
+      .anatomy { grid-template-columns: 1fr; }
+      .subspecies-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .speed-bar-row { grid-template-columns: 90px 1fr 52px; }
+      main { padding: 0 16px 64px; }
+      .hero { height: min(58vh, 420px); }
+      .quiz { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body data-page-id="cheetahs" style="--accent: #b8630a;">
+
+<!-- MOBILE TOP NAV -->
+<nav id="top-nav" aria-label="Page sections">
+  <button id="top-nav-toggle" aria-expanded="false">
+    <span>Navigate this page</span>
+    <span id="top-nav-arrow">▾</span>
+  </button>
+  <div id="top-nav-links" role="list">
+    <a href="#identity" role="listitem">What is a Cheetah?</a>
+    <a href="#mechanics" role="listitem">Science of Speed</a>
+    <a href="#hunt" role="listitem">The Hunt</a>
+    <a href="#social" role="listitem">Social Life</a>
+    <a href="#heritage" role="listitem">Royal Companion</a>
+    <a href="#genetics" role="listitem">Genetic Crisis</a>
+    <a href="#conservation" role="listitem">Conservation</a>
+    <a href="#subspecies" role="listitem">Subspecies</a>
+    <a href="#quiz" role="listitem">Quiz</a>
+  </div>
+</nav>
+
+<!-- DESKTOP SIDE NAV -->
+<nav id="side-nav" aria-label="Page sections">
+  <a href="#identity">Identity</a>
+  <a href="#mechanics">Speed</a>
+  <a href="#hunt">The Hunt</a>
+  <a href="#social">Social Life</a>
+  <a href="#heritage">Heritage</a>
+  <a href="#genetics">Genetics</a>
+  <a href="#conservation">Conservation</a>
+  <a href="#subspecies">Subspecies</a>
+  <a href="#quiz">Quiz</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Cheetah_%28Acinonyx_jubatus%29_female_2.jpg/1280px-Cheetah_%28Acinonyx_jubatus%29_female_2.jpg"
+    alt="Female cheetah resting on the savannah, Phinda Private Game Reserve, South Africa"
+    loading="eager"
+  >
+  <div class="hero-overlay">
+    <div class="hero-content">
+      <p class="hero-caption">Charles J. Sharp, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.45)">CC BY-SA 4.0</a> — Phinda Private Game Reserve, KwaZulu-Natal, South Africa</p>
+      <h1>Cheetah</h1>
+      <p class="hero-sub">The fastest land animal on Earth — and one of its rarest. With fewer than 7,100 left in the wild, the cheetah is sprinting toward extinction.</p>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── IDENTITY ──────────────────────────────────── -->
+  <section id="identity">
+    <h2>Not Just a Fast Leopard</h2>
+    <div class="rule"></div>
+
+    <p>The cheetah (<em>Acinonyx jubatus</em>) is the most misidentified cat in Africa. Visitors consistently mistake it for a leopard — the spotted coats are superficially similar. But the two animals are profoundly different in body plan, behaviour, ecology, and evolutionary lineage. The cheetah sits alone in its own genus, <em>Acinonyx</em>, and its nearest relatives are not lions or leopards but <em>pumas and jaguarundis</em> — cats of the Americas, where the cheetah lineage originally evolved before migrating into Africa and Asia.</p>
+
+    <p>The simplest field identification is the <strong>tear marks</strong>: two bold black lines running from the inner corner of each eye, straight down the cheeks to the mouth. No other wild cat has them. The leading theory is that they function like an American football player's eye-black — reducing the glare of the African sun and sharpening contrast when scanning the horizon for prey at distances of up to 5 km. A cheetah spots its quarry long before it starts moving.</p>
+
+    <p>The second giveaway is build. Where a leopard is barrel-chested, secretive, and heavy (up to 90 kg), the cheetah is willowy, leggy, and lean — typically 40–65 kg, built for acceleration, not bulk. Its head is small and rounded to reduce drag, its waist cinched, its legs disproportionately long. It looks less like a wild cat and more like a greyhound wearing a spotted coat.</p>
+
+    <p>Unlike every other felid, the cheetah's claws are <strong>semi-retractable</strong> — permanently exposed and worn blunt, like cleats on a sprint shoe. This gives it traction rather than weaponry. It cannot haul kills into trees the way a leopard can. What it gains in speed it surrenders in armour — and that trade shapes every aspect of its life.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">112<span class="stat-unit"> km/h</span></div>
+        <div class="stat-label">Top speed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">3.6<span class="stat-unit"> sec</span></div>
+        <div class="stat-label">0 → 80 km/h</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">7<span class="stat-unit"> m</span></div>
+        <div class="stat-label">Stride length</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">~7,100</div>
+        <div class="stat-label">Left in the wild</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      The cheetah is the only member of the genus <em>Acinonyx</em>. Leopards belong to <em>Panthera</em>. They share a continent and a spotted coat — and very little else.
+    </div>
+  </section>
+
+  <!-- ── MECHANICS ─────────────────────────────────── -->
+  <section id="mechanics">
+    <h2>The Science of Speed</h2>
+    <div class="rule"></div>
+
+    <p>A top speed of 112 km/h is genuinely extraordinary — but focusing on the number alone misses the more impressive story. <strong>Agility is at least as important as raw velocity.</strong> A landmark 2013 GPS tracking study published in <em>Nature</em> found that cheetahs' average hunting speeds were around 54 km/h, not 100+, because prey animals zigzag constantly. What the cheetah does with devastating effectiveness is <em>track a turning animal at full pace</em> — decelerating by up to 14.5 km/h in a single stride to match a gazelle's change of direction.</p>
+
+    <p>Every part of its body is engineered around this dual demand for raw speed and angular agility:</p>
+
+    <div class="anatomy">
+      <div class="anatomy-item">
+        <h4>Flexible Spine</h4>
+        <p>Acts like a coiled spring. The cheetah's elongated, highly flexible spine extends and compresses on every stride, contributing up to 76 cm of extra reach per step — distance the muscles don't have to generate.</p>
+      </div>
+      <div class="anatomy-item">
+        <h4>Semi-Retractable Claws</h4>
+        <p>Worn permanently blunt from contact with the ground. They dig into loose soil like running spikes, driving acceleration and resisting slip during sharp turns. This specialisation sacrifices climbing ability entirely.</p>
+      </div>
+      <div class="anatomy-item">
+        <h4>Enlarged Heart & Lungs</h4>
+        <p>Breathing spikes from 60 to 150 breaths per minute in seconds. Enlarged nasal passages and bronchi allow maximal oxygen delivery during the 20–30 seconds of peak exertion — after which heat forces a stop.</p>
+      </div>
+      <div class="anatomy-item">
+        <h4>Heavy Counterbalance Tail</h4>
+        <p>The thick, muscular tail acts as a rudder, thrown opposite to the direction of a turn to maintain balance. When a gazelle jinks right at 80 km/h, the cheetah's tail swings left a fraction of a second later.</p>
+      </div>
+      <div class="anatomy-item">
+        <h4>Double Suspension Gallop</h4>
+        <p>At top speed there are <em>two</em> airborne phases per stride: one when the legs are fully extended forward and back, and one when they're tucked under the body. All four paws leave the ground twice per stride cycle.</p>
+      </div>
+      <div class="anatomy-item">
+        <h4>Specialised Inner Ear</h4>
+        <p>2018 research revealed the cheetah's vestibular system has unique adaptations for stabilising vision during extreme acceleration and turning — allowing the eyes to track prey without blur through violent direction changes.</p>
+      </div>
+    </div>
+
+    <p>The cost of this engineering is brutal. After a 300–400 m sprint the cheetah's core temperature spikes dangerously. It must rest for 15–30 minutes before eating — even with the kill in front of it. This is the most dangerous window in a cheetah's life. Lions, leopards, hyenas, and vultures know it. Studies estimate that cheetahs lose 10–15% of their kills to theft before they can eat.</p>
+
+    <div class="photo">
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/f/f6/Cheetah_chase.jpg"
+        alt="Cheetah sprinting at full pace across the African savannah"
+        loading="lazy"
+      >
+      <p class="photo-caption">Hein waschefort, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> — Rhino and Lion Nature Reserve, South Africa</p>
+    </div>
+
+    <p>How does 112 km/h compare to other fast animals?</p>
+
+    <div class="speed-bars">
+      <div class="speed-bar-row">
+        <span class="speed-bar-label">Cheetah</span>
+        <div class="speed-bar-track"><div class="speed-bar-fill" style="background:var(--c1);" data-pct="100"></div></div>
+        <span class="speed-bar-val">112 km/h</span>
+      </div>
+      <div class="speed-bar-row">
+        <span class="speed-bar-label">Pronghorn</span>
+        <div class="speed-bar-track"><div class="speed-bar-fill" style="background:#8b7a52;" data-pct="79"></div></div>
+        <span class="speed-bar-val">89 km/h</span>
+      </div>
+      <div class="speed-bar-row">
+        <span class="speed-bar-label">Springbok</span>
+        <div class="speed-bar-track"><div class="speed-bar-fill" style="background:#7a6a48;" data-pct="79"></div></div>
+        <span class="speed-bar-val">88 km/h</span>
+      </div>
+      <div class="speed-bar-row">
+        <span class="speed-bar-label">Greyhound</span>
+        <div class="speed-bar-track"><div class="speed-bar-fill" style="background:#5a5040;" data-pct="62"></div></div>
+        <span class="speed-bar-val">70 km/h</span>
+      </div>
+      <div class="speed-bar-row">
+        <span class="speed-bar-label">Lion</span>
+        <div class="speed-bar-track"><div class="speed-bar-fill" style="background:#4a4030;" data-pct="57"></div></div>
+        <span class="speed-bar-val">64 km/h</span>
+      </div>
+      <div class="speed-bar-row">
+        <span class="speed-bar-label">Elite human</span>
+        <div class="speed-bar-track"><div class="speed-bar-fill" style="background:#302820;" data-pct="33"></div></div>
+        <span class="speed-bar-val">37 km/h</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── THE HUNT ───────────────────────────────────── -->
+  <section id="hunt">
+    <h2>The Hunt</h2>
+    <div class="rule"></div>
+
+    <p>The cheetah is a <strong>diurnal hunter</strong> — it works by day, in the full heat of the African sun. This is not incidental. Cheetahs evolved to avoid competition with lions and leopards, which hunt at dusk and dawn. This daytime niche also happens to be why ancient humans found cheetahs the most tractable of the large cats: you could see them coming.</p>
+
+    <p>A successful hunt begins with extraordinary patience. A cheetah will spend 20–40 minutes slowly circling downwind of a herd, using termite mounds, low scrub, and natural dips in the terrain to close to within 60–100 metres of a target. The closer the starting position, the less energy the sprint burns — and the greater the chance of success before the cheetah overheats.</p>
+
+    <p>The chase itself usually lasts under 30 seconds. The cheetah doesn't run straight — it reads the prey animal's body angle and anticipates the direction of the next swerve, sometimes cutting the corner rather than following behind. The killing technique is a <strong>trip followed by a throat grip</strong>: a paw-swipe to knock the animal off-balance at speed, then a suffocating clench on the windpipe held for 5–15 minutes. The cheetah is too lightly built to break necks the way a lion can.</p>
+
+    <div class="callout">
+      Despite its speed, the cheetah's hunt success rate is roughly 40–58% per stalk — the highest among African large predators. But because it loses many of those kills to larger scavengers before it can eat, its actual caloric yield per day is lower than those figures suggest.
+    </div>
+
+    <p>After a kill, the cheetah is spent. It pants violently, body temperature elevated, and often cannot eat for 15–30 minutes. This is its most vulnerable moment. It will drag the carcass into cover if it can, but it can't fight off a lion or hyena clan and will generally yield the kill without a contest rather than risk injury. Cheetahs that get injured in fights often cannot sprint effectively, and a cheetah that can't sprint fully cannot feed itself.</p>
+
+    <p>Cubs learn to hunt through a remarkable apprenticeship. Mothers catch prey alive — gazelles, impalas, hares — and <em>release them in front of the cubs</em>, allowing them to practice the kill. By 12–14 months, cubs hunt independently. The window between leaving the mother and becoming a competent hunter is when mortality rates peak.</p>
+  </section>
+
+  <!-- ── SOCIAL LIFE ────────────────────────────────── -->
+  <section id="social">
+    <h2>Social Life and Communication</h2>
+    <div class="rule"></div>
+
+    <p>The cheetah's social structure is unlike any other big cat. There is no pride, no permanent pair bond, and no stable female group. Instead there are three distinct social units, each with its own territory, logic, and risks.</p>
+
+    <div class="unit-card">
+      <div class="unit-icon">🐆🐆</div>
+      <div class="unit-body">
+        <h4>Male Coalitions</h4>
+        <p>Two to five males — almost always littermates — bond for life after leaving their mother at around 18 months. Together they defend a territory against rival males, occasionally fighting to the death for it. If coalition members become separated, they call out with rapid bird-like chirps until reunited. A coalition can hold territory that a single male cannot — giving better access to females and prey.</p>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-icon">🐆👶👶</div>
+      <div class="unit-body">
+        <h4>Females with Cubs</h4>
+        <p>Females are almost entirely solitary except when raising cubs. A litter of 2–6 cubs stays with the mother for 18 months. After separation, siblings remain together for another 6 months before females disperse alone and males form or join a coalition.</p>
+      </div>
+    </div>
+
+    <div class="unit-card">
+      <div class="unit-icon">🐆</div>
+      <div class="unit-body">
+        <h4>Solitary Floater Males</h4>
+        <p>Males without a coalition roam vast home ranges — sometimes exceeding 1,000 km² — unable to hold territory. They mate opportunistically when they can but live on the margins, at higher risk from injury and starvation.</p>
+      </div>
+    </div>
+
+    <p>Cheetahs are the only big cat that <strong>cannot roar</strong>. This is a consequence of their hyoid bone structure — a different anatomy from the large cats of the genus <em>Panthera</em>. In exchange, they have a remarkably rich vocal range: chirps, purrs, churrs, yips, and a stutter-bark that carries over a mile of open savannah. The contact call between a separated coalition or a mother and her cubs — a rapid, bird-like chirp — is genuinely startling the first time you hear it. It sounds like a large, anxious bird, not a predator.</p>
+
+    <p>Most remarkably, cheetahs <strong>purr on both the inhale and the exhale</strong>. Lions, tigers, and leopards can purr only on one phase of the breath cycle. The cheetah's different hyoid structure enables continuous purring — the same structural reason it cannot roar. This makes it sound, in quiet moments, more like a very large domestic cat than a wild predator.</p>
+
+    <div class="photo-grid">
+      <div class="photo">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Cheetah_%28Acinonyx_jubatus%29_female_2_cubs.jpg/960px-Cheetah_%28Acinonyx_jubatus%29_female_2_cubs.jpg"
+          alt="Female cheetah with two young cubs, Phinda Private Game Reserve, South Africa"
+          loading="lazy"
+        >
+        <p class="photo-caption">Charles J. Sharp, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> — Female with two cubs, Phinda, South Africa</p>
+      </div>
+      <div class="photo">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cheetah_%28Acinonyx_jubatus%29_cub.jpg/960px-Cheetah_%28Acinonyx_jubatus%29_cub.jpg"
+          alt="Close-up portrait of a cheetah cub"
+          loading="lazy"
+        >
+        <p class="photo-caption">Charles J. Sharp, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> — Cub at Phinda Private Game Reserve, 2014</p>
+      </div>
+    </div>
+
+    <p>Young cubs carry a striking pale grey-silver mantle of long fur along their backs and heads for the first 3–4 months of life. The prevailing theory is that it mimics the colouring and profile of the honey badger — one of Africa's most universally avoided animals, avoided even by lions — providing protection during the period when the cub cannot run fast enough to escape anything.</p>
+  </section>
+
+  <!-- ── HERITAGE ────────────────────────────────────── -->
+  <section id="heritage">
+    <h2>The Royal Companion: 5,000 Years of Taming Cheetahs</h2>
+    <div class="rule"></div>
+
+    <p>Humans have been taming cheetahs for at least 5,000 years — possibly longer than we have ridden horses. Across ancient Egypt, Mesopotamia, medieval Europe, Mughal India, and Renaissance Italy, the cheetah was the ultimate status symbol: proof that you could afford to capture, transport, and train the fastest animal on Earth.</p>
+
+    <p>Unlike lions, which required elaborate containment and were genuinely dangerous, cheetahs tolerated human company with unusual ease. They hunt by day, their temperament is comparatively mild, and they actively seek social bonds with people who feed them. Their one inconvenient quality — that they almost never bred in captivity — only made them more exclusive. Every cheetah in every royal court had been caught from the wild as a cub.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-date">c. 3000 BCE</div>
+        <div class="tl-title">Ancient Egypt</div>
+        <p class="tl-body">Cheetahs on leashes appear in Egyptian tomb art as far back as the First Dynasty. They were believed to carry the souls of pharaohs to the afterlife. Images appear in Tutankhamun's tomb, wearing jewelled collars.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">c. 1000 BCE</div>
+        <div class="tl-title">Assyria and Persia</div>
+        <p class="tl-body">Cheetahs feature in Assyrian reliefs as royal hunting companions, hooded and carried to the hunt on horseback. Cheetah hunting spread across the ancient Near East as a mark of royal prestige.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">c. 1100–1250 CE</div>
+        <div class="tl-title">Medieval Europe</div>
+        <p class="tl-body">Emperor Charlemagne received a cheetah as a diplomatic gift. Frederick II of Sicily wrote extensively about cheetah hunting technique. European nobles brought them to hunts on horseback, releasing them hooded at prey.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">1556–1605 CE</div>
+        <div class="tl-title">Akbar the Great — the peak of cheetah ownership</div>
+        <p class="tl-body">The Mughal Emperor kept over <strong>9,000 cheetahs</strong> across his 49-year reign, naming each one and maintaining detailed court records. His favourite, Chitr Najan, received a full ceremonial procession. Akbar recorded with evident frustration that only a single cheetah bred in captivity during his entire reign — showing the problem was already well understood.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">1900s CE</div>
+        <div class="tl-title">The last great collections</div>
+        <p class="tl-body">Ethiopia's Emperor Haile Selassie was frequently photographed with pet cheetahs. By this point, wild cheetah populations across Asia and North Africa were collapsing from centuries of sustained extraction. The Asiatic cheetah — Akbar's cheetah — was approaching functional extinction.</p>
+      </div>
+    </div>
+
+    <p>This millennia-long history of capture for the pet trade is one of the least-discussed drivers of cheetah decline. It left no dramatic hunting photographs. It was simply continuous, quiet extraction over thousands of years — and it drove the Asiatic cheetah from a species roaming from Morocco to the Ganges to fewer than 50 individuals in a single Iranian plateau.</p>
+  </section>
+
+  <!-- ── GENETICS ────────────────────────────────────── -->
+  <section id="genetics">
+    <h2>The Genetic Crisis: A Species of Near-Clones</h2>
+    <div class="rule"></div>
+
+    <p>If you took a skin graft from one unrelated cheetah and transplanted it to another, the recipient's immune system would, in many cases, <em>not reject it</em>. This is not a veterinary trick — it is a consequence of the most significant genetic fact about the species: <strong>cheetahs are so similar to each other that their immune systems often cannot distinguish self from non-self.</strong></p>
+
+    <p>The average cheetah genome is <strong>95% homozygous</strong> — meaning that on 95% of its gene locations, both copies of the chromosome carry identical alleles. For comparison, outbred domestic cats are around 24% homozygous. Humans are typically below 0.1%. Cheetahs sit at a level of genetic depletion that would be classified as a catastrophic welfare crisis in any livestock population.</p>
+
+    <div class="dna-bars" id="dna-bars">
+      <div>
+        <div class="dna-row-label">
+          <span>Cheetah</span>
+          <span style="color:#ef4444; font-weight:700;">95% homozygous — crisis</span>
+        </div>
+        <div class="dna-track"><div class="dna-fill" style="background:#ef4444;" data-pct="95">95%</div></div>
+      </div>
+      <div>
+        <div class="dna-row-label">
+          <span>Domestic cat</span>
+          <span style="color:var(--muted);">24% — typical outbred</span>
+        </div>
+        <div class="dna-track"><div class="dna-fill" style="background:#f59e0b;" data-pct="24">24%</div></div>
+      </div>
+      <div>
+        <div class="dna-row-label">
+          <span>Human</span>
+          <span style="color:var(--muted);">~0.1% — reference</span>
+        </div>
+        <div class="dna-track"><div class="dna-fill" style="background:#22c55e;" data-pct="1">&lt;1%</div></div>
+      </div>
+    </div>
+
+    <p>Two prehistoric <strong>population bottlenecks</strong> caused this. The first happened over 100,000 years ago, when cheetahs migrated from the Americas (where the genus originated) through Eurasia and into Africa — the founding population in the new continent was tiny. The second, more severe bottleneck struck around 11,000–12,500 years ago at the end of the Pleistocene, the same extinction event that killed the mammoth, American horse, ground sloth, and most of the megafauna of the Americas. Cheetahs survived, but barely, and every living cheetah on Earth is descended from that minuscule pool of survivors.</p>
+
+    <p>The practical consequences are still felt today:</p>
+
+    <ul class="prose">
+      <li><strong>Elevated juvenile mortality:</strong> Cubs die at higher rates from pathogens that a genetically diverse population would handle easily.</li>
+      <li><strong>Abnormal sperm:</strong> 70–80% of cheetah sperm is structurally defective (bent tails, misshapen heads). In most mammals, 30% abnormal would indicate infertility. Cheetahs still reproduce — but at reduced efficiency.</li>
+      <li><strong>Disease outbreaks:</strong> A feline infectious peritonitis (FIP) outbreak tore through US captive cheetah populations in the 1980s, killing around half the affected animals. In a genetically diverse population, immune variation would have blunted the spread.</li>
+      <li><strong>Captive breeding failures:</strong> The reason Akbar recorded only one captive birth in 9,000 animals, and zoos historically failed to breed them, is partly genetic. Low reproductive capacity is baked into the species' biology.</li>
+    </ul>
+
+    <p>This is why cheetah conservation is so urgently time-sensitive. Even if every human threat were removed tomorrow, the species would still face a deep evolutionary challenge that cannot be quickly resolved by any breeding programme.</p>
+  </section>
+
+  <!-- ── CONSERVATION ───────────────────────────────── -->
+  <section id="conservation">
+    <h2>Conservation: Racing Against Time</h2>
+    <div class="rule"></div>
+
+    <p>The cheetah's IUCN classification is <strong>"Vulnerable"</strong> — a label that understates the crisis. Populations have declined by roughly 50% in 40 years. The estimated ~7,100 individuals remaining are fragmented across more than 30 isolated sub-populations, most too small to be genetically viable alone. The most alarming statistic: <strong>77% of cheetah range is on unprotected land.</strong> Unlike lions, which largely persist within national parks, cheetahs live among people — and die among people.</p>
+
+    <div class="photo">
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/7/76/NorthWest_African_Cheetah_%2814846381095%29.jpg"
+        alt="Northwest African cheetah (Saharan cheetah) — a critically endangered subspecies with only around 230 individuals remaining"
+        loading="lazy"
+      >
+      <p class="photo-caption">Steve Wilson, <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener">CC BY 2.0</a> — Northwest African cheetah (<em>Acinonyx jubatus hecki</em>) at Chester Zoo. This subspecies numbers only ~230 individuals in the wild.</p>
+    </div>
+
+    <p>The main pressures:</p>
+
+    <ul class="prose">
+      <li><strong>Human–wildlife conflict:</strong> Cheetahs take livestock. Farmers retaliate. On unprotected land, retaliatory killing remains one of the biggest direct causes of cheetah death.</li>
+      <li><strong>Habitat fragmentation:</strong> Female cheetahs need home ranges exceeding 800 km². Roads, fences, and agricultural expansion splinter these into unusable fragments, isolating sub-populations.</li>
+      <li><strong>Illegal live trade:</strong> Demand for cheetah cubs as exotic pets — primarily in Gulf states — is accelerating. Because cheetahs don't breed reliably in captivity, all trafficked cubs come from the wild. The Cheetah Conservation Fund estimates 300+ cubs are taken annually, and most die before reaching a buyer.</li>
+      <li><strong>Prey depletion:</strong> Overhunting for bushmeat reduces the prey base that supports cheetah populations, even in areas where the cats themselves are theoretically protected.</li>
+    </ul>
+
+    <p>The most ambitious conservation move in recent memory was India's 2022 reintroduction at Kuno National Park — the first intercontinental translocation of a wild big cat in history. Eight cheetahs arrived from Namibia, twelve more from South Africa. The project remains controversial: critics point out that the African cheetah (<em>A. j. jubatus</em>) is a different subspecies from the Asiatic cheetah (<em>A. j. venaticus</em>) that went extinct in India in the 1950s, and that Kuno's 750 km² may not be adequate for long-term viability. Several animals have since died. But the project has focused political attention on cheetah conservation and is generating critical data on reintroduction methodology.</p>
+
+    <div class="callout">
+      The Cheetah Conservation Fund (CCF), founded in Namibia in 1990 by Dr Laurie Marker, pioneered the Livestock Guarding Dog programme — placing Anatolian Shepherd dogs with farming communities as a non-lethal alternative to cheetah killing. It has been one of the most effective conservation interventions in Africa.
+    </div>
+  </section>
+
+  <!-- ── SUBSPECIES ─────────────────────────────────── -->
+  <section id="subspecies">
+    <h2>Four Subspecies: How Many Are Left?</h2>
+    <div class="rule"></div>
+
+    <p>Four recognised subspecies of cheetah survive today. The differences between them are subtle in appearance — mainly coat density and geographic isolation — but significant in genetics and conservation urgency. What they share is a trajectory: all four are declining.</p>
+
+    <div class="subspecies-grid">
+      <div class="sub-card vulnerable">
+        <h4>Southeast African Cheetah</h4>
+        <div class="sub-status">Vulnerable</div>
+        <span class="pop-num">~4,000</span>
+        <p><em>A. j. jubatus.</em> The most numerous subspecies. Found across southern and eastern Africa — Botswana, Zimbabwe, Tanzania, Namibia. Almost certainly the one you saw on safari.</p>
+      </div>
+      <div class="sub-card endangered">
+        <h4>Northeast African Cheetah</h4>
+        <div class="sub-status">Endangered</div>
+        <span class="pop-num">~800</span>
+        <p><em>A. j. soemmeringii.</em> Dispersed across the Horn of Africa and the Sahel. Increasingly fragmented by habitat loss and political instability across its range states.</p>
+      </div>
+      <div class="sub-card critical">
+        <h4>Northwest African (Saharan) Cheetah</h4>
+        <div class="sub-status">Critically Endangered</div>
+        <span class="pop-num">~230</span>
+        <p><em>A. j. hecki.</em> The ghost cat of the Sahara. Paler coat, sparse spotting, adapted to desert conditions. Found in Algeria, Libya, Niger. A 2025 study revised the population down sharply from previous estimates of 419.</p>
+      </div>
+      <div class="sub-card critical">
+        <h4>Asiatic Cheetah</h4>
+        <div class="sub-status">Critically Endangered</div>
+        <span class="pop-num">&lt;50</span>
+        <p><em>A. j. venaticus.</em> Functionally extinct outside Iran. Possibly fewer than 12 breeding adults remain. The same subspecies that once ranged from Morocco to the Ganges in their tens of thousands.</p>
+      </div>
+    </div>
+
+    <p>The Asiatic cheetah's situation deserves full attention. This is the animal in Akbar's records, in Egyptian tomb paintings, in every Mughal hunting miniature. It ranged from the Caspian Sea to the Ganges. It populated the royal courts of Arabia, Persia, India, and Byzantium for thousands of years. Today, <strong>fewer than 12 breeding adults</strong> likely remain — concentrated in Iran's central plateau, surrounded by roads and farms, genetically isolated, without a viable recovery plan. We are watching a subspecies disappear in real time, and almost nobody is talking about it.</p>
+  </section>
+
+  <!-- ── QUIZ ───────────────────────────────────────── -->
+  <section id="quiz">
+    <h2>How Much Did You Take In?</h2>
+    <div class="rule"></div>
+
+    <div class="quiz">
+      <h3>Test your cheetah knowledge</h3>
+
+      <!-- Q1 -->
+      <div class="q-item" id="q1">
+        <div class="q-text">1. What is the leading theory for the purpose of the cheetah's black "tear marks"?</div>
+        <div class="q-options">
+          <button class="q-opt" data-correct="false">They are pigment carried over from an ancestral spotted pattern</button>
+          <button class="q-opt" data-correct="true">Anti-glare markings that function like an athlete's eye-black, improving long-distance vision in bright sunlight</button>
+          <button class="q-opt" data-correct="false">Scent glands used in territorial communication</button>
+          <button class="q-opt" data-correct="false">Scar tissue from territorial fights that became a fixed trait</button>
+        </div>
+        <div class="q-explain">The honest scientific answer is that we're not certain — but the leading theory is sun-glare reduction. Cheetahs rely heavily on vision at distances up to 5 km to spot prey on open savannah. Reducing glare and improving contrast in the direction of the sun is a plausible advantage. American football players use eye-black for the same reason.</div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="q-item" id="q2">
+        <div class="q-text">2. Why can a cheetah purr but not roar?</div>
+        <div class="q-options">
+          <button class="q-opt" data-correct="false">Its larynx is too small to produce the low frequencies needed for a roar</button>
+          <button class="q-opt" data-correct="true">Its hyoid bone structure is different from the Panthera big cats — it enables two-phase purring on both the inhale and exhale, but prevents roaring</button>
+          <button class="q-opt" data-correct="false">Cheetahs evolved from non-roaring ancestors, unlike lions and tigers</button>
+          <button class="q-opt" data-correct="false">Roaring requires a flexible vocal cord that cheetahs lack</button>
+        </div>
+        <div class="q-explain">The key difference is the hyoid bone — a small bone in the throat that anchors the tongue and larynx. In Panthera cats (lion, tiger, leopard) the hyoid is partially elastic, allowing the larynx to flex enough to produce a roar. In the cheetah, the hyoid is rigid and fully ossified — which allows it to purr continuously on both the inhale and exhale, something no Panthera cat can do, but prevents roaring entirely.</div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="q-item" id="q3">
+        <div class="q-text">3. A cheetah genome is approximately 95% homozygous. What caused this?</div>
+        <div class="q-options">
+          <button class="q-opt" data-correct="false">Captive breeding programmes over the past century pairing related individuals</button>
+          <button class="q-opt" data-correct="false">A single severe glaciation around 20,000 years ago</button>
+          <button class="q-opt" data-correct="true">Two prehistoric bottlenecks: migration from the Americas 100,000+ years ago, then the Pleistocene extinction event ~11,000 years ago</button>
+          <button class="q-opt" data-correct="false">Deliberate selective breeding by humans over 5,000 years of keeping cheetahs in captivity</button>
+        </div>
+        <div class="q-explain">Cheetahs originated in the Americas — the genus Acinonyx first appears in the North American fossil record. They crossed via the Bering land bridge during migration, and the small founding population created the first bottleneck. The second, more severe bottleneck came with the mass extinction at the end of the Pleistocene, which wiped out most large mammals. All living cheetahs descend from the tiny remnant that survived that event.</div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="q-item" id="q4">
+        <div class="q-text">4. Emperor Akbar of the Mughal Empire kept how many cheetahs over his 49-year reign?</div>
+        <div class="q-options">
+          <button class="q-opt" data-correct="false">Around 200</button>
+          <button class="q-opt" data-correct="false">Around 1,000</button>
+          <button class="q-opt" data-correct="true">Over 9,000 — each named, with a court record of its hunting history</button>
+          <button class="q-opt" data-correct="false">Around 3,000</button>
+        </div>
+        <div class="q-explain">Akbar's court historian Abū'l Fazl documented over 9,000 cheetahs. Each was named. Akbar recorded — apparently with frustration — that only one bred in captivity across his entire reign, which tells us the reproductive problem was understood at least 500 years ago. This level of extraction is one reason the Asiatic cheetah today is down to fewer than 50 individuals.</div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="q-item" id="q5">
+        <div class="q-text">5. How many Asiatic cheetahs are estimated to survive in the wild today?</div>
+        <div class="q-options">
+          <button class="q-opt" data-correct="false">Around 500, dispersed across Iran and Afghanistan</button>
+          <button class="q-opt" data-correct="false">Around 2,000 across Central Asia</button>
+          <button class="q-opt" data-correct="true">Fewer than 50, almost all in Iran — possibly only 12 breeding adults</button>
+          <button class="q-opt" data-correct="false">About 150, with some also in Pakistan and Turkmenistan</button>
+        </div>
+        <div class="q-explain">The Asiatic cheetah (Acinonyx jubatus venaticus) is on the edge of extinction. Current surveys suggest fewer than 50 individuals survive, concentrated in Iran's central plateau. The most careful estimates place the breeding population at around 12 adults. This is the cheetah of Akbar, of the pharaohs, of every Mughal court painting — reduced to a remnant clinging to survival in a single country.</div>
+      </div>
+
+      <div class="quiz-score" id="quiz-score">
+        <div class="score-num" id="score-display"></div>
+        <div class="score-msg" id="score-msg"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="../header.js"></script>
+<script>
+(function () {
+
+  /* ── INTERSECTION OBSERVER: active nav link ─────── */
+  const sections = document.querySelectorAll('section[id]');
+  const sideLinks = document.querySelectorAll('#side-nav a');
+  const topLinks  = document.querySelectorAll('#top-nav-links a');
+
+  const setActive = id => [...sideLinks, ...topLinks].forEach(a =>
+    a.classList.toggle('active', a.getAttribute('href') === '#' + id)
+  );
+
+  new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+  }, { rootMargin: '-25% 0px -65% 0px' })
+    .observe && sections.forEach(s =>
+      new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-25% 0px -65% 0px' }).observe(s)
+    );
+
+  /* ── MOBILE NAV TOGGLE ──────────────────────────── */
+  const toggle = document.getElementById('top-nav-toggle');
+  const links  = document.getElementById('top-nav-links');
+  const arrow  = document.getElementById('top-nav-arrow');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+      arrow.textContent = open ? '▴' : '▾';
+    });
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      links.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      arrow.textContent = '▾';
+    }));
+  }
+
+  /* ── ANIMATED BARS (speed + DNA) ────────────────── */
+  const animateOnView = (selector, property) => {
+    const els = document.querySelectorAll(selector);
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style[property] = e.target.dataset.pct + '%';
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    els.forEach(el => obs.observe(el));
+  };
+
+  animateOnView('.speed-bar-fill', 'width');
+  animateOnView('.dna-fill', 'width');
+
+  /* ── QUIZ ────────────────────────────────────────── */
+  let answered = 0;
+  let correct  = 0;
+  const total  = document.querySelectorAll('.q-item').length;
+
+  document.querySelectorAll('.q-opt').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const item = this.closest('.q-item');
+      if (item.dataset.answered) return;
+      item.dataset.answered = '1';
+      answered++;
+
+      const isRight = this.dataset.correct === 'true';
+      if (isRight) correct++;
+
+      item.querySelectorAll('.q-opt').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.correct === 'true') b.classList.add('correct');
+      });
+      if (!isRight) this.classList.add('wrong');
+      item.querySelector('.q-explain').classList.add('show');
+
+      if (answered === total) {
+        const scoreEl = document.getElementById('quiz-score');
+        const pct = correct / total;
+        document.getElementById('score-display').textContent = correct + ' / ' + total;
+        document.getElementById('score-msg').textContent = [
+          'Keep reading — the cheetah has more to give.',
+          'You caught the headlines. The genetics section is worth a second look.',
+          'Solid. The cheetah is sticking.',
+          'Very good — you were clearly paying attention.',
+          'Excellent. You could run the safari commentary yourself.'
+        ][Math.min(Math.floor(pct * 5), 4)];
+        scoreEl.classList.add('show');
+        scoreEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birds of East Africa</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #f0a500;
+      --c2: #4fa3c5;
+      --bg: #080e09;
+      --surface: #101810;
+      --surface2: #182018;
+      --text: #cddece;
+      --text-muted: #6a8a6e;
+      --radius: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding-top: 56px;
+    }
+
+    /* ── LAYOUT ── */
+    .page-shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1160px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    /* ── SIDENAV ── */
+    .sidenav {
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 72px);
+      overflow-y: auto;
+      padding: 28px 20px 28px 0;
+      border-right: 1px solid #1a2a1c;
+      scrollbar-width: none;
+    }
+    .sidenav::-webkit-scrollbar { display: none; }
+
+    .sidenav-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-left: 12px;
+    }
+
+    .sidenav a {
+      display: block;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      border-radius: 0 6px 6px 0;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      margin-bottom: 2px;
+    }
+    .sidenav a:hover { color: var(--text); background: var(--surface); }
+    .sidenav a.active {
+      color: var(--c1);
+      border-left-color: var(--accent, #1b5e3b);
+      background: #0e180e;
+    }
+
+    /* ── MOBILE NAV ── */
+    .mobile-nav {
+      display: none;
+      background: var(--surface);
+      border-bottom: 1px solid #1a2a1c;
+      padding: 0 16px;
+    }
+    .mobile-nav-toggle {
+      background: none;
+      border: none;
+      color: var(--c1);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      font-weight: 600;
+    }
+    .mobile-nav-toggle::after { content: '▾'; margin-left: auto; transition: transform 0.2s; }
+    .mobile-nav-toggle.open::after { transform: rotate(180deg); }
+    .mobile-nav-links { display: none; padding-bottom: 12px; }
+    .mobile-nav-links.open { display: block; }
+    .mobile-nav-links a {
+      display: block;
+      padding: 7px 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    .mobile-nav-links a:hover { color: var(--text); background: var(--surface2); }
+    .mobile-nav-links a.active { color: var(--c1); }
+
+    /* ── CONTENT ── */
+    .content {
+      padding: 48px 40px 80px;
+      min-width: 0;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 64px;
+      min-height: 380px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      filter: brightness(0.6) saturate(1.2);
+    }
+    .hero-overlay {
+      position: relative;
+      z-index: 1;
+      padding: 32px;
+      background: linear-gradient(0deg, rgba(8,14,9,0.95) 0%, rgba(8,14,9,0.4) 60%, transparent 100%);
+      width: 100%;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--accent, #1b5e3b);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .hero h1 span { color: var(--c1); }
+    .hero-sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 540px;
+    }
+    .hero-credit {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 14px;
+    }
+    .hero-credit a { color: inherit; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 64px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid #1a2a1c;
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--c1);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* ── SECTIONS ── */
+    section { margin-bottom: 72px; }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 18px;
+      line-height: 1.2;
+    }
+    h2 .accent { color: var(--c1); }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 10px;
+      margin-top: 24px;
+    }
+
+    p { margin-bottom: 16px; color: var(--text); }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── CALLOUT BOX ── */
+    .callout {
+      background: var(--surface);
+      border-left: 4px solid var(--c1);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 18px 20px;
+      margin: 24px 0;
+    }
+    .callout-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--c1);
+      margin-bottom: 6px;
+    }
+    .callout p { margin: 0; font-size: 0.92rem; }
+
+    .callout.blue { border-left-color: var(--c2); }
+    .callout.blue .callout-label { color: var(--c2); }
+
+    /* ── SPECIES GRID ── */
+    .species-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .species-card {
+      perspective: 900px;
+      height: 300px;
+      cursor: pointer;
+    }
+    .species-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+      transform-style: preserve-3d;
+    }
+    .species-card.flipped .species-card-inner { transform: rotateY(180deg); }
+
+    .species-front,
+    .species-back {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .species-front { background: var(--surface); }
+    .species-front img {
+      width: 100%;
+      height: 76%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s;
+    }
+    .species-card:hover .species-front img { transform: scale(1.04); }
+    .species-front-info {
+      padding: 12px 14px;
+    }
+    .species-front-info strong {
+      display: block;
+      font-size: 0.9rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .species-front-info em {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .species-front-hint {
+      font-size: 0.68rem;
+      color: var(--c1);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .species-back {
+      background: var(--surface2);
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px;
+      border: 1px solid #2a3a2c;
+    }
+    .species-back h4 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--c1);
+      margin-bottom: 10px;
+    }
+    .species-back ul {
+      list-style: none;
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .species-back ul li::before {
+      content: '→ ';
+      color: var(--c1);
+      font-weight: 700;
+    }
+    .species-back .back-status {
+      font-size: 0.7rem;
+      margin-top: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 600;
+    }
+    .status-lc { background: #0d3b1a; color: #4caf50; }
+    .status-vu { background: #3b2a00; color: #ffb300; }
+    .status-en { background: #3b0d0d; color: #f44336; }
+    .status-nt { background: #1a2a3b; color: #64b5f6; }
+
+    /* ── DEEP DIVE ── */
+    .deep-dive-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-top: 28px;
+    }
+    .img-frame {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .img-frame img {
+      width: 100%;
+      display: block;
+      transition: transform 0.4s;
+    }
+    .img-frame:hover img { transform: scale(1.03); }
+    .img-caption {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      background: var(--surface);
+    }
+    .img-caption a { color: var(--c2); text-decoration: none; }
+
+    .fact-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 16px;
+    }
+    .fact-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1a2a1c;
+      vertical-align: top;
+    }
+    .fact-table td:first-child {
+      color: var(--text-muted);
+      font-weight: 600;
+      width: 38%;
+      white-space: nowrap;
+    }
+    .fact-table tr:last-child td { border-bottom: none; }
+
+    /* ── LAKE NATRON ── */
+    .natron-banner {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 28px;
+      min-height: 260px;
+    }
+    .natron-banner img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: saturate(1.4);
+    }
+    .natron-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 20px;
+      background: linear-gradient(0deg, rgba(8,14,9,0.9) 0%, transparent 100%);
+    }
+    .natron-overlay p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      margin: 0;
+    }
+    .natron-overlay p a { color: var(--c2); text-decoration: none; }
+
+    /* ── MIGRATION ── */
+    .migration-timeline {
+      position: relative;
+      margin-top: 28px;
+    }
+    .migration-timeline::before {
+      content: '';
+      position: absolute;
+      left: 18px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--c1) 0%, var(--c2) 100%);
+    }
+    .timeline-item {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 28px;
+      padding-left: 8px;
+    }
+    .timeline-dot {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--c1);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 800;
+      color: #000;
+      position: relative;
+      z-index: 1;
+    }
+    .timeline-dot.blue { background: var(--c2); }
+    .timeline-content h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--c1);
+      margin-bottom: 5px;
+    }
+    .timeline-content.blue h4 { color: var(--c2); }
+    .timeline-content p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+    /* ── RAPTOR CARDS ── */
+    .raptor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .raptor-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid #1a2a1c;
+    }
+    .raptor-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .raptor-card-body { padding: 18px; }
+    .raptor-card-body h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .raptor-card-body .sci { font-size: 0.72rem; color: var(--text-muted); font-style: italic; margin-bottom: 10px; }
+    .raptor-card-body p { font-size: 0.84rem; color: var(--text-muted); margin: 0; }
+
+    /* ── ENDEMIC ── */
+    .endemic-list {
+      list-style: none;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .endemic-list li {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      border-left: 4px solid var(--c2);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .endemic-list li .bird-name { font-weight: 700; color: #fff; font-size: 0.9rem; }
+    .endemic-list li .bird-sci { font-style: italic; font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .endemic-list li .bird-detail { font-size: 0.82rem; color: var(--text-muted); margin-top: 5px; }
+    .endemic-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .badge-endemic { background: #0d3b1a; color: #4caf50; }
+    .badge-near-endemic { background: #1a2a3b; color: #64b5f6; }
+
+    /* ── CONSERVATION ── */
+    .threat-bars { margin-top: 20px; }
+    .threat-bar-row { margin-bottom: 14px; }
+    .threat-bar-label {
+      font-size: 0.82rem;
+      color: var(--text);
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .threat-bar-label span { color: var(--text-muted); }
+    .threat-bar-track {
+      background: var(--surface2);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .threat-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--c1);
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+      width: 0;
+    }
+    .threat-bar-fill.red { background: #e53935; }
+    .threat-bar-fill.blue { background: var(--c2); }
+    .threat-bar-fill.amber { background: var(--c1); }
+
+    /* ── QUIZ ── */
+    .quiz-list { list-style: none; counter-reset: quiz; margin-top: 24px; }
+    .quiz-item { counter-increment: quiz; margin-bottom: 28px; }
+    .quiz-q {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .quiz-q::before {
+      content: counter(quiz) '. ';
+      color: var(--c1);
+    }
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .quiz-option {
+      background: var(--surface);
+      border: 1px solid #1a2a1c;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .quiz-option:hover:not(:disabled) { background: var(--surface2); border-color: var(--c1); }
+    .quiz-option.correct { background: #0d3b1a; border-color: #4caf50; color: #4caf50; }
+    .quiz-option.wrong { background: #3b0d0d; border-color: #e53935; color: #e53935; }
+    .quiz-option:disabled { cursor: default; }
+    .quiz-feedback {
+      font-size: 0.8rem;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: none;
+    }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct-fb { background: #0d3b1a; color: #81c784; }
+    .quiz-feedback.wrong-fb { background: #3b0d0d; color: #ef9a9a; }
+
+    /* ── IMAGE ROW ── */
+    .img-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .img-row .img-frame { margin: 0; }
+
+    /* ── SECTION DIVIDER ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid #1a2a1c;
+      margin: 0 0 72px;
+    }
+
+    /* ── HOTSPOT MAP ── */
+    .hotspot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .hotspot-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid #1a2a1c;
+      border-top: 3px solid var(--c2);
+    }
+    .hotspot-card h5 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .hotspot-card p { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
+    .hotspot-count {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--c1);
+      display: block;
+      margin-top: 8px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .page-shell { grid-template-columns: 1fr; }
+      .sidenav { display: none; }
+      .mobile-nav { display: block; }
+      .content { padding: 28px 20px 60px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .deep-dive-grid { grid-template-columns: 1fr; }
+      .raptor-grid { grid-template-columns: 1fr; }
+      .hotspot-grid { grid-template-columns: 1fr 1fr; }
+      .species-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 1.7rem; }
+    }
+    @media (max-width: 520px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .hotspot-grid { grid-template-columns: 1fr; }
+      .species-grid { grid-template-columns: 1fr; }
+      .img-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page-id="birds-of-east-africa" style="--accent: #1b5e3b;">
+
+  <!-- Mobile nav -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-toggle" id="mobileToggle">Birds of East Africa</button>
+    <div class="mobile-nav-links" id="mobileLinks">
+      <a href="#why-east-africa">Why East Africa?</a>
+      <a href="#star-birds">Star Birds</a>
+      <a href="#shoebill">The Shoebill</a>
+      <a href="#lake-natron">Lake Natron</a>
+      <a href="#migration">Migration Highway</a>
+      <a href="#raptors">Raptors &amp; Hunters</a>
+      <a href="#endemics">Found Nowhere Else</a>
+      <a href="#conservation">Conservation</a>
+      <a href="#hotspots">Where to Go</a>
+      <a href="#quiz">Quiz</a>
+    </div>
+  </nav>
+
+  <div class="page-shell">
+
+    <!-- Desktop sidenav -->
+    <nav class="sidenav" aria-label="Page sections">
+      <div class="sidenav-title">On this page</div>
+      <a href="#why-east-africa">Why East Africa?</a>
+      <a href="#star-birds">Star Birds</a>
+      <a href="#shoebill">The Shoebill</a>
+      <a href="#lake-natron">Lake Natron</a>
+      <a href="#migration">Migration Highway</a>
+      <a href="#raptors">Raptors &amp; Hunters</a>
+      <a href="#endemics">Found Nowhere Else</a>
+      <a href="#conservation">Conservation</a>
+      <a href="#hotspots">Where to Go</a>
+      <a href="#quiz">Quiz</a>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content">
+
+      <!-- Hero -->
+      <div class="hero">
+        <img class="hero-img"
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Lilac-breasted_roller_%28Coracias_caudatus%29_Kruger.jpg/1280px-Lilac-breasted_roller_%28Coracias_caudatus%29_Kruger.jpg"
+          alt="Lilac-breasted Roller perched on a branch"
+          onerror="this.style.display='none'">
+        <div class="hero-overlay">
+          <span class="hero-tag">Natural History</span>
+          <h1>Birds of <span>East Africa</span></h1>
+          <p class="hero-sub">Over 1,400 species. Ancient flyways. Prehistoric hunters. Pink seas at dawn. This is the greatest avian show on Earth.</p>
+          <p class="hero-credit">Hero: Lilac-breasted Roller. Photo: <a href="https://commons.wikimedia.org/wiki/File:Lilac-breasted_roller_(Coracias_caudatus)_Kruger.jpg" target="_blank">Wikimedia Commons</a></p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">1,448</div>
+          <div class="stat-label">Bird species in Kenya, Tanzania, Uganda, Rwanda & Burundi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2.5M</div>
+          <div class="stat-label">Lesser flamingos at Lake Natron during peak breeding</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100k+</div>
+          <div class="stat-label">Raptors crossing the Rift Valley on a single peak migration day</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">~1,000</div>
+          <div class="stat-label">Shoebill storks left in Uganda — the world's most-watched rare bird</div>
+        </div>
+      </div>
+
+      <!-- Section 1: Why East Africa -->
+      <section id="why-east-africa">
+        <h2>Why East Africa? <span class="accent">The World's Richest Stage</span></h2>
+        <p>No place on Earth packs more birds into a single landscape. Within a day's drive in Kenya or Tanzania you can move from coral-reef shoreline to monsoon forest, up through open savanna, across Rift Valley soda lakes, and into Afro-alpine moorland above 4,000 metres — each zone stuffed with its own specialist species. This is not coincidence.</p>
+        <p>The Great Rift Valley — a 6,000 km crack in the Earth's crust running from the Red Sea to Mozambique — did something remarkable: it simultaneously created dozens of isolated mountain habitats (driving speciation) and a chain of alkaline lakes (providing fuel for millions of migrants). Add one of the world's last intact megafaunal ecosystems and you have perfect conditions for birds at every scale, from the 2.8 g Amethyst Sunbird to the 130 kg Ostrich.</p>
+
+        <h3>The Habitat Mix</h3>
+        <p>Six dramatically different habitats sit within a few hundred kilometres of each other:</p>
+        <div class="callout">
+          <div class="callout-label">Key Habitats</div>
+          <p><strong>Montane forest</strong> (Mt Kenya, Kilimanjaro, Rwenzori) — turacos, sunbirds, the endangered Abbott's starling.<br>
+          <strong>Savanna &amp; bushveld</strong> (Masai Mara, Serengeti) — rollers, bustards, eagles, secretary birds.<br>
+          <strong>Rift Valley lakes</strong> (Nakuru, Bogoria, Natron) — flamingos, pelicans, storks.<br>
+          <strong>Coastal swamps &amp; mangroves</strong> — kingfishers, herons, palm-nut vultures.<br>
+          <strong>Semi-arid scrub</strong> (Tsavo, Samburu) — sandgrouse, hornbills, vulturine guineafowl.<br>
+          <strong>Papyrus swamps</strong> (Lake Victoria, Mabamba) — the shoebill, papyrus gonolek, sitatunga-hunting fish eagle.</p>
+        </div>
+
+        <p>East Africa also sits at a migration crossroads: European and Central Asian species winter here in their tens of millions, while inter-African migrants move between the Congo Basin and the Arabian Peninsula through the same corridor. At any given moment the sky above the Rift Valley is never empty.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 2: Star Birds -->
+      <section id="star-birds">
+        <h2>Star Birds — <span class="accent">Click to Flip</span></h2>
+        <p>Eight of the most iconic species. Click any card to see key facts.</p>
+
+        <div class="species-grid">
+
+          <!-- Lilac-breasted Roller -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Lilac-breasted Roller - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Lilac-breasted_roller_%28Coracias_caudatus%29_Kruger.jpg/500px-Lilac-breasted_roller_%28Coracias_caudatus%29_Kruger.jpg"
+                  alt="Lilac-breasted Roller" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/143_Lilac-breasted_roller_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg/500px-143_Lilac-breasted_roller_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg'">
+                <div class="species-front-info">
+                  <strong>Lilac-breasted Roller</strong>
+                  <em>Coracias caudatus</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Lilac-breasted Roller</h4>
+                <ul>
+                  <li>Unofficial national bird of Kenya</li>
+                  <li>Eight colours in a single bird</li>
+                  <li>Males dive from 140m to impress mates</li>
+                  <li>Call: a harsh, rasping "rak rak rak"</li>
+                  <li>Nests in tree holes; ferociously territorial</li>
+                </ul>
+                <span class="back-status status-lc">Least Concern</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grey Crowned Crane -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Grey Crowned Crane - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Grey_crowned_crane_%28Balearica_regulorum_gibbericeps%29.jpg/500px-Grey_crowned_crane_%28Balearica_regulorum_gibbericeps%29.jpg"
+                  alt="Grey Crowned Crane">
+                <div class="species-front-info">
+                  <strong>Grey Crowned Crane</strong>
+                  <em>Balearica regulorum</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Grey Crowned Crane</h4>
+                <ul>
+                  <li>National bird of Uganda; appears on its flag</li>
+                  <li>Golden spiky crown is made of stiff feathers</li>
+                  <li>Dances year-round, not just in courtship</li>
+                  <li>Inflates a red throat pouch when calling</li>
+                  <li>Population fell from 70,000 to &lt;10,000 since 1970s</li>
+                </ul>
+                <span class="back-status status-en">Endangered</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Superb Starling -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Superb Starling - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Superb_Starling_Portrait.jpg/500px-Superb_Starling_Portrait.jpg"
+                  alt="Superb Starling">
+                <div class="species-front-info">
+                  <strong>Superb Starling</strong>
+                  <em>Lamprotornis superbus</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Superb Starling</h4>
+                <ul>
+                  <li>Iridescent blue-green back, copper belly</li>
+                  <li>White chest band acts as a species-recognition flash</li>
+                  <li>Highly social — helpers raise young communally</li>
+                  <li>A camp-site regular across East Africa</li>
+                  <li>One of the first birds most safari visitors see</li>
+                </ul>
+                <span class="back-status status-lc">Least Concern</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- African Fish Eagle -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="African Fish Eagle - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/African_fish_eagle%2C_Haliaeetus_vocifer%2C_at_Chobe_National_Park%2C_Botswana_%2833516612831%29.jpg/500px-African_fish_eagle%2C_Haliaeetus_vocifer%2C_at_Chobe_National_Park%2C_Botswana_%2833516612831%29.jpg"
+                  alt="African Fish Eagle">
+                <div class="species-front-info">
+                  <strong>African Fish Eagle</strong>
+                  <em>Haliaeetus vocifer</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>African Fish Eagle</h4>
+                <ul>
+                  <li>"The Voice of Africa" — call is iconic continent-wide</li>
+                  <li>National bird of Zambia, Zimbabwe &amp; South Sudan</li>
+                  <li>Snatches fish from the surface in one fluid dive</li>
+                  <li>Mates for life; reuses nests for decades</li>
+                  <li>Pairs call in perfect synchronised duets</li>
+                </ul>
+                <span class="back-status status-lc">Least Concern</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shoebill -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Shoebill - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Balaeniceps_rex_-Ueno_Zoo%2C_Tokyo%2C_Japan-8a.jpg/500px-Balaeniceps_rex_-Ueno_Zoo%2C_Tokyo%2C_Japan-8a.jpg"
+                  alt="Shoebill">
+                <div class="species-front-info">
+                  <strong>Shoebill</strong>
+                  <em>Balaeniceps rex</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Shoebill</h4>
+                <ul>
+                  <li>Up to 1.5m tall, 2.5m wingspan</li>
+                  <li>Bill can be 24cm long × 20cm wide</li>
+                  <li>Can stand motionless for hours while hunting</li>
+                  <li>Eats lungfish, frogs, baby crocodiles</li>
+                  <li>Only ~5,000–8,000 remain in the wild</li>
+                </ul>
+                <span class="back-status status-vu">Vulnerable</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secretary Bird -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Secretary Bird - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Secretary_bird_Mara_for_WC.jpg/500px-Secretary_bird_Mara_for_WC.jpg"
+                  alt="Secretary Bird">
+                <div class="species-front-info">
+                  <strong>Secretary Bird</strong>
+                  <em>Sagittarius serpentarius</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Secretary Bird</h4>
+                <ul>
+                  <li>Only eagle that hunts entirely on foot</li>
+                  <li>Stomps snakes dead with 5× body-weight force</li>
+                  <li>Partially resistant to venom via leg armour</li>
+                  <li>60% of diet is snakes, including cobras</li>
+                  <li>Can walk 20–30km per day foraging</li>
+                </ul>
+                <span class="back-status status-en">Endangered</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kori Bustard -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Kori Bustard - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Ardeotis_kori_Etosha.JPG/500px-Ardeotis_kori_Etosha.JPG"
+                  alt="Kori Bustard"
+                  onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Kori_bustard_bird_-_Ngorongoro-2.jpg/500px-Kori_bustard_bird_-_Ngorongoro-2.jpg'">
+                <div class="species-front-info">
+                  <strong>Kori Bustard</strong>
+                  <em>Ardeotis kori</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Kori Bustard</h4>
+                <ul>
+                  <li>World's heaviest flying bird — up to 18kg</li>
+                  <li>Males can be 2× heavier than females</li>
+                  <li>Inflates throat to 4× normal size in display</li>
+                  <li>Wingspan up to 2.75m</li>
+                  <li>Males take no part in raising chicks</li>
+                </ul>
+                <span class="back-status status-lc">Least Concern</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Marabou Stork -->
+          <div class="species-card" onclick="this.classList.toggle('flipped')" role="button" tabindex="0" aria-label="Marabou Stork - click to flip">
+            <div class="species-card-inner">
+              <div class="species-front">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Marabou_stork_%28Leptoptilos_crumenifer%29.jpg/500px-Marabou_stork_%28Leptoptilos_crumenifer%29.jpg"
+                  alt="Marabou Stork"
+                  onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Leptoptilos_crumeniferus_and_vultures_-Masai_Mara_-Kenya-8.jpg/500px-Leptoptilos_crumeniferus_and_vultures_-Masai_Mara_-Kenya-8.jpg'">
+                <div class="species-front-info">
+                  <strong>Marabou Stork</strong>
+                  <em>Leptoptilos crumenifer</em>
+                  <div class="species-front-hint">Tap to reveal facts</div>
+                </div>
+              </div>
+              <div class="species-back">
+                <h4>Marabou Stork</h4>
+                <ul>
+                  <li>Wingspan up to 3.7m — largest of any land bird</li>
+                  <li>Bald head stays clean when feeding inside carcasses</li>
+                  <li>Urinates on its own legs to cool down</li>
+                  <li>A key scavenger keeping the savanna clean</li>
+                  <li>Nicknamed "the undertaker bird"</li>
+                </ul>
+                <span class="back-status status-lc">Least Concern</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 3: The Shoebill — Deep Dive -->
+      <section id="shoebill">
+        <h2>Deep Dive: <span class="accent">The Shoebill</span></h2>
+        <p>If you had to design a bird specifically to look like it escaped from the Cretaceous, you would draw the shoebill. It stands up to 1.5 metres tall on legs like grey stilts, stares with yellow, unblinking eyes, and carries a bill the size of a hiking boot — hooked, serrated along the edges, with a sharp nail at the tip capable of decapitating a small crocodile.</p>
+
+        <div class="deep-dive-grid">
+          <div>
+            <div class="img-frame">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Balaeniceps_rex_-Ueno_Zoo%2C_Tokyo%2C_Japan-8a.jpg/960px-Balaeniceps_rex_-Ueno_Zoo%2C_Tokyo%2C_Japan-8a.jpg"
+                alt="Shoebill stork face-on">
+              <div class="img-caption">Shoebill (<em>Balaeniceps rex</em>) — the "whale-headed king". Photo: <a href="https://commons.wikimedia.org/wiki/File:Balaeniceps_rex_-Ueno_Zoo,_Tokyo,_Japan-8a.jpg" target="_blank">Wikimedia Commons</a></div>
+            </div>
+          </div>
+          <div>
+            <table class="fact-table">
+              <tr><td>Scientific name</td><td><em>Balaeniceps rex</em> — "whale-headed king"</td></tr>
+              <tr><td>Height</td><td>Up to 1.52 m (5 ft)</td></tr>
+              <tr><td>Wingspan</td><td>Up to 2.56 m (8.4 ft)</td></tr>
+              <tr><td>Bill length</td><td>Up to 24 cm long, 20 cm wide</td></tr>
+              <tr><td>Weight</td><td>4–7 kg</td></tr>
+              <tr><td>Global population</td><td>5,000–8,000 individuals</td></tr>
+              <tr><td>Best place to see</td><td>Mabamba Swamp, Uganda</td></tr>
+              <tr><td>IUCN status</td><td>Vulnerable</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <h3>The Art of the Ambush</h3>
+        <p>The shoebill is a master of stillness. It will stand completely motionless in papyrus and water-hyacinth for 20–30 minutes at a time — not because it is resting, but because it is <em>hunting</em>. The moment a lungfish surfaces or a frog misjudges its distance, the shoebill lunges with a forward collapse of its entire body, plunging its massive bill into the water in a single violent strike. The technique is called a "collapse lunge" and delivers forces that can kill or stun a fish instantly.</p>
+        <p>Its primary prey — the African lungfish — is itself an ancient creature capable of surviving drought by burrowing into mud and breathing air. Both predator and prey look like they have been plucked from an earlier geological era. The shoebill also eats water snakes, monitor lizards, young crocodiles, and (occasionally) small turtles. Anything that fits in the bill is a candidate.</p>
+
+        <div class="callout">
+          <div class="callout-label">Remarkable Fact</div>
+          <p>Shoebills bob their heads slowly and rhythmically when humans approach — biologists think this is a dominance or threat display. Many visitors describe the experience of being stared down by a shoebill as one of the most unsettling moments of their lives. The bird's gaze is both prehistoric and sentient.</p>
+        </div>
+
+        <h3>Mabamba Swamp — The Best Place on Earth to See One</h3>
+        <p>On the northern shore of Lake Victoria, about 35 km from Entebbe airport, a narrow channel winds into a sea of papyrus. This is Mabamba Swamp. Local fishermen pole visitors through in dugout canoes at dawn, navigating paths they know by heart. Because the canoes are quiet and low, they can drift within 10 metres of a shoebill without triggering flight. Success rates are high — there are an estimated 40+ resident birds in the swamp — and a morning here is widely considered the finest shoebill experience on the planet.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 4: Lake Natron -->
+      <section id="lake-natron">
+        <h2>Lake of Fire, <span class="accent">Lake of Life</span></h2>
+        <p>Lake Natron, in Tanzania's Gregory Rift, is one of the most hostile environments on Earth. Its water reaches pH 12 — corrosive enough to dissolve the eyes and skin of unadapted animals. Surface temperatures hit 60°C. The lake itself runs blood-red from sodium-secreting cyanobacteria. And yet, for 2.5 million lesser flamingos, it is home.</p>
+
+        <div class="natron-banner">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Lesser_and_Greater_Flamingo%2C_Nakuru%2C_KE_imported_from_iNaturalist_photo_314619601.jpg/1280px-Lesser_and_Greater_Flamingo%2C_Nakuru%2C_KE_imported_from_iNaturalist_photo_314619601.jpg"
+            alt="Flamingos at Lake Nakuru, Kenya"
+            onerror="this.style.display='none'">
+          <div class="natron-overlay">
+            <p>Lesser and greater flamingos at Lake Nakuru, Kenya. Photo: <a href="https://commons.wikimedia.org/wiki/File:Lesser_and_Greater_Flamingo,_Nakuru,_KE_imported_from_iNaturalist_photo_314619601.jpg" target="_blank">Wikimedia Commons / iNaturalist</a></p>
+          </div>
+        </div>
+
+        <h3>Why Flamingos Thrive Where Nothing Else Can</h3>
+        <p>The lesser flamingo's secret is a rubber-like skin on its legs and feet that resists caustic burns, and a bill designed to filter-feed on <em>Arthrospira fusiformis</em> — the spirulina cyanobacteria that turns the lake pink and that no other large animal can eat. This food source, unavailable to any competitor or predator, is effectively exclusive to the flamingo. Natron is a fortress whose walls are made of pH.</p>
+        <p>Between August and October each year, 75% of the world's lesser flamingo population congregates at Natron to breed — the largest single-species breeding aggregation of any bird on Earth. The chicks hatch during November rains. Within days of hatching, parents walk their chicks up to 20 km across the salt pan to freshwater sources. The march is brutal: chicks develop salt encrustation on their legs and some don't survive. Those that do join one of nature's most spectacular rookeries.</p>
+
+        <div class="img-row">
+          <div class="img-frame">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Lesser_Flamingo%2C_Phoenicopterus_minor_at_Marievale_Nature_Reserve%2C_Gauteng%2C_South_Africa_%2827825325771%29%2C_crop.jpg/960px-Lesser_Flamingo%2C_Phoenicopterus_minor_at_Marievale_Nature_Reserve%2C_Gauteng%2C_South_Africa_%2827825325771%29%2C_crop.jpg"
+              alt="Lesser flamingo close-up">
+            <div class="img-caption">Lesser flamingo (<em>Phoeniconaias minor</em>) — the smaller, deeper-pink species. Photo: <a href="https://commons.wikimedia.org/wiki/File:Lesser_Flamingo,_Phoenicopterus_minor_at_Marievale_Nature_Reserve,_Gauteng,_South_Africa_(27825325771),_crop.jpg" target="_blank">Wikimedia Commons</a></div>
+          </div>
+          <div>
+            <div class="callout blue" style="margin: 0 0 16px;">
+              <div class="callout-label">Scale Check</div>
+              <p>2.5 million flamingos at Natron is roughly the population of Paris. If each bird stood wing-to-wing, the line would stretch 4,000 km — from London to Moscow.</p>
+            </div>
+            <div class="callout">
+              <div class="callout-label">Two Species</div>
+              <p>East Africa hosts both <strong>lesser flamingos</strong> (deeper pink, filter-feeders on algae) and <strong>greater flamingos</strong> (pale pink, filter-feeders on invertebrates). The two species often feed in the same lake simultaneously, using slightly different water depths and bill angles to avoid competing for the same food.</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>The Conservation Crisis at Natron</h3>
+        <p>In 2008, a proposed soda-ash mining operation threatened to industrialise the lake's southern shore — directly next to the primary flamingo nesting site. A global campaign led by BirdLife International and WWF successfully halted the project, though as recently as 2025, new mining proposals have resurfaced. The flamingo's greatest weakness is that its only breeding site is also a resource that human industry wants.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 5: Migration -->
+      <section id="migration">
+        <h2>The Great Rift Valley <span class="accent">Migration Highway</span></h2>
+        <p>Most migrating birds crossing between Europe and Africa face a fundamental problem: the Sahara. The solution? Skirt it. The western route hugs the Atlantic coast; the eastern route follows the Great Rift Valley — a natural corridor of thermals, lakes, and food that channels millions of birds from the Red Sea coast of Eritrea all the way south through Kenya and Tanzania.</p>
+
+        <div class="migration-timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot">1</div>
+            <div class="timeline-content">
+              <h4>Aug–Oct: Raptors Arrive</h4>
+              <p>White storks, honey buzzards, European marsh harriers, and Montagu's harriers pour south through the Rift. On a single peak day, over 100,000 individuals can be counted crossing one ridge in Kenya.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot blue">2</div>
+            <div class="timeline-content blue">
+              <h4>Sep–Dec: Flamingo Breeding</h4>
+              <p>Lesser flamingos concentrate at Lake Natron, Tanzania. Up to 75% of the world population assembles here — the single greatest breeding aggregation of any bird species on the planet.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">3</div>
+            <div class="timeline-content">
+              <h4>Nov–Feb: Palaearctic Waders</h4>
+              <p>European and Siberian waders — common sandpipers, wood sandpipers, ruffs — fill the lake shores and wetlands of East Africa. The rift lakes act as service stations, offering food and rest before the birds push deeper into Africa.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot blue">4</div>
+            <div class="timeline-content blue">
+              <h4>Mar–May: Return North</h4>
+              <p>Migrants reverse course, fuelling up on the Rift Valley's lake resources before the Sahara crossing. Resident species begin their own breeding cycles, filling the savanna with song from October to March.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout-label">Thermal Magic</div>
+          <p>Soaring migrants — storks, eagles, vultures — depend on thermals (columns of rising warm air) to cross long distances without flapping. The Rift Valley's bare rocky escarpments heat up fast after dawn, generating powerful thermals that allow raptors to gain altitude and then glide hundreds of kilometres. On a good October morning at a Kenyan ridge, a single observer might count 50,000+ white storks spiralling skyward in a single kettle.</p>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 6: Raptors -->
+      <section id="raptors">
+        <h2>Raptors &amp; <span class="accent">Aerial Hunters</span></h2>
+        <p>East Africa has no shortage of predators, but two birds stand out as icons of hunting ingenuity — one works the skies, the other has abandoned them entirely.</p>
+
+        <div class="raptor-grid">
+          <div class="raptor-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/African_fish_eagle_just_caught_fish.jpg/960px-African_fish_eagle_just_caught_fish.jpg"
+              alt="African Fish Eagle with catch"
+              onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/African_fish_eagle_%28Haliaeetus_vocifer%29_Ethiopia.jpg/960px-African_fish_eagle_%28Haliaeetus_vocifer%29_Ethiopia.jpg'">
+            <div class="raptor-card-body">
+              <h4>African Fish Eagle</h4>
+              <div class="sci">Haliaeetus vocifer — "loud-calling sea eagle"</div>
+              <p>The call arrives before the bird does: a long, yelping <em>weeee-ah hyo-hyo-hyo</em> that carries over water for kilometres. It is so intrinsically African that it has been used as a sound effect in Hollywood films set in entirely different continents. The eagle's technique is deceptively simple — perch high on a dead tree over water, watch for a fish within 30 cm of the surface, then plunge on half-folded wings and snatch the fish with outstretched, spicule-armoured talons. If the fish is too heavy to lift, the eagle simply swims to shore using its wings as oars. Pairs are monogamous for life and maintain two or more nests simultaneously, adding sticks each season until some nests weigh half a tonne.</p>
+            </div>
+          </div>
+
+          <div class="raptor-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Secretary_bird_Mara_for_WC.jpg/960px-Secretary_bird_Mara_for_WC.jpg"
+              alt="Secretary Bird in Masai Mara">
+            <div class="raptor-card-body">
+              <h4>Secretary Bird</h4>
+              <div class="sci">Sagittarius serpentarius — "archer snake-hunter"</div>
+              <p>The secretary bird is the only eagle that has essentially given up flying as a hunting strategy. It walks the savanna on metre-long legs, covering 20–30 km per day, flushing and stomping prey with feet that deliver a strike force five times its own body weight — enough to break a puff adder's spine through its thick body. Its scaly, armoured lower legs reduce venom injection risk, though it is not fully immune. Sixty percent of its diet is snakes, including cobras and puff adders. The distinctive crest of long black-tipped feathers behind its head gave Victorian naturalists the impression of a secretary with quill pens tucked behind the ear — the name has stuck ever since.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="img-frame" style="margin-top: 24px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Sagittarius_serpentarius_-Namib-Naukluft_National_Park%2C_Namibia_-eating-8.jpg/960px-Sagittarius_serpentarius_-Namib-Naukluft_National_Park%2C_Namibia_-eating-8.jpg"
+            alt="Secretary Bird eating snake"
+            onerror="this.style.display='none'">
+          <div class="img-caption">Secretary Bird after a successful snake hunt. The scaled legs act as armour against fangs. Photo: <a href="https://commons.wikimedia.org/wiki/File:Sagittarius_serpentarius_-Namib-Naukluft_National_Park,_Namibia_-eating-8.jpg" target="_blank">Wikimedia Commons</a></div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 7: Endemics -->
+      <section id="endemics">
+        <h2>Found <span class="accent">Nowhere Else</span></h2>
+        <p>East Africa's mountain ranges and isolated lake systems have acted as evolutionary pressure cookers, producing species found nowhere else on Earth. "Endemic" means the species breeds exclusively in that country or sub-region; "near-endemic" means it barely crosses a border or two.</p>
+
+        <ul class="endemic-list">
+          <li>
+            <div>
+              <div class="bird-name">Jackson's Widowbird</div>
+              <div class="bird-sci">Euplectes jacksoni</div>
+              <div class="bird-detail">Males grow extraordinary 50cm tail plumes during breeding. They clear circular dancing arenas in highland grass and leap repeatedly to show off their plumes — a display unlike any other bird in Africa. Found only in Kenya and northern Tanzania.</div>
+            </div>
+            <span class="endemic-badge badge-endemic">Near-Endemic</span>
+          </li>
+          <li>
+            <div>
+              <div class="bird-name">Hartlaub's Turaco</div>
+              <div class="bird-sci">Tauraco hartlaubi</div>
+              <div class="bird-detail">A jewel of Kenya's mountain forests — vivid green with a deep blue back, red-and-white facial patches, and crimson wing patches (from a copper-based pigment, turacin, found in no other animal). Restricted to the highlands of Kenya, Uganda and northern Tanzania.</div>
+            </div>
+            <span class="endemic-badge badge-near-endemic">Near-Endemic</span>
+          </li>
+          <li>
+            <div>
+              <div class="bird-name">Vulturine Guineafowl</div>
+              <div class="bird-sci">Acryllium vulturinum</div>
+              <div class="bird-detail">The world's largest guineafowl and arguably its most striking. A bare blue face, electric-blue breast, and long cobalt-and-white hackle feathers flow over a spotted black body. Found in dry scrub in northern Kenya, Somalia and Ethiopia — a species that genuinely looks designed.</div>
+            </div>
+            <span class="endemic-badge badge-near-endemic">Near-Endemic</span>
+          </li>
+          <li>
+            <div>
+              <div class="bird-name">Abbott's Starling</div>
+              <div class="bird-sci">Poeoptera femoralis</div>
+              <div class="bird-detail">One of East Africa's rarest birds, found only in the mountain forests of Kenya and Tanzania above 1,500m. Iridescent blue-black with a white belly, it's threatened by forest clearance and is the target of specialist birdwatching expeditions. Fewer than 10,000 individuals may remain.</div>
+            </div>
+            <span class="endemic-badge badge-endemic">Endemic</span>
+          </li>
+          <li>
+            <div>
+              <div class="bird-name">Papyrus Gonolek</div>
+              <div class="bird-sci">Laniarius mufumbiri</div>
+              <div class="bird-detail">A striking bush-shrike — jet black above with a vivid golden-yellow breast — found exclusively in papyrus swamps around Lake Victoria in Uganda, Kenya, Tanzania and Rwanda. Its raucous duets between mates are one of the soundscapes of Mabamba Swamp.</div>
+            </div>
+            <span class="endemic-badge badge-endemic">Near-Endemic</span>
+          </li>
+        </ul>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 8: Conservation -->
+      <section id="conservation">
+        <h2>Conservation — <span class="accent">Under Pressure</span></h2>
+        <p>East Africa's birds face a matrix of interconnected threats. With human population growth driving land conversion and some governments prioritising resource extraction over wildlife, the outlook for specialist species is increasingly precarious.</p>
+
+        <h3>Primary Threats</h3>
+        <div class="threat-bars" id="threatBars">
+          <div class="threat-bar-row">
+            <div class="threat-bar-label">Habitat loss &amp; agriculture expansion <span>Critical</span></div>
+            <div class="threat-bar-track"><div class="threat-bar-fill red" data-width="88"></div></div>
+          </div>
+          <div class="threat-bar-row">
+            <div class="threat-bar-label">Wetland drainage (shoebill, crane habitat) <span>Severe</span></div>
+            <div class="threat-bar-track"><div class="threat-bar-fill red" data-width="72"></div></div>
+          </div>
+          <div class="threat-bar-row">
+            <div class="threat-bar-label">Illegal trade (African Grey Parrot) <span>High</span></div>
+            <div class="threat-bar-track"><div class="threat-bar-fill amber" data-width="64"></div></div>
+          </div>
+          <div class="threat-bar-row">
+            <div class="threat-bar-label">Mining at Lake Natron <span>Moderate but targeted</span></div>
+            <div class="threat-bar-track"><div class="threat-bar-fill amber" data-width="48"></div></div>
+          </div>
+          <div class="threat-bar-row">
+            <div class="threat-bar-label">Climate change (lake alkalinity, food timing) <span>Growing</span></div>
+            <div class="threat-bar-track"><div class="threat-bar-fill blue" data-width="55"></div></div>
+          </div>
+        </div>
+
+        <h3>The Grey Crowned Crane Crisis</h3>
+        <p>Uganda's national bird has lost over 85% of its population since the 1970s — from around 70,000 birds to fewer than 10,000 today. The primary driver is wetland drainage for agriculture, but there is also illegal capture for private ownership: cranes are prestigious status symbols in some communities, and chicks are taken from nests. Uganda has made crane ownership illegal, but enforcement is difficult.</p>
+
+        <div class="callout blue">
+          <div class="callout-label">Signs of Hope</div>
+          <p>Kenya now has 69 formally designated Important Bird Areas. The BirdLife International partnership operates throughout the region, funding community conservation schemes that pay local people to protect nesting sites. Community bird guides around Mabamba Swamp earn more per day from shoebill tourism than from subsistence fishing — creating a direct economic incentive for conservation.</p>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 9: Where to Go -->
+      <section id="hotspots">
+        <h2>Where to <span class="accent">Go Birding</span></h2>
+        <p>These are the six best birding destinations in East Africa, each offering something the others cannot.</p>
+
+        <div class="hotspot-grid">
+          <div class="hotspot-card">
+            <h5>Masai Mara, Kenya</h5>
+            <p>Open savanna, secretary birds, rollers, vultures, martial eagles, and the migration spectacle. Best Oct–Nov for raptors.</p>
+            <span class="hotspot-count">~450 spp.</span>
+          </div>
+          <div class="hotspot-card">
+            <h5>Mabamba Swamp, Uganda</h5>
+            <p>The world's top shoebill site. Also papyrus gonolek, blue-headed coucal, malachite kingfisher. 45 min from Entebbe.</p>
+            <span class="hotspot-count">~260 spp.</span>
+          </div>
+          <div class="hotspot-card">
+            <h5>Lake Nakuru, Kenya</h5>
+            <p>Rift Valley soda lake with flamingos, great white pelicans, African fish eagles, and an enormous roost of yellow-billed storks.</p>
+            <span class="hotspot-count">~400 spp.</span>
+          </div>
+          <div class="hotspot-card">
+            <h5>Bwindi, Uganda</h5>
+            <p>Dense montane forest with 350+ species including 23 Albertine Rift endemics — Shelley's crimsonwing, grauer's broadbill.</p>
+            <span class="hotspot-count">~350 spp.</span>
+          </div>
+          <div class="hotspot-card">
+            <h5>Serengeti, Tanzania</h5>
+            <p>Scale and spectacle. Ostriches, kori bustards, grey-crowned cranes, and hundreds of raptors following the wildebeest.</p>
+            <span class="hotspot-count">~500 spp.</span>
+          </div>
+          <div class="hotspot-card">
+            <h5>Samburu, Kenya</h5>
+            <p>Semi-arid north Kenya: vulturine guineafowl, Somali ostrich, Donaldson-Smith's nightjar, dry-country specialities.</p>
+            <span class="hotspot-count">~350 spp.</span>
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Section 10: Quiz -->
+      <section id="quiz">
+        <h2>Test Your <span class="accent">Knowledge</span></h2>
+        <p>Eight questions. How many can you get right first time?</p>
+
+        <ol class="quiz-list">
+
+          <li class="quiz-item">
+            <div class="quiz-q">Which lake hosts 75% of the world's lesser flamingo population during breeding season?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">Lake Nakuru, Kenya</button>
+              <button class="quiz-option" data-correct="true">Lake Natron, Tanzania</button>
+              <button class="quiz-option" data-correct="false">Lake Bogoria, Kenya</button>
+              <button class="quiz-option" data-correct="false">Lake Victoria, Uganda</button>
+            </div>
+            <div class="quiz-feedback">Lake Natron's extreme alkalinity (pH 12) deters all predators, making it the safest breeding site on Earth for flamingos. 75% of the world's lesser flamingo population was born there.</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">What does <em>Balaeniceps rex</em> — the shoebill's scientific name — translate to?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">Swamp-headed lord</button>
+              <button class="quiz-option" data-correct="false">Great billed heron</button>
+              <button class="quiz-option" data-correct="true">Whale-headed king</button>
+              <button class="quiz-option" data-correct="false">Boot-billed giant</button>
+            </div>
+            <div class="quiz-feedback"><em>Balaena</em> = whale, <em>caput</em> → <em>ceps</em> = head, <em>rex</em> = king. Whale-headed king — a name that feels entirely appropriate once you've seen one stare you down.</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">The African Fish Eagle is the national bird of which THREE countries?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">Kenya, Uganda and Tanzania</button>
+              <button class="quiz-option" data-correct="true">Zambia, Zimbabwe and South Sudan</button>
+              <button class="quiz-option" data-correct="false">Ethiopia, Eritrea and Rwanda</button>
+              <button class="quiz-option" data-correct="false">Malawi, Botswana and Mozambique</button>
+            </div>
+            <div class="quiz-feedback">Zambia, Zimbabwe, and South Sudan all use the African Fish Eagle as their national symbol — reflecting how iconic its call and silhouette are across the continent's waterways.</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">The Kori Bustard is regarded as the world's heaviest flying bird. What is the maximum recorded weight for a male?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">9 kg (20 lb)</button>
+              <button class="quiz-option" data-correct="false">12 kg (26 lb)</button>
+              <button class="quiz-option" data-correct="true">18 kg (40 lb)</button>
+              <button class="quiz-option" data-correct="false">24 kg (53 lb)</button>
+            </div>
+            <div class="quiz-feedback">18 kg is the heaviest recorded male Kori Bustard — roughly the weight of a large dog. Males are typically more than twice the weight of females, which is an extreme case of sexual size dimorphism.</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">Approximately what percentage of a Secretary Bird's diet consists of snakes?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">25%</button>
+              <button class="quiz-option" data-correct="false">40%</button>
+              <button class="quiz-option" data-correct="true">60%</button>
+              <button class="quiz-option" data-correct="false">90%</button>
+            </div>
+            <div class="quiz-feedback">Around 60% of a Secretary Bird's documented diet is snakes — including cobras, puff adders, and vipers. The remaining 40% is rodents (25%) and insects/small birds (15%).</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">Uganda's Grey Crowned Crane population has declined drastically since the 1970s. From roughly how many to how many?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">200,000 to 50,000</button>
+              <button class="quiz-option" data-correct="true">70,000 to under 10,000</button>
+              <button class="quiz-option" data-correct="false">30,000 to 5,000</button>
+              <button class="quiz-option" data-correct="false">10,000 to 2,000</button>
+            </div>
+            <div class="quiz-feedback">From approximately 70,000 individuals in the 1970s to fewer than 10,000 today — an over 85% decline driven primarily by wetland drainage and illegal capture for pet trade.</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">Which hunting technique does the Shoebill use to catch lungfish?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">Diving from height like an osprey</button>
+              <button class="quiz-option" data-correct="false">Running and stabbing like a heron</button>
+              <button class="quiz-option" data-correct="true">A forward "collapse lunge" after standing motionless</button>
+              <button class="quiz-option" data-correct="false">Filter-feeding while wading slowly</button>
+            </div>
+            <div class="quiz-feedback">The collapse lunge is the Shoebill's signature move — it can stand completely still for 20–30 minutes, then throw its entire body forward in a single explosive motion that pins prey under its massive bill.</div>
+          </li>
+
+          <li class="quiz-item">
+            <div class="quiz-q">What gives the turacos their distinctive crimson wing patches — a pigment found in no other animals?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">Carotenoids from their diet, like flamingos</button>
+              <button class="quiz-option" data-correct="true">Turacin — a unique copper-based pigment</button>
+              <button class="quiz-option" data-correct="false">Melanin deposited in unusual structures</button>
+              <button class="quiz-option" data-correct="false">Structural colour, like a hummingbird's iridescence</button>
+            </div>
+            <div class="quiz-feedback">Turacin is a water-soluble, copper-based red pigment found only in turacos. If a turaco flies in the rain, the colour literally runs — raindrops washed from the feathers turn red. It is one of nature's most unique pigments.</div>
+          </li>
+
+        </ol>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // ── IntersectionObserver for nav highlighting ──
+    const navLinks = document.querySelectorAll('.sidenav a, .mobile-nav-links a');
+    const sections = document.querySelectorAll('section[id]');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -75% 0px', threshold: 0 });
+    sections.forEach(s => observer.observe(s));
+
+    // ── Mobile nav toggle ──
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mobileLinks = document.getElementById('mobileLinks');
+    mobileToggle.addEventListener('click', () => {
+      const open = mobileLinks.classList.toggle('open');
+      mobileToggle.classList.toggle('open', open);
+    });
+    mobileLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileLinks.classList.remove('open');
+        mobileToggle.classList.remove('open');
+      });
+    });
+
+    // ── Keyboard support for species cards ──
+    document.querySelectorAll('.species-card').forEach(card => {
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.classList.toggle('flipped');
+        }
+      });
+    });
+
+    // ── Threat bars animate on scroll ──
+    const bars = document.querySelectorAll('.threat-bar-fill');
+    const barObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const fill = entry.target;
+          fill.style.width = fill.dataset.width + '%';
+          barObserver.unobserve(fill);
+        }
+      });
+    }, { threshold: 0.3 });
+    bars.forEach(b => barObserver.observe(b));
+
+    // ── Quiz logic ──
+    document.querySelectorAll('.quiz-item').forEach(item => {
+      const options = item.querySelectorAll('.quiz-option');
+      const feedback = item.querySelector('.quiz-feedback');
+      options.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (item.dataset.answered) return;
+          item.dataset.answered = '1';
+          const correct = btn.dataset.correct === 'true';
+          btn.classList.add(correct ? 'correct' : 'wrong');
+          if (!correct) {
+            options.forEach(b => { if (b.dataset.correct === 'true') b.classList.add('correct'); });
+          }
+          options.forEach(b => b.disabled = true);
+          feedback.classList.add('show', correct ? 'correct-fb' : 'wrong-fb');
+        });
+      });
+    });
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>

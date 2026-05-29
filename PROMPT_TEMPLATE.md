@@ -49,6 +49,7 @@ Rules:
 - DO NOT look at other learning articles as I want the content and style to be untainted.
 - You are welcome to spend more time searching the web and thinking to gather the required data for content.
 - If it will aid in learning, you can embed assets from the web within the page (images, videos, audio, etc), but ensure that any sources are credited in a caption.
+- When embedding Wikimedia Commons images via thumbnail URLs (`upload.wikimedia.org/…/thumb/…`), only these pixel widths are valid: **20, 40, 60, 120, 250, 330, 500, 960, 1280, 1920, 3840**. Any other width will return an error. Use `500px` for card/small images and `960px` or `1280px` for large display images.
 - Use interactivity to aid in learning if it will produce a better learning outcome.
 
 **Favourites**

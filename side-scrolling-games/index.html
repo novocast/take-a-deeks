@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History of Side-Scrolling Games — Take a deeks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #ff5a1f;
+      --c2: #1fd4ff;
+      --bg: #080c14;
+      --surface: #101828;
+      --surface2: #1a2540;
+      --text: #d4e0f0;
+      --text-dim: #6b7f9a;
+      --border: #1f2d3d;
+      --nav-width: 210px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── Layout ── */
+    .page-wrap {
+      display: flex;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Side nav ── */
+    .side-nav {
+      width: var(--nav-width);
+      flex-shrink: 0;
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 72px);
+      overflow-y: auto;
+      padding: 32px 16px 32px 0;
+    }
+    .side-nav::-webkit-scrollbar { width: 0; }
+    .side-nav ul { list-style: none; }
+    .side-nav li { margin-bottom: 2px; }
+    .side-nav a {
+      display: block;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      border-radius: 0 4px 4px 0;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      line-height: 1.35;
+    }
+    .side-nav a:hover { color: var(--text); }
+    .side-nav a.active {
+      color: var(--c1);
+      border-left-color: var(--c1);
+      background: rgba(255,90,31,0.07);
+    }
+    .nav-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 0 10px 8px;
+      opacity: 0.6;
+    }
+
+    /* ── Mobile nav ── */
+    .mobile-nav {
+      display: none;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+    }
+    .mobile-nav-toggle {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      padding: 12px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .mobile-nav-menu { display: none; padding: 6px 0 12px; }
+    .mobile-nav-menu.open { display: block; }
+    .mobile-nav-menu a {
+      display: block;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+    .mobile-nav-menu a.active { color: var(--c1); }
+
+    /* ── Main content ── */
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 48px 0 96px 44px;
+    }
+
+    /* ── Hero ── */
+    .hero { margin-bottom: 60px; }
+    .hero-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--c2);
+      margin-bottom: 10px;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    /* ── Sections ── */
+    section {
+      margin-bottom: 72px;
+      scroll-margin-top: 80px;
+    }
+    .section-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--c2);
+      margin-bottom: 5px;
+    }
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--c1);
+      margin: 28px 0 10px;
+    }
+    p { margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: #e8f0ff; }
+
+    /* ── Callout ── */
+    .callout {
+      border-left: 3px solid var(--c1);
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 24px 0;
+      font-size: 0.88rem;
+    }
+    .callout.blue { border-left-color: var(--c2); }
+    .callout-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c1);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .callout.blue .callout-title { color: var(--c2); }
+
+    /* ── Horizontal timeline ── */
+    .timeline {
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin: 32px 0;
+      cursor: grab;
+    }
+    .timeline:active { cursor: grabbing; }
+    .timeline-inner {
+      display: flex;
+      gap: 0;
+      min-width: max-content;
+      position: relative;
+      padding-top: 36px;
+    }
+    .timeline-inner::before {
+      content: '';
+      position: absolute;
+      top: 50px;
+      left: 40px;
+      right: 40px;
+      height: 1px;
+      background: var(--border);
+    }
+    .t-item {
+      width: 152px;
+      flex-shrink: 0;
+      padding: 0 8px;
+      position: relative;
+    }
+    .t-dot {
+      position: absolute;
+      top: 43px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 9px;
+      height: 9px;
+      background: var(--border);
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      z-index: 1;
+      transition: background 0.15s;
+    }
+    .t-item:hover .t-dot { background: var(--c1); }
+    .t-year {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--c2);
+      text-align: center;
+      margin-bottom: 24px;
+      font-variant-numeric: tabular-nums;
+    }
+    .t-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 11px;
+      margin-top: 14px;
+      transition: border-color 0.15s;
+    }
+    .t-item:hover .t-card { border-color: var(--c1); }
+    .t-game { font-size: 0.78rem; font-weight: 600; color: #fff; margin-bottom: 3px; }
+    .t-desc { font-size: 0.7rem; color: var(--text-dim); line-height: 1.4; }
+    .t-tag {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 0.62rem;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: rgba(31,212,255,0.08);
+      color: var(--c2);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Parallax demo ── */
+    .parallax-demo-wrap {
+      margin: 28px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #040a14;
+    }
+    #parallaxCanvas { display: block; width: 100%; height: 180px; }
+    .parallax-controls {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .parallax-controls label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    .parallax-controls input[type="range"] { width: 72px; accent-color: var(--c1); cursor: pointer; }
+    .p-val { font-size: 0.7rem; color: var(--c1); min-width: 28px; font-variant-numeric: tabular-nums; }
+    .p-legend {
+      display: flex;
+      gap: 14px;
+      margin-left: auto;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .p-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text-dim); }
+    .p-dot { width: 9px; height: 9px; border-radius: 2px; }
+
+    /* ── Genre tree ── */
+    .genre-tree { margin: 28px 0; overflow-x: auto; }
+    .genre-tree-inner { min-width: 560px; }
+    .genre-root { text-align: center; padding-bottom: 6px; }
+    .genre-badge {
+      display: inline-block;
+      background: var(--c1);
+      color: #060c14;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 6px 18px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .genre-connector {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      margin: 0 auto;
+    }
+    .genre-branches {
+      display: flex;
+      gap: 10px;
+      position: relative;
+    }
+    .genre-branches::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: var(--border);
+    }
+    .genre-branch {
+      flex: 1;
+      position: relative;
+    }
+    .genre-branch::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      height: 20px;
+      width: 1px;
+      background: var(--border);
+    }
+    .genre-node {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px 11px;
+    }
+    .genre-node-title { font-size: 0.78rem; font-weight: 700; color: var(--c2); margin-bottom: 4px; }
+    .genre-node-examples { font-size: 0.67rem; color: var(--text-dim); line-height: 1.5; }
+    .genre-sub { margin-top: 7px; padding-left: 10px; border-left: 1px solid var(--border); }
+    .genre-sub-item { font-size: 0.67rem; color: var(--text-dim); padding: 2px 0; }
+
+    /* ── Fact cards ── */
+    .fact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .fact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      transition: border-color 0.15s;
+    }
+    .fact-card:hover { border-color: var(--c2); }
+    .fact-num { font-size: 2.1rem; font-weight: 800; color: var(--c1); line-height: 1; margin-bottom: 6px; }
+    .fact-label { font-size: 0.77rem; color: var(--text-dim); line-height: 1.45; }
+
+    /* ── Console compare ── */
+    .console-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .console-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .console-card.sega { border-top: 3px solid #3d8fe0; }
+    .console-card.nintendo { border-top: 3px solid #e03d3d; }
+    .console-name { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+    .console-card.sega .console-name { color: #3d8fe0; }
+    .console-card.nintendo .console-name { color: #e03d3d; }
+    .console-title { font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .console-stat { font-size: 0.76rem; color: var(--text-dim); margin-bottom: 5px; }
+    .console-stat strong { color: var(--text); }
+    .console-games { margin-top: 11px; }
+    .console-tag {
+      display: inline-block;
+      margin: 3px 3px 0 0;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: var(--surface2);
+      color: var(--text-dim);
+    }
+
+    /* ── Indie cards ── */
+    .indie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .indie-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .indie-card:hover { transform: translateY(-2px); border-color: var(--c1); }
+    .indie-year { font-size: 0.68rem; color: var(--c2); margin-bottom: 3px; }
+    .indie-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .indie-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.55; }
+    .indie-innovation {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: var(--c1);
+      line-height: 1.4;
+    }
+
+    /* ── Reveal ── */
+    .reveal-wrap { margin: 20px 0; }
+    .reveal-trigger {
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 8px 13px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .reveal-trigger:hover { border-color: var(--c2); color: var(--text); }
+    .reveal-arrow { font-size: 0.7em; transition: transform 0.2s; display: inline-block; }
+    .reveal-content {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 14px 16px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+    .reveal-content.open { display: block; }
+    .reveal-content p { margin-bottom: 10px; }
+    .reveal-content p:last-child { margin-bottom: 0; }
+
+    /* ── Quiz ── */
+    .quiz-question {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 18px 22px;
+      margin-bottom: 14px;
+    }
+    .q-num { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c2); margin-bottom: 5px; }
+    .q-text { font-size: 0.92rem; color: #fff; font-weight: 500; margin-bottom: 14px; line-height: 1.45; }
+    .q-options { display: flex; flex-direction: column; gap: 7px; }
+    .q-opt {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 9px 13px;
+      text-align: left;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
+      line-height: 1.4;
+    }
+    .q-opt:hover:not([disabled]) { border-color: var(--c2); color: var(--text); }
+    .q-opt.correct { border-color: #22c55e; background: rgba(34,197,94,0.08); color: #22c55e; }
+    .q-opt.wrong { border-color: #ef4444; background: rgba(239,68,68,0.07); color: #ef4444; }
+    .q-opt[disabled] { cursor: default; }
+    .q-feedback { margin-top: 10px; font-size: 0.8rem; line-height: 1.55; color: var(--text-dim); }
+    .q-feedback.correct-fb { color: #4ade80; }
+
+    .quiz-score {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .score-big { font-size: 3.5rem; font-weight: 800; color: var(--c1); line-height: 1; }
+    .score-denom { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 12px; }
+    .score-msg { font-size: 0.88rem; color: var(--text); max-width: 400px; margin: 0 auto 20px; }
+    .quiz-restart {
+      background: var(--c1);
+      color: #060c14;
+      border: none;
+      border-radius: 5px;
+      padding: 9px 22px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .quiz-restart:hover { opacity: 0.85; }
+
+    /* ── Responsive ── */
+    @media (max-width: 780px) {
+      .page-wrap { flex-direction: column; padding: 0; }
+      .side-nav { display: none; }
+      .mobile-nav { display: block; }
+      .content { padding: 24px 18px 64px; }
+      .hero h1 { font-size: 1.75rem; }
+      .console-compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page-id="side-scrolling-games" style="--accent: #0d2137;">
+
+  <div class="mobile-nav">
+    <button class="mobile-nav-toggle" id="mobileToggle">
+      <span>☰</span> Jump to section
+    </button>
+    <nav class="mobile-nav-menu" id="mobileMenu">
+      <a href="#birth">Before the Scroll</a>
+      <a href="#first-scrollers">The First True Scrollers</a>
+      <a href="#parallax">The Parallax Revolution</a>
+      <a href="#golden-age">Golden Age of Genres</a>
+      <a href="#sixteen-bit">The 16-Bit Wars</a>
+      <a href="#metroidvania">Enter the Metroidvania</a>
+      <a href="#decline">The 3D Transition</a>
+      <a href="#renaissance">Indie Renaissance</a>
+      <a href="#quiz">Quiz</a>
+    </nav>
+  </div>
+
+  <div class="page-wrap">
+    <nav class="side-nav" id="sideNav">
+      <div class="nav-label">Contents</div>
+      <ul>
+        <li><a href="#birth">Before the Scroll</a></li>
+        <li><a href="#first-scrollers">The First True Scrollers</a></li>
+        <li><a href="#parallax">The Parallax Revolution</a></li>
+        <li><a href="#golden-age">Golden Age of Genres</a></li>
+        <li><a href="#sixteen-bit">The 16-Bit Wars</a></li>
+        <li><a href="#metroidvania">Enter the Metroidvania</a></li>
+        <li><a href="#decline">The 3D Transition</a></li>
+        <li><a href="#renaissance">Indie Renaissance</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+      </ul>
+    </nav>
+
+    <main class="content">
+
+      <div class="hero">
+        <div class="hero-tag">Gaming History</div>
+        <h1>A History of the Side-Scrolling Game</h1>
+        <p class="hero-sub">From the first hardware tricks that let a screen move sideways in 1981, to indie masterpieces that outsell big-budget studios today — one axis of movement changed everything.</p>
+      </div>
+
+      <!-- ────────────────── SECTION 1 ────────────────── -->
+      <section id="birth">
+        <div class="section-label">Origins</div>
+        <h2>Before the Scroll</h2>
+        <p>For the first decade of commercial video games, the screen was the world. Whether you were shooting aliens in <strong>Space Invaders</strong> (1978) or munching dots in <strong>Pac-Man</strong> (1980), the game existed entirely within the fixed rectangle of the display. The edges of the screen were the edges of reality — and that constraint shaped almost everything about early design.</p>
+        <p>This wasn't artistic choice. It was hardware fact. The arcade machines of the late 1970s were built around tile-map graphics systems: the screen was a fixed grid of pre-drawn character tiles, and processors weren't fast enough to shift an entire background layer smoothly while also running game logic. Moving the view — scrolling — was genuinely technically difficult.</p>
+
+        <h3>Sega's Bomber (1977)</h3>
+        <p>An early hint of what was coming: Sega's <strong>Bomber</strong> (1977) placed the player in a side-view of a plane dropping bombs. The world didn't scroll — the plane moved but the background was fixed — yet the <em>side-on perspective</em> that would define the entire genre was already in place. The visual grammar had arrived. The engine to move it hadn't.</p>
+
+        <div class="callout blue">
+          <div class="callout-title">Why Scrolling Was Hard</div>
+          <p>Early arcade hardware used dedicated tile chips to draw the screen row by row, 60 times per second. To scroll, you had to either redraw all tiles every frame (too slow) or build special circuitry that could shift the background layer by arbitrary pixel amounts between frames. Neither was cheap or easy in 1978. The side-scroller had to wait for the hardware to catch up.</p>
+        </div>
+
+        <h3>The Fixed-Screen Golden Age</h3>
+        <p>Between 1978 and 1980, the fixed screen wasn't a limitation to apologize for — it was the stage. <strong>Donkey Kong</strong>, <strong>Galaga</strong>, and <strong>Centipede</strong> are among the most beloved games ever made, and none scroll at all. Their brilliance came from what they achieved within the frame. The lesson isn't that scrolling made games better — it's that scrolling expanded what games could <em>contain</em>.</p>
+      </section>
+
+      <!-- ────────────────── SECTION 2 ────────────────── -->
+      <section id="first-scrollers">
+        <div class="section-label">1981–1984</div>
+        <h2>The First True Scrollers</h2>
+        <p>Within a single year — 1981 — three games arrived that together invented the side-scrolling genre. Each solved a different part of the problem, and each pointed in a different direction.</p>
+
+        <h3>Defender (1981) — Williams Electronics</h3>
+        <p>Eugene Jarvis's <strong>Defender</strong> is considered the first true side-scrolling game. It was technically extraordinary: the playfield was a horizontal world several times wider than the screen, and the player's ship could fly left or right, with the world wrapping in a continuous loop. The player wasn't confined to the screen — the screen was a window into a larger space.</p>
+        <p>Crucially, Defender introduced the <strong>radar minimap</strong> — a compressed strip at the top of the screen showing the entire game world in real time. No game before it had communicated off-screen space to the player. Enemies, civilians, and the player's own position were all visible on the radar while the main screen showed only a small slice. This was a genuine conceptual breakthrough: the world was larger than the screen, and the game had built a system for helping you understand it.</p>
+        <p>Defender was also legendarily difficult. Jarvis designed it to punish every mistake, and its five-button control scheme was notorious. Operators initially refused to stock it. It went on to gross over <strong>$1 billion</strong> in North American arcades — the highest-earning game of 1981.</p>
+
+        <div class="callout">
+          <div class="callout-title">Defender's Radar: The First Minimap</div>
+          <p>The radar strip in Defender compressed the entire horizontal world — usually spanning several screen-widths — into a narrow band showing relative positions of all game objects. A player could see a swarm of Landers attacking humans on the far left while fighting Pods on the right. Off-screen danger was visible for the first time. Almost every action game with a large world has had a minimap ever since.</p>
+        </div>
+
+        <h3>Scramble (1981) — Konami</h3>
+        <p>Where Defender let you move freely in a looping world, <strong>Scramble</strong> pushed you forward. Konami's shooter introduced <em>forced horizontal scrolling</em>: the screen moved at a constant pace whether you liked it or not, and your job was to fly your spaceship through scrolling terrain without crashing. It was the first game with multiple distinct levels: open starfields gave way to narrow cave passages, then a city, then a final base. Each zone changed the visual and mechanical challenge without changing the core loop. This structure — a linear journey through contrasting biomes — remains the blueprint for most side-scrollers made today.</p>
+        <p>Scramble also introduced a <strong>fuel mechanic</strong>: your ship constantly burned fuel, replenished only by bombing tanks on the ground. Every level became a resource-management puzzle wrapped inside an action game — a depth of design that was genuinely ahead of its time.</p>
+
+        <h3>Jump Bug (1981) — Hoei/Coreland</h3>
+        <p><strong>Jump Bug</strong> introduced the third element: vertical positioning. A car bounced along a scrolling landscape, jumping between platforms at different heights. For the first time, a side-scrolling game combined forward motion with meaningful vertical placement. It wasn't a platformer in the modern sense — physics drove the bouncing, not deliberate jumps — but its DNA is clearly present in everything from Mario to Celeste.</p>
+
+        <div class="timeline" id="timelineDrag">
+          <div class="timeline-inner">
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1977</div><div class="t-card"><div class="t-game">Sega Bomber</div><div class="t-desc">Side-view perspective without scrolling</div><span class="t-tag">Precursor</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1981</div><div class="t-card"><div class="t-game">Defender</div><div class="t-desc">Free bi-directional scroll + radar minimap</div><span class="t-tag">Shooter</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1981</div><div class="t-card"><div class="t-game">Scramble</div><div class="t-desc">Forced scrolling through multiple levels</div><span class="t-tag">Shooter</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1981</div><div class="t-card"><div class="t-game">Jump Bug</div><div class="t-desc">First scrolling platformer (bouncing car)</div><span class="t-tag">Platformer</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1982</div><div class="t-card"><div class="t-game">Moon Patrol</div><div class="t-desc">Pioneered 3-layer parallax scrolling</div><span class="t-tag">Tech</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1984</div><div class="t-card"><div class="t-game">Pac-Land</div><div class="t-desc">Closest pre-Mario scrolling platformer template</div><span class="t-tag">Platformer</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1984</div><div class="t-card"><div class="t-game">Kung-Fu Master</div><div class="t-desc">Founded the side-scrolling beat 'em up</div><span class="t-tag">Beat 'em up</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1985</div><div class="t-card"><div class="t-game">Super Mario Bros.</div><div class="t-desc">Defined the scrolling platformer archetype</div><span class="t-tag">Archetype</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1985</div><div class="t-card"><div class="t-game">Gradius</div><div class="t-desc">Strategic weapon upgrades in a shooter</div><span class="t-tag">Shooter</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1987</div><div class="t-card"><div class="t-game">Double Dragon</div><div class="t-desc">Co-op beat 'em up — golden age begins</div><span class="t-tag">Beat 'em up</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1991</div><div class="t-card"><div class="t-game">Sonic the Hedgehog</div><div class="t-desc">Speed and momentum as the core mechanic</div><span class="t-tag">Platformer</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1994</div><div class="t-card"><div class="t-game">Super Metroid</div><div class="t-desc">Non-linear exploration, atmospheric world</div><span class="t-tag">Metroidvania</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">1997</div><div class="t-card"><div class="t-game">Symphony of the Night</div><div class="t-desc">RPG systems + exploration = genre defined</div><span class="t-tag">Metroidvania</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">2008</div><div class="t-card"><div class="t-game">Braid</div><div class="t-desc">Indie renaissance begins</div><span class="t-tag">Indie</span></div></div>
+            <div class="t-item"><div class="t-dot"></div><div class="t-year">2017</div><div class="t-card"><div class="t-game">Hollow Knight</div><div class="t-desc">3-person team, 40+ hours, genre redefined</div><span class="t-tag">Indie</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────── SECTION 3 ────────────────── -->
+      <section id="parallax">
+        <div class="section-label">Deep Dive</div>
+        <h2>The Parallax Revolution</h2>
+        <p>Look out a car window. Nearby objects — fence posts, kerbs — shoot past in a blur. Distant hills barely move at all. That relationship between distance and apparent speed is <strong>parallax</strong>, and when game designers figured out how to fake it, 2D games acquired a spatial depth they'd never had before.</p>
+
+        <h3>Moon Patrol (1982)</h3>
+        <p>Irem's <strong>Moon Patrol</strong> was the first arcade game to implement true, multi-layer parallax scrolling. The screen was divided into three independently-moving layers: a starfield at the far back (barely moving), a silhouette of distant mountains (moving slowly), and the lunar surface (moving fastest). The visual result was striking — for the first time a 2D game felt like it had a genuine Z-axis. You weren't looking at a flat image; you were looking <em>through a window</em> at a three-dimensional landscape.</p>
+        <p>Moon Patrol was also the first game to let players choose their starting stage, and it introduced point-to-point checkpoints — both mechanics that persisted for decades.</p>
+
+        <h3>How It Worked on 1982 Hardware</h3>
+        <p>The trick sounds simple but was brutal to implement. A video chip draws the screen from top to bottom, one horizontal scanline at a time, roughly 60 times per second. If you intercept the chip at the exact moment it finishes each scanline and update the scroll offset before the next line begins, different horizontal strips of the screen can scroll independently at different speeds. This technique — the <strong>raster interrupt</strong> — required precise timing down to individual CPU cycles. A single mistake meant a visible glitch across the screen (the "tearing" line still sometimes seen in older ports).</p>
+        <p>The raster interrupt became a fundamental tool in every programmer's kit and underpinned nearly every scrolling game for the next decade. Later hardware, like the SNES's PPU chip, built multi-layer parallax directly into the silicon — what took expert programming hacks in 1982 was a checkbox in a hardware register by 1990.</p>
+
+        <p>Below is a live parallax demo. Try dragging all three sliders to the same value — the sense of depth collapses and you're back to a flat, sliding image. That's exactly what games looked like before Moon Patrol. <strong>Parallax is the illusion of depth through relative motion.</strong></p>
+
+        <div class="parallax-demo-wrap">
+          <canvas id="parallaxCanvas"></canvas>
+          <div class="parallax-controls">
+            <label>Stars <input type="range" id="starSpeed" min="0" max="3" step="0.1" value="0.3"> <span class="p-val" id="starVal">0.3×</span></label>
+            <label>Mountains <input type="range" id="mountainSpeed" min="0" max="3" step="0.1" value="1"> <span class="p-val" id="mountainVal">1.0×</span></label>
+            <label>Ground <input type="range" id="groundSpeed" min="0" max="3" step="0.1" value="2.5"> <span class="p-val" id="groundVal">2.5×</span></label>
+            <div class="p-legend">
+              <div class="p-legend-item"><div class="p-dot" style="background:#1a2a4a"></div>Stars (far)</div>
+              <div class="p-legend-item"><div class="p-dot" style="background:#0d3040"></div>Mountains</div>
+              <div class="p-legend-item"><div class="p-dot" style="background:#1a4a2a"></div>Ground (near)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout blue">
+          <div class="callout-title">Parallax in 16-Bit Hardware</div>
+          <p>The Super Nintendo's PPU built parallax in at the hardware level, supporting up to four independent background layers that could scroll, scale, and rotate independently. This is why SNES games like Donkey Kong Country have such layered, lush backgrounds — the hardware did the heavy lifting that 1982 programmers had to fake scanline-by-scanline. The difference was roughly: 1982 = hand-soldering the clock; 1992 = reading the time off the wall.</p>
+        </div>
+      </section>
+
+      <!-- ────────────────── SECTION 4 ────────────────── -->
+      <section id="golden-age">
+        <div class="section-label">1984–1989</div>
+        <h2>The Golden Age of Genres</h2>
+        <p>By the mid-1980s the hardware had settled, the techniques were understood, and a generation of designers was ready to explore what the scrolling medium could express. From this extraordinary five-year stretch came three distinct sub-genres that defined side-scrolling games for decades.</p>
+
+        <h3>The Platformer: Super Mario Bros. (1985)</h3>
+        <p>Nintendo's <strong>Super Mario Bros.</strong> wasn't the first scrolling platformer — Pac-Land (1984) and Jump Bug had laid important groundwork — but it was the game that crystallized the form into something that felt complete. Shigeru Miyamoto built a world with extraordinary mechanical depth hidden behind instant accessibility: Mario could walk, run, jump, crouch, and interact with a physics system that rewarded mastery. Hidden blocks rewarded exploration. Power-ups changed the fundamental rules. Each world introduced an idea, then developed it across four stages before discarding it and moving on.</p>
+        <p>Crucially, the camera followed Mario — the world scrolled because <em>Mario moved</em>, not independently of him. This sounds obvious now, but it was a deliberate philosophical commitment: the player was the centre of the world, not a character moving through it. Super Mario Bros. sold over <strong>40 million copies</strong> on the NES and is widely credited with rescuing the North American home gaming market after the catastrophic 1983 industry crash.</p>
+
+        <h3>The Shoot 'em up: Gradius (1985) and Contra (1987)</h3>
+        <p>Konami's <strong>Gradius</strong> took Scramble's forced-scroll template and elevated it with a revolutionary upgrade system. Collecting power capsules filled a menu bar — speed, missile, dual shot, laser, options — and you chose when to cash them in. The meta-game of planning your loadout against different enemy patterns gave Gradius a strategic dimension that pure action games lacked. Its weapon "Options" (floating satellite orbs that mirrored every shot the player fired) became iconic enough to appear in spin-offs and spiritual successors for decades.</p>
+        <p><strong>Contra</strong> (1987) moved in a different direction: co-operative two-player action, multi-directional aiming, and a difficulty curve that was legendary even by arcade standards. The <strong>Konami Code</strong> — Up Up Down Down Left Right Left Right B A — was popularised here, granting 30 extra lives to anyone who'd heard of it. Contra's run-and-gun DNA flows directly through Metal Slug, Cuphead, and countless others.</p>
+
+        <h3>The Beat 'em up: Double Dragon to Final Fight</h3>
+        <p>Irem's <strong>Kung-Fu Master</strong> (1984) laid the foundation: a hero walks left-to-right, punching waves of enemies. Renegade (1986) added the ability to walk up and down within the lane. Then <strong>Double Dragon</strong> (1987) arrived and changed everything: two-player co-op, enemies who could grab your weapons, and a martial arts moveset deep enough to support real strategy. The Golden Age of the beat 'em up it triggered lasted nearly five years, producing <strong>Golden Axe</strong> and <strong>Final Fight</strong> (both 1989), <strong>Streets of Rage</strong> (1991), and dozens of imitators.</p>
+        <p>Final Fight in particular was remarkable: three playable characters with distinct combat styles, huge detailed enemy sprites with individual names and personalities, and level design that justified every quarter dropped into its cabinet.</p>
+
+        <div class="genre-tree">
+          <div class="genre-tree-inner">
+            <div class="genre-root"><div class="genre-badge">Side-Scrolling Game</div></div>
+            <div class="genre-connector"></div>
+            <div class="genre-branches">
+              <div class="genre-branch">
+                <div class="genre-node">
+                  <div class="genre-node-title">Platformer</div>
+                  <div class="genre-node-examples">Jump Bug → Pac-Land → Mario → Sonic → DKC</div>
+                  <div class="genre-sub">
+                    <div class="genre-sub-item">Metroidvania</div>
+                    <div class="genre-sub-item">Precision Platformer</div>
+                    <div class="genre-sub-item">Momentum Platformer</div>
+                  </div>
+                </div>
+              </div>
+              <div class="genre-branch">
+                <div class="genre-node">
+                  <div class="genre-node-title">Shoot 'em up</div>
+                  <div class="genre-node-examples">Scramble → Gradius → Contra → Metal Slug</div>
+                  <div class="genre-sub">
+                    <div class="genre-sub-item">Run and Gun</div>
+                    <div class="genre-sub-item">Bullet Hell</div>
+                    <div class="genre-sub-item">Rail Shooter</div>
+                  </div>
+                </div>
+              </div>
+              <div class="genre-branch">
+                <div class="genre-node">
+                  <div class="genre-node-title">Beat 'em up</div>
+                  <div class="genre-node-examples">Kung-Fu Master → Double Dragon → Streets of Rage</div>
+                  <div class="genre-sub">
+                    <div class="genre-sub-item">Brawler</div>
+                    <div class="genre-sub-item">Hack and Slash</div>
+                  </div>
+                </div>
+              </div>
+              <div class="genre-branch">
+                <div class="genre-node">
+                  <div class="genre-node-title">Action-Adventure</div>
+                  <div class="genre-node-examples">Castlevania → Metroid → Symphony of the Night</div>
+                  <div class="genre-sub">
+                    <div class="genre-sub-item">Metroidvania</div>
+                    <div class="genre-sub-item">Cinematic Platformer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fact-grid">
+          <div class="fact-card">
+            <div class="fact-num">40M</div>
+            <div class="fact-label">Copies of Super Mario Bros. sold on the NES — best-selling game of its era, according to the 1999 Guinness World Records</div>
+          </div>
+          <div class="fact-card">
+            <div class="fact-num">$1B+</div>
+            <div class="fact-label">Revenue generated by Defender in US arcades — the top-earning arcade game of 1981</div>
+          </div>
+          <div class="fact-card">
+            <div class="fact-num">30</div>
+            <div class="fact-label">Extra lives from the Konami Code in Contra — the most famous cheat code in gaming history</div>
+          </div>
+          <div class="fact-card">
+            <div class="fact-num">5yrs</div>
+            <div class="fact-label">The Golden Age of the beat 'em up, triggered by Double Dragon in 1987 and largely over by 1992</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────── SECTION 5 ────────────────── -->
+      <section id="sixteen-bit">
+        <div class="section-label">1989–1996</div>
+        <h2>The 16-Bit Console Wars</h2>
+        <p>If the 1980s were about inventing the side-scroller, the early 1990s were about perfecting it. The commercial war between Sega's Mega Drive and Nintendo's Super Nintendo drove some of the finest 2D game design ever created — each company needed exclusive titles that made their hardware look better than the competition's, and side-scrollers were the showcase format of choice.</p>
+
+        <div class="console-compare">
+          <div class="console-card sega">
+            <div class="console-name">Sega</div>
+            <div class="console-title">Mega Drive / Genesis</div>
+            <div class="console-stat"><strong>Release:</strong> 1988 (JP) / 1989 (US)</div>
+            <div class="console-stat"><strong>CPU:</strong> 7.6 MHz Motorola 68000</div>
+            <div class="console-stat"><strong>Key tech:</strong> Fast CPU, 64-colour display, "Blast Processing" (marketing term for faster DMA)</div>
+            <div class="console-games">
+              <span class="console-tag">Sonic the Hedgehog</span>
+              <span class="console-tag">Streets of Rage 2</span>
+              <span class="console-tag">Gunstar Heroes</span>
+              <span class="console-tag">Castlevania: Bloodlines</span>
+            </div>
+          </div>
+          <div class="console-card nintendo">
+            <div class="console-name">Nintendo</div>
+            <div class="console-title">Super Nintendo (SNES)</div>
+            <div class="console-stat"><strong>Release:</strong> 1990 (JP) / 1991 (US)</div>
+            <div class="console-stat"><strong>CPU:</strong> 3.58 MHz 65C816</div>
+            <div class="console-stat"><strong>Key tech:</strong> Mode 7 rotation/scaling, 4 BG layers, hardware transparency and colour math</div>
+            <div class="console-games">
+              <span class="console-tag">Super Mario World</span>
+              <span class="console-tag">Donkey Kong Country</span>
+              <span class="console-tag">Mega Man X</span>
+              <span class="console-tag">Super Metroid</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Sonic the Hedgehog (1991) — Speed as Philosophy</h3>
+        <p>Yuji Naka's Sonic wasn't a faster Mario. It was a philosophically different game. Where Mario rewarded careful, deliberate movement, Sonic rewarded <em>commitment</em>. Levels were designed as elaborate slides: ramps, loops, and curves that converted Sonic's momentum into kinetic spectacle. The famous Green Hill Zone loop wasn't an obstacle — it was an invitation. Caution in Sonic often made the game harder, not easier.</p>
+        <p>Sonic also served a commercial purpose: Sega needed a mascot to attack Nintendo directly, and the blue hedgehog's attitude — cool, fast, vaguely irreverent — was designed specifically to appeal to the teenage market Nintendo's marketing hadn't reached. It worked. Sonic sold 15 million copies as a pack-in and turned the Mega Drive into a genuine competitor. The console war this triggered pushed both companies to produce increasingly ambitious side-scrollers, and players were the primary beneficiaries.</p>
+
+        <h3>Donkey Kong Country (1994) — Pre-Rendered Spectacle</h3>
+        <p>Rare's <strong>Donkey Kong Country</strong> arrived in 1994 and looked unlike anything on 16-bit hardware. Rare had used Silicon Graphics workstations — the same machines used for Jurassic Park and Terminator 2 — to model their characters in 3D, then captured individual animation frames as flat sprites. The result: characters with weight, depth, and cinematic fluidity that no hand-drawn sprite could match at that resolution. Many players assumed it was running on 32-bit hardware. It sold <strong>nine million copies</strong> and remains one of the best-reviewed games of its decade.</p>
+
+        <h3>Mega Man X (1993) — Mechanical Depth</h3>
+        <p>Capcom's <strong>Mega Man X</strong> took the NES series' sophisticated systems and pushed them to their limit on new hardware. X could wall-jump (a genuinely revolutionary platformer move in 1993), dash, and absorb defeated bosses' weapons. Hidden capsules upgraded his abilities. The game contained a fully optional upgrade path — players who explored every corner were rewarded with an armour set that fundamentally changed the combat. It was, and remains, a masterclass in depth dressed up as accessible action.</p>
+      </section>
+
+      <!-- ────────────────── SECTION 6 ────────────────── -->
+      <section id="metroidvania">
+        <div class="section-label">Deep Dive</div>
+        <h2>Enter the Metroidvania</h2>
+        <p>Most side-scrollers push you relentlessly to the right. A corridor, a level, a boss, repeat. The Metroidvania inverts this entirely: instead of a corridor, you're given a <em>world</em>, and progression is gated not by difficulty but by capability. You can see the door. You just can't open it yet. And when you eventually can, you remember exactly where it was.</p>
+
+        <h3>Super Metroid (1994) — Atmosphere and Information Economy</h3>
+        <p>Nintendo R&D1's <strong>Super Metroid</strong> is one of the most studied games in history. Its genius lay in what it <em>withheld</em>. The game told you almost nothing. No dialogue, minimal UI, no instruction beyond a single atmospheric opening scene. Everything it needed to communicate arrived through the world itself — the haunted planet Zebes, the desolate corridors, the ambient soundtrack that was never quite music. You were alone, and the game meant it.</p>
+        <p>Mechanically, Super Metroid introduced or refined nearly every idea the sub-genre would rely on: <strong>ability-gated progress</strong> (the High Jump Boots let you reach platforms you'd been walking past for an hour), a map that filled in as you explored, and the concept that backtracking with new abilities was itself rewarding. Rooms dismissed as dead ends became treasure chambers the second time through. The game had a completion percentage — something no game had prominently tracked before — and it made you feel its pull.</p>
+
+        <h3>Symphony of the Night (1997) — RPG Systems Layered In</h3>
+        <p>Konami's <strong>Castlevania: Symphony of the Night</strong> took Super Metroid's exploration template and added an RPG system on top. Your character levelled up, accumulated stats, found equipment, and had a full bestiary. The castle was vast — and then, in one of gaming's greatest reveals, the game showed you that an upside-down mirror image of the entire castle existed beneath the one you'd just cleared. The "true" ending required exploring both. The total play space was roughly twice what players thought they'd bought.</p>
+        <p>Symphony's RPG layer changed the economics of exploration: every room potentially contained a stat boost, a new weapon, or a passive ability. The addictive feedback loop of growing meaningfully stronger through discovery became the sub-genre's defining pull.</p>
+
+        <h3>The Naming of a Genre</h3>
+        <p>The word <strong>"Metroidvania"</strong> is a portmanteau of the two series, coined around 2001–2002 on Usenet to describe <em>Castlevania: Circle of the Moon</em> for Game Boy Advance. A poster noted the game played like a blend of both franchises and the portmanteau stuck. Within a few years the games press had adopted it as a formal genre label, and it is now one of the most-searched game categories on Steam.</p>
+
+        <div class="callout">
+          <div class="callout-title">What Makes a Metroidvania?</div>
+          <p>The genre has three defining properties: <strong>(1) ability gating</strong> — areas blocked by a power you don't yet have; <strong>(2) non-linear interconnected map</strong> — a large world that rewards revisiting; <strong>(3) environmental world-building</strong> — lore communicated through the world itself, not text dumps. A game with two out of three has Metroidvania <em>elements</em>. With all three, it is the real thing.</p>
+        </div>
+
+        <div class="reveal-wrap">
+          <button class="reveal-trigger" id="revealBtn" onclick="toggleReveal(this)">
+            <span class="reveal-arrow">▼</span> Symphony of the Night almost didn't get a Western release — why?
+          </button>
+          <div class="reveal-content" id="revealContent">
+            <p>Konami of America was genuinely sceptical about releasing Symphony of the Night in the West at all. The game was seen as a commercial regression — it was a 2D game arriving in 1997, the year of <em>Final Fantasy VII</em> and the height of the 3D transition. Internal reports suggested it would sell poorly against the polygon games dominating the charts.</p>
+            <p>It received a limited print run, was priced at $39.99 (cheaper than typical), and got minimal marketing. It sold modestly at launch. Then word of mouth took over. By the early 2000s it was trading for $80–100 used, and its critical reputation had completely inverted — it was now considered one of the greatest games ever made. Konami re-released it on PS3 and Xbox 360 in 2007, and it has been in continuous digital distribution ever since. It is now regularly cited as the definitive example of the Metroidvania genre it accidentally named.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────── SECTION 7 ────────────────── -->
+      <section id="decline">
+        <div class="section-label">1996–2007</div>
+        <h2>The 3D Transition</h2>
+        <p>In 1996, two games arrived that changed the industry's assumptions permanently: <strong>Super Mario 64</strong> and <strong>Tomb Raider</strong>. Both demonstrated that three-dimensional movement in 3D space was not only possible on consumer hardware, but compelling in a way that felt genuinely new. Publishers and developers concluded — understandably but, as it turned out, incorrectly — that 2D was over.</p>
+        <p>The late 1990s were brutal for 2D development. Publishers cancelled projects, studios pivoted to 3D whether their games benefited from the change or not, and the marketing wisdom of the era dictated that a game screenshot without polygons was a screenshot that wouldn't sell. Side-scrollers, for the first time in their history, became commercially risky.</p>
+
+        <h3>The Refuges</h3>
+        <p>Two platforms kept 2D alive during this period. The <strong>Game Boy Advance</strong> (2001) was underpowered for 3D but ideal for 2D, and developers who wanted to make the kinds of games they'd been making on SNES found a willing audience. <em>Castlevania: Aria of Sorrow</em> (2003) and <em>Metroid Fusion</em> (2002) both arrived here — sequels to the exact games that had defined the Metroidvania, finding refuge on a device too small to demand polygons.</p>
+        <p>The other refuge was Japan's arcade scene, which had never abandoned 2D with the same enthusiasm. <strong>Metal Slug</strong> (1996), from SNK, was a technically astonishing hand-drawn run-and-gun released in the same year as Mario 64 — and it continued in production through 2008. SNK simply kept making brilliant 2D games regardless of the conversation elsewhere.</p>
+
+        <h3>What Was Lost</h3>
+        <p>Several series went dormant during this period. The main Mega Man series entered a decade-long hiatus after <em>Mega Man 8</em> (1996). Streets of Rage didn't see a mainline sequel for 26 years. Castlevania moved to 3D on PS2 and N64 with mixed results before eventually returning to the GBA.</p>
+        <p>In hindsight, this era revealed something the industry would fully relearn in the 2010s: <strong>dimensionality is not the same as quality</strong>. A 2D game designed with mastery outperforms a mediocre 3D game on every dimension that actually matters to players. The 3D transition selected for novelty over craft — and novelty eventually wears off.</p>
+      </section>
+
+      <!-- ────────────────── SECTION 8 ────────────────── -->
+      <section id="renaissance">
+        <div class="section-label">2008–Present</div>
+        <h2>The Indie Renaissance</h2>
+        <p>The tools changed first. By the mid-2000s, a solo developer with a laptop could build and distribute a game without a publisher's budget or blessing. Steam launched in 2003. Xbox Live Arcade in 2004. Distribution was no longer gatekept by shelf space, and small teams could compete for attention on merit alone.</p>
+        <p>What followed was the largest creative explosion in side-scrolling history. Freed from the commercial pressure that had killed 2D in major studios, indie developers made the games they'd been unable to make: formally ambitious, visually distinctive, emotionally serious work that treated the side-scroll not as a legacy format but as a deliberate artistic choice.</p>
+
+        <div class="indie-grid">
+          <div class="indie-card">
+            <div class="indie-year">2008</div>
+            <div class="indie-title">Braid</div>
+            <div class="indie-desc">Jonathan Blow's time-manipulation platformer took every mechanic seriously as a design statement. Each world was built around a single idea — rewind, parallel time, time slowing with movement — taken to its logical conclusion. It proved that indie games could be intellectually ambitious and commercially successful simultaneously.</div>
+            <div class="indie-innovation">→ Sparked the modern indie side-scroller renaissance</div>
+          </div>
+          <div class="indie-card">
+            <div class="indie-year">2010</div>
+            <div class="indie-title">Limbo</div>
+            <div class="indie-desc">Playdead's black-and-white puzzle-platformer communicated almost entirely through silhouette, shadow, and sound. No dialogue, no text, no explanation. Its horror was suggestive rather than explicit. It demonstrated that restrained atmosphere could compete with technical spectacle for player attention — and win.</div>
+            <div class="indie-innovation">→ Established monochrome minimalism as a serious aesthetic choice</div>
+          </div>
+          <div class="indie-card">
+            <div class="indie-year">2010</div>
+            <div class="indie-title">Super Meat Boy</div>
+            <div class="indie-desc">Team Meat's precision platformer was pathologically difficult, but designed with absolute fairness: instant respawn, levels measured in seconds, deaths replayed simultaneously at the end. Every failure was a micro-lesson, not a punishment. It defined "hard but fair" as a design philosophy.</div>
+            <div class="indie-innovation">→ Defined the precision platformer template for a generation</div>
+          </div>
+          <div class="indie-card">
+            <div class="indie-year">2014</div>
+            <div class="indie-title">Shovel Knight</div>
+            <div class="indie-desc">Yacht Club Games built an NES-faithful platformer as a genuine act of craft, not nostalgia bait. Its level design was as good as — or better than — the games it homaged. It proved that retro aesthetics could carry new ideas rather than just evoking old memories.</div>
+            <div class="indie-innovation">→ Showed retro aesthetics could be a creative vehicle, not just a shortcut</div>
+          </div>
+          <div class="indie-card">
+            <div class="indie-year">2017</div>
+            <div class="indie-title">Hollow Knight</div>
+            <div class="indie-desc">Team Cherry — three people — built a Metroidvania with over 40 hours of content, hand-drawn art, a melancholic atmosphere, and brutally fair combat. Its world was genuinely vast in a way that rivalled studio productions. It sold millions of copies and set a new standard for what an indie Metroidvania could be.</div>
+            <div class="indie-innovation">→ Proved three people could outscale a studio in depth and craft</div>
+          </div>
+          <div class="indie-card">
+            <div class="indie-year">2018</div>
+            <div class="indie-title">Celeste</div>
+            <div class="indie-desc">Matt Makes Games built a precision platformer around anxiety and self-acceptance — the mountain Celeste climbs is both literal and metaphorical, and the game earns every layer of that metaphor through its mechanics. Its Assist Mode sparked genuine industry conversation about accessibility in hard games.</div>
+            <div class="indie-innovation">→ Changed the conversation about accessibility in challenging games</div>
+          </div>
+        </div>
+
+        <h3>Why 2D Never Died</h3>
+        <p>The 1990s industry consensus — that 2D was a legacy format waiting to be superseded — turned out to be completely wrong. In 2025, the side-scroller is arguably the <em>most</em> creatively vital genre in gaming, producing more distinguished work than almost any other format. The reasons are structural:</p>
+        <p><strong>Lower production cost</strong> lets smaller teams ship finished, polished work without a publisher. <strong>Mechanical clarity</strong> — you can see the entire playfield at once — enables more precise design intentions than 3D's camera problems allow. And 2D's constraints are <em>creative</em> rather than technical: you're not limited by what the hardware can render; you're limited by what the design can sustain. That's a more interesting limit to work within.</p>
+        <p>The side-scroller didn't survive despite 3D gaming. It survived <em>because</em> it offered something 3D couldn't: perfect legibility. The whole world on screen, the player always at the centre, mechanics always visible. It turns out that's not a compromise. It's a feature.</p>
+      </section>
+
+      <!-- ────────────────── SECTION 9: QUIZ ────────────────── -->
+      <section id="quiz">
+        <div class="section-label">Test yourself</div>
+        <h2>Test Your Knowledge</h2>
+        <p>Eight questions drawn from across this page. Answer all of them to see your score.</p>
+        <div id="quizWrap"></div>
+        <div class="quiz-score" id="quizScore">
+          <div class="score-big" id="scoreNum"></div>
+          <div class="score-denom">out of 8</div>
+          <div class="score-msg" id="scoreMsg"></div>
+          <button class="quiz-restart" onclick="initQuiz()">Try again</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+  // ── Side nav IntersectionObserver ──────────────────────────────────────
+  (function () {
+    const links = document.querySelectorAll('.side-nav a, .mobile-nav-menu a');
+    const sections = document.querySelectorAll('section[id]');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+        }
+      });
+    }, { threshold: 0.25, rootMargin: '-64px 0px -55% 0px' });
+    sections.forEach(s => io.observe(s));
+  })();
+
+  // ── Mobile nav ─────────────────────────────────────────────────────────
+  document.getElementById('mobileToggle').addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  });
+  document.querySelectorAll('.mobile-nav-menu a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('mobileMenu').classList.remove('open'));
+  });
+
+  // ── Timeline drag-to-scroll ────────────────────────────────────────────
+  (function () {
+    const el = document.getElementById('timelineDrag');
+    let isDown = false, startX, scrollLeft;
+    el.addEventListener('mousedown', e => { isDown = true; startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; });
+    el.addEventListener('mouseleave', () => isDown = false);
+    el.addEventListener('mouseup', () => isDown = false);
+    el.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      e.preventDefault();
+      el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX);
+    });
+  })();
+
+  // ── Reveal toggle ──────────────────────────────────────────────────────
+  function toggleReveal(btn) {
+    const content = btn.nextElementSibling;
+    const arrow = btn.querySelector('.reveal-arrow');
+    content.classList.toggle('open');
+    if (arrow) arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+
+  // ── Parallax canvas ────────────────────────────────────────────────────
+  (function () {
+    const canvas = document.getElementById('parallaxCanvas');
+    const ctx = canvas.getContext('2d');
+    let W = 0, H = 0;
+    let starOff = 0, mountOff = 0, groundOff = 0;
+    let starSpd = 0.3, mountSpd = 1.0, groundSpd = 2.5;
+
+    function resize() {
+      W = canvas.offsetWidth; H = canvas.offsetHeight;
+      canvas.width = W; canvas.height = H;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Wire sliders
+    [['starSpeed','starVal', v => starSpd = v],
+     ['mountainSpeed','mountainVal', v => mountSpd = v],
+     ['groundSpeed','groundVal', v => groundSpd = v]].forEach(([sid, vid, set]) => {
+      const s = document.getElementById(sid), v = document.getElementById(vid);
+      s.addEventListener('input', () => { set(parseFloat(s.value)); v.textContent = parseFloat(s.value).toFixed(1) + '×'; });
+    });
+
+    // Static star positions (seeded pattern)
+    const STARS = Array.from({ length: 90 }, (_, i) => ({
+      x: ((i * 137.5) % 1) * 2000,
+      y: ((i * 73.1) % 1) * 0.72,
+      r: 0.6 + (i % 3) * 0.6,
+    }));
+
+    function drawStars() {
+      ctx.fillStyle = '#b8d4ff';
+      STARS.forEach(s => {
+        const x = ((s.x - starOff % 2000) + 2000) % 2000;
+        ctx.beginPath();
+        ctx.arc(x * W / 2000, s.y * H, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawMountains() {
+      const P = W * 1.6;
+      for (let r = -1; r <= 2; r++) {
+        const ox = r * P - mountOff % P;
+        ctx.beginPath();
+        ctx.moveTo(ox, H);
+        const pts = [
+          [0.04, 0.68],[0.12, 0.45],[0.22, 0.65],[0.32, 0.36],
+          [0.44, 0.60],[0.52, 0.40],[0.63, 0.62],[0.74, 0.46],
+          [0.84, 0.64],[0.92, 0.38],[1.0, H]
+        ];
+        pts.forEach(([px, py]) => ctx.lineTo(ox + P * px, typeof py === 'number' && py > 1 ? py : H * py));
+        ctx.closePath();
+        ctx.fillStyle = '#0a2535';
+        ctx.fill();
+        // Snow tips
+        [[0.12,0.45],[0.32,0.36],[0.52,0.40],[0.74,0.46],[0.92,0.38]].forEach(([px,py]) => {
+          ctx.beginPath();
+          ctx.moveTo(ox + P * px, H * py);
+          ctx.lineTo(ox + P * (px - 0.025), H * (py + 0.07));
+          ctx.lineTo(ox + P * (px + 0.025), H * (py + 0.07));
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(200,225,255,0.2)';
+          ctx.fill();
+        });
+      }
+    }
+
+    function drawGround() {
+      const gy = H * 0.76;
+      ctx.fillStyle = '#132a1c';
+      ctx.fillRect(0, gy, W, H - gy);
+      ctx.fillStyle = '#1e4028';
+      ctx.fillRect(0, gy, W, 5);
+
+      const bw = 58, bh = 16, P = 420;
+      for (let r = -1; r <= Math.ceil(W / P) + 1; r++) {
+        const ox = r * P - groundOff % P;
+        [[-160, 0],[-60, 22],[60, 0],[170, 22],[290, 0]].forEach(([bx, oy]) => {
+          const by = gy - 36 - oy;
+          ctx.fillStyle = '#173523';
+          ctx.fillRect(ox + bx, by, bw, bh);
+          ctx.fillStyle = '#2a5c38';
+          ctx.fillRect(ox + bx, by, bw, 4);
+        });
+      }
+
+      // Running sprite
+      const px = W * 0.28, py = gy - 30;
+      const f = Math.floor(groundOff / 9) % 4;
+      ctx.fillStyle = '#ff5a1f'; ctx.fillRect(px - 6, py, 12, 15);
+      ctx.fillStyle = '#ffc890'; ctx.fillRect(px - 5, py - 10, 10, 10);
+      ctx.fillStyle = '#1fd4ff';
+      if (f === 0)      { ctx.fillRect(px - 5, py + 15, 4, 10); ctx.fillRect(px + 1, py + 15, 4, 5); }
+      else if (f === 1) { ctx.fillRect(px - 4, py + 15, 4, 12); ctx.fillRect(px + 1, py + 15, 4, 8); }
+      else if (f === 2) { ctx.fillRect(px - 5, py + 15, 4, 5);  ctx.fillRect(px + 1, py + 15, 4, 10); }
+      else              { ctx.fillRect(px - 4, py + 15, 4, 8);  ctx.fillRect(px + 1, py + 15, 4, 12); }
+    }
+
+    function draw() {
+      if (!W || !H) { resize(); }
+      const sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#04080e');
+      sky.addColorStop(1, '#081420');
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+      drawStars(); drawMountains(); drawGround();
+      starOff   += starSpd  * 0.35;
+      mountOff  += mountSpd * 0.9;
+      groundOff += groundSpd * 2.2;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ── Quiz ───────────────────────────────────────────────────────────────
+  const QS = [
+    {
+      q: "Which 1981 game introduced forced horizontal scrolling through multiple visually distinct levels?",
+      opts: ["Defender","Scramble","Space Invaders","Asteroids"],
+      a: 1,
+      explain: "Scramble (Konami, 1981) introduced forced scrolling through multiple zones — starfields, canyons, a city, a final base. Defender had free bi-directional scrolling but in a looping, single-environment world."
+    },
+    {
+      q: "What groundbreaking UI element did Defender introduce that no game before it had used?",
+      opts: ["A pause button","A high-score table","A radar minimap showing off-screen space","An in-game timer"],
+      a: 2,
+      explain: "Defender's radar strip compressed the entire game world into a real-time band at the top of the screen, showing all enemies, civilians, and the player's position. It was the first time any game communicated off-screen spatial information to the player."
+    },
+    {
+      q: "Moon Patrol (1982) is credited with pioneering which technique fundamental to all later side-scrollers?",
+      opts: ["Forced scrolling","Parallax scrolling with multiple independent layers","Procedural level generation","Sprite scaling (Mode 7)"],
+      a: 1,
+      explain: "Moon Patrol was the first arcade game to move three background layers at independent speeds — stars, mountains, ground — creating the illusion of depth in a 2D scene. Earlier games had only a single scrolling layer."
+    },
+    {
+      q: "Super Mario Bros. (1985) sold over 40 million copies and is credited with helping revive what?",
+      opts: ["The Japanese bubble economy","The North American video game market after the 1983 crash","The arcade industry after TV competition","Nintendo's failing handheld division"],
+      a: 1,
+      explain: "The 1983 North American video game crash nearly killed the home gaming industry. Nintendo's NES, launched in the US in 1985 with Super Mario Bros. as its flagship, is widely credited with restoring consumer confidence in home gaming."
+    },
+    {
+      q: "The Konami Code (Up Up Down Down Left Right Left Right B A) was first popularised in which game?",
+      opts: ["Gradius","Castlevania","Contra","Double Dragon"],
+      a: 2,
+      explain: "The Konami Code granted 30 extra lives in Contra (1987) for the NES version. Though it appeared in Gradius on Famicom first, Contra's home port was where it became a cultural phenomenon — almost every player of that era had heard of it."
+    },
+    {
+      q: "Super Metroid (1994) pioneered what core mechanic now essential to the Metroidvania genre?",
+      opts: [
+        "Turn-based combat layered over exploration",
+        "Ability-gated progression — areas blocked by powers not yet acquired",
+        "Procedurally generated maps that change each playthrough",
+        "First-person perspective sections inside a 2D world"
+      ],
+      a: 1,
+      explain: "Super Metroid's defining mechanic was locking areas behind abilities the player didn't yet possess. You could see unreachable platforms, impassable barriers, and blocked passages — and you remembered them all. Acquiring a new ability sent you back through the world with new eyes."
+    },
+    {
+      q: "The term 'Metroidvania' was coined to describe which game?",
+      opts: ["Super Metroid","Castlevania: Symphony of the Night","Castlevania: Circle of the Moon","Metroid Fusion"],
+      a: 2,
+      explain: "The portmanteau 'Metroidvania' appeared on Usenet around 2001–2002 to describe Castlevania: Circle of the Moon for Game Boy Advance, which blended Metroid's exploration structure with Castlevania's setting. Symphony of the Night (1997) is considered the genre's defining game, but wasn't where the name was coined."
+    },
+    {
+      q: "Which 2008 indie game is most credited with sparking the modern side-scrolling renaissance?",
+      opts: ["Limbo","Super Meat Boy","Braid","Cave Story"],
+      a: 2,
+      explain: "Jonathan Blow's Braid (2008) proved that a downloadable indie game could be commercially successful, critically acclaimed, and intellectually ambitious all at once. Its time-manipulation mechanics and interpretive narrative forced the games press — and the industry — to take indie 2D games seriously."
+    }
+  ];
+
+  let score = 0, answered = 0;
+
+  function initQuiz() {
+    score = 0; answered = 0;
+    const wrap = document.getElementById('quizWrap');
+    document.getElementById('quizScore').style.display = 'none';
+    wrap.innerHTML = QS.map((q, i) => `
+      <div class="quiz-question">
+        <div class="q-num">Question ${i + 1} of ${QS.length}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-options">
+          ${q.opts.map((o, j) => `<button class="q-opt" data-q="${i}" data-idx="${j}">${o}</button>`).join('')}
+        </div>
+        <div class="q-feedback" id="fb${i}"></div>
+      </div>`).join('');
+    wrap.querySelectorAll('.q-opt').forEach(b => b.addEventListener('click', onAnswer));
+  }
+
+  function onAnswer(e) {
+    const btn = e.currentTarget;
+    const qi = +btn.dataset.q, idx = +btn.dataset.idx;
+    const q = QS[qi];
+    const box = btn.closest('.quiz-question');
+    box.querySelectorAll('.q-opt').forEach(b => b.disabled = true);
+    const correct = idx === q.a;
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    box.querySelectorAll('.q-opt')[q.a].classList.add('correct');
+    const fb = document.getElementById('fb' + qi);
+    fb.className = 'q-feedback' + (correct ? ' correct-fb' : '');
+    fb.textContent = (correct ? '✓ Correct. ' : '✗ ') + q.explain;
+    if (correct) score++;
+    if (++answered === QS.length) setTimeout(showScore, 500);
+  }
+
+  function showScore() {
+    const el = document.getElementById('quizScore');
+    el.style.display = 'block';
+    document.getElementById('scoreNum').textContent = score;
+    const msg = score <= 2 ? "There's a lot of great history up on this page — worth a re-read."
+      : score <= 4 ? "Decent start. The parallax and Metroidvania sections are worth revisiting."
+      : score <= 6 ? "Good knowledge of the genre's history."
+      : score === 7 ? "Very strong. You clearly know this history well."
+      : "Perfect score. You could teach this.";
+    document.getElementById('scoreMsg').textContent = msg;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  initQuiz();
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>
