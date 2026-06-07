@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baseball — Take a Deeks</title>
+<style>
+:root {
+  --c1: #1B2A4A;
+  --c2: #E8A030;
+  --bg: #F6F1E9;
+  --surface: #FFFFFF;
+  --text: #2C2C2C;
+  --muted: #7A7068;
+  --border: #DDD5C8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--text); line-height: 1.75; }
+
+/* LAYOUT */
+.page-layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1180px; margin: 0 auto; }
+
+/* SIDE NAV */
+.side-nav { position: sticky; top: 72px; align-self: start; padding: 1.5rem 1rem 1.5rem 1.25rem; max-height: calc(100vh - 72px); overflow-y: auto; }
+.side-nav .nav-label { font-family: sans-serif; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; padding-left: 0.75rem; }
+.side-nav ul { list-style: none; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.82rem; color: var(--muted); text-decoration: none; padding: 0.38rem 0.75rem; border-left: 3px solid transparent; border-radius: 0 4px 4px 0; transition: color 0.2s, border-color 0.2s, background 0.2s; }
+.side-nav a:hover { color: var(--c1); background: rgba(27,42,74,0.05); }
+.side-nav a.active { color: var(--accent, #C41E3A); border-left-color: var(--accent, #C41E3A); background: rgba(196,30,58,0.07); font-weight: 600; }
+
+/* MOBILE NAV */
+.mobile-nav-wrap { display: none; position: sticky; top: 60px; z-index: 50; background: var(--surface); border-bottom: 2px solid var(--accent, #C41E3A); }
+.mobile-nav-toggle { display: flex; align-items: center; gap: 0.5rem; background: none; border: none; font-family: sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--c1); padding: 0.75rem 1.25rem; cursor: pointer; width: 100%; }
+.mobile-nav-toggle .arrow { transition: transform 0.2s; display: inline-block; }
+.mobile-nav-toggle[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+.mobile-nav-list { display: none; list-style: none; padding: 0.5rem 0 0.75rem; border-top: 1px solid var(--border); columns: 2; }
+.mobile-nav-list.open { display: block; }
+.mobile-nav-list a { display: block; font-family: sans-serif; font-size: 0.82rem; color: var(--c1); text-decoration: none; padding: 0.3rem 1.25rem; }
+
+/* MAIN */
+main { padding: 0 2.5rem 5rem 2rem; min-width: 0; }
+section { margin-bottom: 5rem; }
+
+/* TYPOGRAPHY */
+h2 { font-family: Georgia, serif; font-size: 1.85rem; color: var(--c1); margin-bottom: 0.3rem; line-height: 1.2; }
+.section-rule { height: 4px; background: linear-gradient(90deg, var(--accent, #C41E3A) 55%, transparent); border: none; margin-bottom: 1.5rem; border-radius: 2px; }
+h3 { font-size: 1.1rem; color: var(--c1); margin: 2rem 0 0.6rem; font-family: Georgia, serif; }
+p { margin-bottom: 1rem; }
+strong { color: var(--c1); }
+
+/* HERO */
+.hero { display: grid; grid-template-columns: 1fr 300px; gap: 2.5rem; align-items: center; padding: 2.5rem 0 2.5rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+.hero-eyebrow { font-family: sans-serif; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent, #C41E3A); margin-bottom: 0.5rem; }
+.hero h1 { font-size: 3.5rem; color: var(--c1); line-height: 1.05; margin-bottom: 1rem; }
+.hero-lead { font-size: 1.1rem; color: var(--muted); line-height: 1.6; }
+.hero-img-wrap img { width: 100%; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.caption { font-family: sans-serif; font-size: 0.72rem; color: var(--muted); margin-top: 0.4rem; text-align: center; }
+
+/* STAT STRIP */
+.stat-strip { display: flex; background: var(--c1); border-radius: 10px; overflow: hidden; margin-bottom: 3rem; }
+.stat-item { flex: 1; padding: 1.1rem 0.75rem; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); }
+.stat-item:last-child { border-right: none; }
+.stat-num { display: block; font-size: 1.7rem; font-weight: 700; color: var(--c2); font-family: Georgia, serif; line-height: 1; }
+.stat-label { font-family: sans-serif; font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(255,255,255,0.55); margin-top: 0.3rem; line-height: 1.3; }
+
+/* CALLOUT */
+.callout { background: rgba(27,42,74,0.05); border-left: 5px solid var(--c2); padding: 1.1rem 1.4rem; border-radius: 0 8px 8px 0; margin: 2rem 0; }
+.callout.red { border-left-color: var(--accent, #C41E3A); }
+.callout-title { font-family: sans-serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c2); margin-bottom: 0.4rem; font-weight: 700; }
+.callout.red .callout-title { color: var(--accent, #C41E3A); }
+.callout p { margin: 0; font-size: 0.92rem; }
+
+/* FIELD SECTION */
+.field-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; margin: 1.5rem 0; }
+.field-img img { width: 100%; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.rule-item { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: flex-start; }
+.rule-icon { width: 34px; height: 34px; border-radius: 50%; background: var(--accent, #C41E3A); color: #fff; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 0.1rem; }
+.rule-text strong { display: block; font-size: 0.9rem; margin-bottom: 0.15rem; }
+.rule-text span { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+
+/* PHYSICS */
+.magnus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+.magnus-card { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 1.25rem; text-align: center; transition: border-color 0.2s, transform 0.2s; }
+.magnus-card:hover { border-color: var(--accent, #C41E3A); transform: translateY(-2px); }
+.magnus-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.magnus-card h4 { font-family: sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--c1); margin-bottom: 0.35rem; }
+.magnus-card p { font-family: sans-serif; font-size: 0.8rem; color: var(--muted); line-height: 1.4; margin: 0; }
+
+.timing-wrap { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; }
+.timing-row { margin-bottom: 0.85rem; }
+.timing-bar-label { font-family: sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--c1); margin-bottom: 0.35rem; }
+.timing-bar-outer { height: 26px; background: #e8e0d5; border-radius: 4px; overflow: hidden; }
+.timing-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 0.6rem; font-family: sans-serif; font-size: 0.72rem; font-weight: 700; color: #fff; white-space: nowrap; }
+.timing-note { font-family: sans-serif; font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.5rem; }
+
+/* PITCH LAB */
+.pitch-lab { background: var(--c1); border-radius: 16px; padding: 2rem; margin: 1.5rem 0; }
+.pitch-lab-eyebrow { font-family: sans-serif; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 0.3rem; }
+.pitch-lab h3 { color: #fff; margin: 0 0 1.25rem; font-size: 1.2rem; }
+.pitch-selector { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.pitch-btn { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); border-radius: 24px; color: #fff; font-family: sans-serif; font-size: 0.8rem; font-weight: 600; padding: 0.38rem 0.9rem; cursor: pointer; transition: all 0.2s; }
+.pitch-btn:hover { background: rgba(255,255,255,0.2); }
+.pitch-btn.active { background: var(--accent, #C41E3A); border-color: var(--accent, #C41E3A); }
+.pitch-display { display: grid; grid-template-columns: 280px 1fr; gap: 1.75rem; align-items: start; }
+#pitchCanvas { background: rgba(0,0,0,0.3); border-radius: 10px; display: block; width: 100%; }
+.pitch-name { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; font-family: Georgia, serif; }
+.pitch-speed { font-family: sans-serif; font-size: 0.85rem; color: var(--c2); font-weight: 700; margin-bottom: 0.85rem; }
+.pitch-desc { font-family: sans-serif; font-size: 0.85rem; color: rgba(255,255,255,0.72); line-height: 1.55; margin-bottom: 1rem; }
+.pitch-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+.pitch-bar-row-label { font-family: sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.55); width: 72px; flex-shrink: 0; }
+.pitch-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; }
+.pitch-bar-fill { height: 100%; border-radius: 4px; background: var(--c2); transition: width 0.4s ease; }
+
+/* BALL ANATOMY */
+.ball-anatomy { display: grid; grid-template-columns: 260px 1fr; gap: 2.5rem; align-items: start; margin: 1.5rem 0; }
+.ball-img-wrap { text-align: center; }
+.ball-img-wrap img { width: 100%; max-width: 240px; border-radius: 50%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.layer-item { display: flex; gap: 0.85rem; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.layer-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.layer-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 0.25rem; }
+.layer-name { font-family: sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--c1); margin-bottom: 0.2rem; }
+.layer-desc { font-family: sans-serif; font-size: 0.81rem; color: var(--muted); line-height: 1.45; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 2.25rem; margin: 1.5rem 0; }
+.timeline::before { content: ''; position: absolute; left: 0.55rem; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, var(--accent, #C41E3A), var(--c1)); border-radius: 2px; }
+.timeline-item { position: relative; margin-bottom: 2rem; }
+.timeline-item::before { content: ''; position: absolute; left: -1.95rem; top: 0.35rem; width: 14px; height: 14px; border-radius: 50%; background: var(--accent, #C41E3A); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--accent, #C41E3A); }
+.timeline-year { font-family: sans-serif; font-size: 0.75rem; font-weight: 800; color: var(--accent, #C41E3A); letter-spacing: 0.05em; margin-bottom: 0.15rem; }
+.timeline-title { font-family: sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--c1); margin-bottom: 0.25rem; }
+.timeline-body { font-family: sans-serif; font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+
+/* SABERMETRICS CARDS */
+.stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+.stat-card { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 1.25rem; position: relative; overflow: hidden; transition: border-color 0.2s; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--accent, #C41E3A); transform: scaleX(0); transition: transform 0.25s; transform-origin: left; }
+.stat-card:hover { border-color: var(--accent, #C41E3A); }
+.stat-card:hover::before { transform: scaleX(1); }
+.stat-card-abbr { font-family: Georgia, serif; font-size: 2rem; font-weight: 700; color: var(--c1); line-height: 1; margin-bottom: 0.2rem; }
+.stat-card-name { font-family: sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent, #C41E3A); margin-bottom: 0.5rem; }
+.stat-card-def { font-family: sans-serif; font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
+
+/* LEGENDS */
+.legends-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0; }
+.legend-card { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+.legend-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.legend-img { width: 100%; height: 190px; object-fit: cover; object-position: top; filter: grayscale(25%); transition: filter 0.3s; }
+.legend-card:hover .legend-img { filter: grayscale(0%); }
+.legend-placeholder { width: 100%; height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; }
+.legend-body { padding: 1.2rem; }
+.legend-name { font-family: Georgia, serif; font-size: 1.25rem; color: var(--c1); margin-bottom: 0.1rem; }
+.legend-era { font-family: sans-serif; font-size: 0.72rem; color: var(--accent, #C41E3A); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.7rem; }
+.legend-body p { font-family: sans-serif; font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+.legend-stats { display: flex; gap: 1.5rem; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }
+.legend-stat strong { display: block; font-size: 1.05rem; color: var(--c2); font-family: Georgia, serif; }
+.legend-stat span { font-family: sans-serif; font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* QUIZ */
+.quiz-wrap { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 2rem; }
+.quiz-progress { font-family: sans-serif; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.quiz-progress span { color: var(--accent, #C41E3A); font-weight: 700; }
+.question-text { font-size: 1.05rem; color: var(--c1); margin-bottom: 1.25rem; line-height: 1.45; font-family: sans-serif; }
+.answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; }
+.answer-btn { background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 0.8rem 1rem; font-family: sans-serif; font-size: 0.86rem; color: var(--text); cursor: pointer; text-align: left; transition: all 0.15s; line-height: 1.35; }
+.answer-btn:hover:not(:disabled) { border-color: var(--c1); background: var(--surface); }
+.answer-btn.correct { background: #e6f4e6; border-color: #3a8a3a; color: #1f5a1f; }
+.answer-btn.wrong { background: #fce8ea; border-color: #c41e3a; color: #9a1020; }
+.answer-btn:disabled { cursor: default; }
+.quiz-feedback { font-family: sans-serif; font-size: 0.88rem; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; line-height: 1.5; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: #e6f4e6; color: #1f5a1f; }
+.quiz-feedback.wrong { background: #fce8ea; color: #9a1020; }
+.quiz-next { background: var(--c1); color: #fff; border: none; border-radius: 8px; padding: 0.7rem 1.75rem; font-family: sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: background 0.2s; display: none; }
+.quiz-next.show { display: inline-block; }
+.quiz-next:hover { background: var(--accent, #C41E3A); }
+.quiz-result { display: none; text-align: center; padding: 2rem 0 1rem; }
+.score-big { font-size: 4.5rem; color: var(--accent, #C41E3A); font-family: Georgia, serif; line-height: 1; }
+.score-denom { font-family: sans-serif; font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem; }
+.result-msg { font-size: 1.05rem; color: var(--c1); margin-bottom: 1.5rem; font-family: sans-serif; }
+.quiz-restart { background: var(--accent, #C41E3A); color: #fff; border: none; border-radius: 8px; padding: 0.7rem 2rem; font-family: sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+/* RESPONSIVE */
+@media (max-width: 860px) {
+  .page-layout { grid-template-columns: 1fr; }
+  .side-nav { display: none; }
+  .mobile-nav-wrap { display: block; }
+  .hero { grid-template-columns: 1fr; }
+  .field-wrap { grid-template-columns: 1fr; }
+  .pitch-display { grid-template-columns: 1fr; }
+  .ball-anatomy { grid-template-columns: 1fr; }
+  .magnus-grid { grid-template-columns: 1fr 1fr; }
+  .stat-cards { grid-template-columns: 1fr 1fr; }
+  .legends-grid { grid-template-columns: 1fr; }
+  .answer-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  main { padding: 0 1rem 3rem; }
+  .hero h1 { font-size: 2.5rem; }
+  .magnus-grid { grid-template-columns: 1fr; }
+  .stat-cards { grid-template-columns: 1fr; }
+  .stat-strip { flex-wrap: wrap; }
+  .stat-item { flex: 1 1 33%; }
+}
+</style>
+</head>
+<body data-page-id="baseball" style="--accent: #C41E3A;">
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav-wrap">
+  <button class="mobile-nav-toggle" aria-expanded="false" onclick="this.setAttribute('aria-expanded',this.getAttribute('aria-expanded')==='true'?'false':'true');document.getElementById('mobileNavList').classList.toggle('open')">
+    <span class="arrow">&#9654;</span>&nbsp;Sections
+  </button>
+  <ul class="mobile-nav-list" id="mobileNavList">
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#field">The Field</a></li>
+    <li><a href="#physics">The Physics</a></li>
+    <li><a href="#pitches">Pitch Arsenal</a></li>
+    <li><a href="#ball">Inside a Baseball</a></li>
+    <li><a href="#history">Origins &amp; History</a></li>
+    <li><a href="#stats">Numbers Revolution</a></li>
+    <li><a href="#legends">Legends</a></li>
+    <li><a href="#america">Baseball &amp; America</a></li>
+    <li><a href="#quiz">Test Yourself</a></li>
+  </ul>
+</div>
+
+<div class="page-layout">
+
+  <!-- SIDE NAV -->
+  <nav class="side-nav" aria-label="Page sections">
+    <div class="nav-label">Contents</div>
+    <ul>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#field">The Field &amp; Rules</a></li>
+      <li><a href="#physics">The Physics</a></li>
+      <li><a href="#pitches">Pitch Arsenal</a></li>
+      <li><a href="#ball">Inside a Baseball</a></li>
+      <li><a href="#history">Origins &amp; History</a></li>
+      <li><a href="#stats">Numbers Revolution</a></li>
+      <li><a href="#legends">Legends</a></li>
+      <li><a href="#america">Baseball &amp; America</a></li>
+      <li><a href="#quiz">Test Yourself</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <div class="hero" id="intro">
+      <div>
+        <div class="hero-eyebrow">Take a Deeks</div>
+        <h1>Baseball</h1>
+        <p class="hero-lead">The sport of spinning stitches, split-second decisions, and a century of American mythology. From a hand-stitched cowhide sphere to a data revolution that changed sport forever — here is everything worth knowing.</p>
+      </div>
+      <div class="hero-img-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Baseball_showing_seams.jpg/500px-Baseball_showing_seams.jpg" alt="Close-up of a baseball showing red stitched seams">
+        <p class="caption">Source: Wikimedia Commons (public domain)</p>
+      </div>
+    </div>
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-item"><span class="stat-num">108</span><div class="stat-label">Hand-sewn stitches per ball</div></div>
+      <div class="stat-item"><span class="stat-num">0.4s</span><div class="stat-label">Time to react to 95 mph fastball</div></div>
+      <div class="stat-item"><span class="stat-num">162</span><div class="stat-label">Games in a regular season</div></div>
+      <div class="stat-item"><span class="stat-num">1846</span><div class="stat-label">Year of first recorded game</div></div>
+      <div class="stat-item"><span class="stat-num">30</span><div class="stat-label">MLB teams today</div></div>
+    </div>
+
+    <!-- FIELD & RULES -->
+    <section id="field">
+      <h2>The Field &amp; Rules</h2>
+      <hr class="section-rule">
+      <p>Baseball is played on a diamond-shaped infield of precisely 90-foot sides, set within a much larger fan-shaped outfield. The geometry is deceptively simple — four bases at the corners of a square, a pitcher's mound 60 feet 6 inches from home plate — but the rules layered onto that diamond are a centuries-deep accumulation of logic, tradition, and the occasional delightful quirk.</p>
+
+      <div class="field-wrap">
+        <div class="field-img">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Baseball_diamond.svg/500px-Baseball_diamond.svg.png" alt="Baseball diamond diagram">
+          <p class="caption">Baseball diamond — Cburnett / CC BY-SA 3.0</p>
+        </div>
+        <div>
+          <div class="rule-item">
+            <div class="rule-icon">3</div>
+            <div class="rule-text"><strong>Three strikes, you're out</strong><span>A batter who misses three pitches in the strike zone is out. But a dropped third strike means the batter can attempt to run to first — a rule surviving unchanged from the 1840s.</span></div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">3</div>
+            <div class="rule-text"><strong>Three outs per half-inning</strong><span>Each team bats until they make three outs. Nine innings means 54 outs stand between a team and the final out of the game. No clock — just outs.</span></div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">4</div>
+            <div class="rule-text"><strong>Four balls = a walk</strong><span>Four pitches outside the strike zone and the batter advances to first base for free. The strike zone is an invisible box from the knees to the armpits — umpires judge it pitch by pitch, in real time.</span></div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon">9</div>
+            <div class="rule-text"><strong>Nine players, nine innings</strong><span>Pitcher, catcher, four infielders, three outfielders. Unlike almost every other team sport, there is no time limit. Comebacks are theoretically possible with every remaining out.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>The No-Clock Paradox</h3>
+      <p>Baseball resisted the clock for 175 years. In 2023, MLB introduced a pitch clock for the first time — 15 seconds with bases empty, 20 seconds with runners on — which shaved roughly 25 minutes off average game length and drew immediate controversy. Traditionalists mourned; attendance climbed. The game is still deciding what it wants to be.</p>
+
+      <div class="callout">
+        <div class="callout-title">The Infield Fly Rule</div>
+        <p>When runners are on first and second (or bases loaded) with fewer than two outs, a batter is automatically out on an easy infield pop-up — even before the ball is caught. The rule prevents fielders from deliberately dropping the ball to force double or triple plays. It is a rule against cleverness, and newcomers find it genuinely baffling until explained.</p>
+      </div>
+    </section>
+
+    <!-- PHYSICS -->
+    <section id="physics">
+      <h2>The Physics of the Game</h2>
+      <hr class="section-rule">
+      <p>Baseball is a physics problem in real time. The pitcher manipulates fluid dynamics; the batter solves a differential equation in four-tenths of a second. The gap between success and failure is measured in milliseconds and millimetres.</p>
+
+      <h3>The Magnus Effect</h3>
+      <p>When a spinning ball moves through air, it drags the air on one side along with it, creating lower pressure on that side. The ball deflects toward the low-pressure zone — this is the <strong>Magnus effect</strong>. The direction and rate of spin determine where the ball actually ends up versus where it appeared to be heading. A curveball doesn't suddenly drop; it follows a smooth arc shaped by physics that the human eye consistently misreads as a sharp break. The brain perceives a trajectory and extrapolates — spin confounds that extrapolation.</p>
+
+      <div class="magnus-grid">
+        <div class="magnus-card">
+          <div class="icon">&#11015;&#65039;</div>
+          <h4>Topspin = Drop</h4>
+          <p>Ball top spins forward. Air deflected upward, ball pushed down. A curveball drops up to 16 inches more than a spinless ball falling under gravity alone.</p>
+        </div>
+        <div class="magnus-card">
+          <div class="icon">&#11014;&#65039;</div>
+          <h4>Backspin = Lift</h4>
+          <p>Air deflected downward. Ball drops less than gravity predicts — batters perceive this as the ball "rising," though no thrown ball can physically gain altitude.</p>
+        </div>
+        <div class="magnus-card">
+          <div class="icon">&#8596;&#65039;</div>
+          <h4>Sidespin = Lateral Break</h4>
+          <p>Air deflected sideways. Creates left or right movement depending on spin axis. The basis of sliders, cutters, and two-seam movement.</p>
+        </div>
+      </div>
+
+      <h3>The Batter's Impossible Window</h3>
+      <p>A 95 mph fastball covers the 60 feet 6 inches from pitcher to plate in roughly 0.4 seconds. Human reaction research suggests the brain needs about 0.2 seconds to process visual input and commit to a swing decision — leaving only 0.2 seconds to physically execute the swing and arrive at the exact location the ball will occupy. The margin for timing error is approximately 7 milliseconds: swing that early and the ball goes foul left; that late, foul right.</p>
+
+      <div class="timing-wrap">
+        <div class="timing-row">
+          <div class="timing-bar-label">Total ball flight — 95 mph fastball</div>
+          <div class="timing-bar-outer"><div class="timing-bar-fill" style="width:100%;background:#C41E3A">0.40 seconds total</div></div>
+        </div>
+        <div class="timing-row">
+          <div class="timing-bar-label">Visual processing &amp; swing decision</div>
+          <div class="timing-bar-outer"><div class="timing-bar-fill" style="width:50%;background:#1B2A4A">~0.20 s to decide</div></div>
+        </div>
+        <div class="timing-row" style="margin-bottom:0">
+          <div class="timing-bar-label">Window to execute the swing</div>
+          <div class="timing-bar-outer"><div class="timing-bar-fill" style="width:50%;background:#E8A030">~0.20 s to swing</div></div>
+        </div>
+        <div class="timing-note">Timing error margin: ±7 milliseconds. The bat must arrive at the ball's location to within roughly half an inch.</div>
+      </div>
+
+      <h3>The Bat-Ball Collision</h3>
+      <p>Contact lasts approximately <strong>1 millisecond</strong>. The ball compresses to roughly half its diameter before springing back. During this time, its direction reverses entirely. The "sweet spot" of a bat is a vibration node — hit there, the bat doesn't sting; the wave produced by impact cancels itself out. Hit an inch away and the bat vibrates painfully. Counterintuitively, a heavier bat does not automatically hit the ball farther: swing speed matters more than mass, and a bat too heavy for the hitter's mechanics slows the swing and reduces exit velocity.</p>
+    </section>
+
+    <!-- PITCH ARSENAL -->
+    <section id="pitches">
+      <h2>The Pitch Arsenal</h2>
+      <hr class="section-rule">
+      <p>A major league pitcher typically commands three to six distinct pitches, each exploiting the Magnus effect differently. The best pitchers don't just throw hard — they manipulate spin axis, velocity, and location to make each pitch indistinguishable from the others until it's too late.</p>
+
+      <div class="pitch-lab">
+        <div class="pitch-lab-eyebrow">Interactive</div>
+        <h3>Pitch Movement Visualiser</h3>
+        <div class="pitch-selector" id="pitchSelector">
+          <button class="pitch-btn active" data-pitch="fastball">4-Seam Fastball</button>
+          <button class="pitch-btn" data-pitch="curveball">Curveball</button>
+          <button class="pitch-btn" data-pitch="slider">Slider</button>
+          <button class="pitch-btn" data-pitch="changeup">Changeup</button>
+          <button class="pitch-btn" data-pitch="cutter">Cutter</button>
+          <button class="pitch-btn" data-pitch="sinker">Sinker</button>
+        </div>
+        <div class="pitch-display">
+          <canvas id="pitchCanvas" width="280" height="320"></canvas>
+          <div>
+            <div class="pitch-name" id="pitchName">4-Seam Fastball</div>
+            <div class="pitch-speed" id="pitchSpeed">88–102 mph</div>
+            <div class="pitch-desc" id="pitchDesc">The baseline pitch. Thrown with heavy backspin, it "fights" gravity — appearing to hop at the plate. Elite velocity (100+ mph) leaves batters with essentially no margin to adjust once they've committed to swinging.</div>
+            <div class="pitch-bars">
+              <div class="pitch-bar-row"><span class="pitch-bar-row-label">Velocity</span><div class="pitch-bar-track"><div class="pitch-bar-fill" id="bar-velocity" style="width:92%"></div></div></div>
+              <div class="pitch-bar-row"><span class="pitch-bar-row-label">Break</span><div class="pitch-bar-track"><div class="pitch-bar-fill" id="bar-break" style="width:10%"></div></div></div>
+              <div class="pitch-bar-row"><span class="pitch-bar-row-label">Deception</span><div class="pitch-bar-track"><div class="pitch-bar-fill" id="bar-deception" style="width:50%"></div></div></div>
+              <div class="pitch-bar-row"><span class="pitch-bar-row-label">Difficulty</span><div class="pitch-bar-track"><div class="pitch-bar-fill" id="bar-difficulty" style="width:55%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSIDE A BASEBALL -->
+    <section id="ball">
+      <h2>Inside a Baseball</h2>
+      <hr class="section-rule">
+      <p>The object at the heart of the game is a precisely engineered sphere. Its construction is almost entirely manual — each ball hand-stitched in about ten minutes by workers at the Rawlings factory in Costa Rica, the exclusive MLB supplier for over 45 years. Despite its simple appearance, every layer serves an engineering purpose.</p>
+
+      <div class="ball-anatomy">
+        <div class="ball-img-wrap">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Baseball_%28crop%29.jpg/500px-Baseball_%28crop%29.jpg" alt="Baseball close-up">
+          <p class="caption" style="margin-top:0.75rem;">Source: Wikimedia Commons</p>
+        </div>
+        <div>
+          <div class="layer-item">
+            <div class="layer-dot" style="background:#8B4513"></div>
+            <div><div class="layer-name">The Pill — Cork &amp; Rubber Core</div><div class="layer-desc">At the very centre: a composition cork sphere moulded in two hemispheres of black rubber, then wrapped in red rubber. This "cushioned cork" design, introduced in 1931, gives the ball its bounce and has been directly linked to "live ball" and "dead ball" eras throughout history.</div></div>
+          </div>
+          <div class="layer-item">
+            <div class="layer-dot" style="background:#C8A96E"></div>
+            <div><div class="layer-name">370 Yards of Wool Yarn</div><div class="layer-desc">Three layers of yarn are machine-wound around the core under constant tension. Wool's natural elasticity provides shock absorption — it compresses on impact and springs back. The outermost layer uses poly-cotton blend for tensile strength and to anchor the stitching.</div></div>
+          </div>
+          <div class="layer-item">
+            <div class="layer-dot" style="background:#F5ECD7"></div>
+            <div><div class="layer-name">Two Pieces of Cowhide Leather</div><div class="layer-desc">The cover is exactly two figure-eight-shaped pieces of white cowhide. Just two pieces produce a near-perfect sphere with no seams crossing. Before use, each ball is rubbed with Lena Blackburne Baseball Rubbing Mud — from a secret New Jersey location — to dull the factory shine without damaging the leather.</div></div>
+          </div>
+          <div class="layer-item">
+            <div class="layer-dot" style="background:#CC0000"></div>
+            <div><div class="layer-name">108 Double Stitches of Red Thread</div><div class="layer-desc">Exactly 216 individual stitches (108 double) of red waxed cotton, sewn by hand. The raised seams aren't decorative — they grip the air. Seam height directly determines how much breaking movement a pitcher can generate. MLB has quietly adjusted seam height multiple times; analysts noticed in 2021 when home run rates shifted without announcement.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="history">
+      <h2>Origins &amp; History</h2>
+      <hr class="section-rule">
+      <p>Baseball mythology insists the game was invented by Civil War general Abner Doubleday in Cooperstown, New York in 1839. This story is almost certainly false — invented wholesale by a commission in 1907 determined to prove baseball was purely American. The true story is messier and more interesting.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">~1744</div>
+          <div class="timeline-title">Rounders and English Origins</div>
+          <div class="timeline-body">A children's book published in England describes "Base-ball" — a bat-and-ball game related to rounders and stoolball. English immigrants carried similar games to North America, where they evolved regionally into something distinct.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1845</div>
+          <div class="timeline-title">The Knickerbocker Rules</div>
+          <div class="timeline-body">Alexander Cartwright of New York's Knickerbocker Club codifies 20 rules. Key innovations: foul lines, standard base distances, three-out innings, and the abolition of "plugging" — putting out runners by hitting them with thrown balls.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1846</div>
+          <div class="timeline-title">First Recorded Game</div>
+          <div class="timeline-body">The Knickerbockers face the New York Nine at Elysian Fields, Hoboken, New Jersey. The Knickerbockers lose 23–1 in four innings. Baseball, by any reasonable definition, is born.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1869</div>
+          <div class="timeline-title">First Professional Team</div>
+          <div class="timeline-body">The Cincinnati Red Stockings become the first openly all-professional team, playing 57 games undefeated. Professional baseball radiates outward from there.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1901–03</div>
+          <div class="timeline-title">The Modern Era</div>
+          <div class="timeline-body">The American League achieves major league status. Foul balls begin counting as strikes. The first World Series is played in 1903, Boston defeating Pittsburgh 5 games to 3 in a best-of-nine series.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1920</div>
+          <div class="timeline-title">The Live Ball Era</div>
+          <div class="timeline-body">After Ray Chapman's death (the only player killed by a pitched ball), discolored balls are replaced more often. The spitball is banned. Home run rates explode. Babe Ruth hits 54 — more than most entire teams had managed in a season.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1947</div>
+          <div class="timeline-title">Jackie Robinson Breaks the Colour Barrier</div>
+          <div class="timeline-body">Robinson takes the field for the Brooklyn Dodgers on April 15, ending over 60 years of formal segregation in major league baseball. He is named Rookie of the Year, wins the MVP award two years later. In 2020, the Negro Leagues were retroactively recognised as major leagues, rewriting a century of statistics.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2002–03</div>
+          <div class="timeline-title">The Moneyball Revolution</div>
+          <div class="timeline-body">The Oakland Athletics use statistical analysis to field a competitive team on a thin budget, winning 103 games. Michael Lewis's book <em>Moneyball</em> (2003) changes how the entire sports world thinks about data.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2015</div>
+          <div class="timeline-title">Statcast Era</div>
+          <div class="timeline-body">MLB deploys Statcast in all 30 ballparks — tracking every movement: spin rate, exit velocity, launch angle, sprint speed. Baseball becomes the most data-rich team sport in the world.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NUMBERS REVOLUTION -->
+    <section id="stats">
+      <h2>The Numbers Revolution</h2>
+      <hr class="section-rule">
+      <p>No sport has a deeper relationship with statistics than baseball. Henry Chadwick invented the box score in 1858, giving the game a numerical language almost before it had professional teams. For over a century, batting average, wins, and RBIs were the holy trinity. Then the analysts arrived.</p>
+
+      <h3>Bill James and the Sabermetrics Revolution</h3>
+      <p>In the 1970s, a night security guard at a pork-and-beans cannery named <strong>Bill James</strong> began self-publishing a newsletter called the <em>Baseball Abstract</em>. He coined "sabermetrics" — from SABR, the Society for American Baseball Research — and began dismantling cherished statistics. Batting average ignored walks: an out is an out, but a walk advances you the same as a single. RBIs reflected who batted before you, not your own contribution. Pitcher wins depended on run support outside the pitcher's control. James proposed better alternatives, and a slow revolution began.</p>
+
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-card-abbr">OBP</div><div class="stat-card-name">On-Base Percentage</div><div class="stat-card-def">How often a batter reaches base. Crucially includes walks and hit-by-pitches that batting average ignores. Getting on base any way is valuable — an out is an out.</div></div>
+        <div class="stat-card"><div class="stat-card-abbr">SLG</div><div class="stat-card-name">Slugging Percentage</div><div class="stat-card-def">Total bases divided by at-bats. Weights extra-base hits: a home run counts four times a single. Quantifies the power dimension batting average ignores.</div></div>
+        <div class="stat-card"><div class="stat-card-abbr">OPS+</div><div class="stat-card-name">Adjusted OPS</div><div class="stat-card-def">OBP + SLG adjusted for ballpark and era, scaled to 100 = average. Allows meaningful comparison across different stadiums and decades. The go-to all-round offensive metric.</div></div>
+        <div class="stat-card"><div class="stat-card-abbr">FIP</div><div class="stat-card-name">Fielding Independent Pitching</div><div class="stat-card-def">What a pitcher's ERA would look like with average fielding behind them. Measures only what pitchers actually control: strikeouts, walks, and home runs allowed.</div></div>
+        <div class="stat-card"><div class="stat-card-abbr">WAR</div><div class="stat-card-name">Wins Above Replacement</div><div class="stat-card-def">Total value — hitting, fielding, baserunning, pitching — versus a freely-available replacement player. The closest thing baseball has to a single number that captures a player's full worth. 8+ WAR = MVP-level season.</div></div>
+        <div class="stat-card"><div class="stat-card-abbr">xFIP</div><div class="stat-card-name">Expected FIP</div><div class="stat-card-def">FIP with home runs normalised to league average fly-ball rate. Removes park effects. Generally the best publicly-available predictor of a pitcher's future performance.</div></div>
+      </div>
+
+      <h3>Moneyball in Practice</h3>
+      <p>When Billy Beane took over Oakland in 1997, his payroll was less than a third of the Yankees'. He couldn't compete for established stars. The question became: what kind of production was the market undervaluing? Using James's work, the answer was on-base percentage — players who drew walks were underpriced because traditional scouts didn't value them. Oakland assembled unfashionable walk-drawers, won 103 games in 2002, and changed professional sport. Within a decade, every MLB team had a full analytics department. The inefficiency ceased to exist once everyone noticed it.</p>
+
+      <div class="callout">
+        <div class="callout-title">Statcast's New Language</div>
+        <p>Modern analysis goes beyond counting stats entirely. "Exit velocity" and "launch angle" predict whether a batted ball will become a hit better than whether it actually was caught. "Spin rate" determines how much break a pitch will generate. Teams now draft based on Statcast metrics from college leagues — scouting players the traditional eye cannot evaluate.</p>
+      </div>
+    </section>
+
+    <!-- LEGENDS -->
+    <section id="legends">
+      <h2>Legends of the Game</h2>
+      <hr class="section-rule">
+      <p>Baseball has produced sporting figures whose names resonate far beyond the game. Four of the most significant:</p>
+
+      <div class="legends-grid">
+        <div class="legend-card">
+          <img class="legend-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Babe_Ruth2.jpg/500px-Babe_Ruth2.jpg" alt="Babe Ruth, 1920">
+          <div class="legend-body">
+            <div class="legend-name">Babe Ruth</div>
+            <div class="legend-era">1914–1935 &middot; New York Yankees</div>
+            <p>Ruth transformed baseball from a low-scoring tactical game into a power spectacle. His 1927 season — 60 home runs — stood as the record for 34 years. He didn't merely break records; he broke the conceptual framework of what offensive baseball could be. His larger-than-life personality made him the first American sports superstar in the modern sense, with newspaper coverage and endorsement deals unheard of for an athlete.</p>
+            <div class="legend-stats">
+              <div class="legend-stat"><strong>714</strong><span>Career HRs</span></div>
+              <div class="legend-stat"><strong>.342</strong><span>Career BA</span></div>
+              <div class="legend-stat"><strong>206</strong><span>Career WAR</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend-card">
+          <div class="legend-placeholder" style="background:linear-gradient(135deg,#1B2A4A,#2a4570);color:#fff">
+            <span style="font-size:5rem;font-weight:900;font-family:Georgia,serif;line-height:1">42</span>
+            <span style="font-family:sans-serif;font-size:0.78rem;opacity:0.6;letter-spacing:0.1em;text-transform:uppercase">Retired League-Wide</span>
+          </div>
+          <div class="legend-body">
+            <div class="legend-name">Jackie Robinson</div>
+            <div class="legend-era">1947–1956 &middot; Brooklyn Dodgers</div>
+            <p>On April 15, 1947, Robinson became the first Black player in the modern major leagues, facing abuse from fans, opponents, and some teammates. He responded with brilliance: Rookie of the Year, 1949 MVP, six World Series appearances. His #42 is permanently retired across all 30 teams — the only such honour in the sport. The Negro Leagues Robinson bypassed were retroactively recognised as major leagues in 2020, restoring statistical recognition to generations of excluded players.</p>
+            <div class="legend-stats">
+              <div class="legend-stat"><strong>.311</strong><span>Career BA</span></div>
+              <div class="legend-stat"><strong>197</strong><span>Stolen Bases</span></div>
+              <div class="legend-stat"><strong>61.5</strong><span>Career WAR</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend-card">
+          <div class="legend-placeholder" style="background:linear-gradient(135deg,#1a1a1a,#3d3d3d);color:#fff">
+            <span style="font-size:2.8rem;font-weight:900;font-family:Georgia,serif;line-height:1">4,256</span>
+            <span style="font-family:sans-serif;font-size:0.75rem;opacity:0.6;letter-spacing:0.1em;text-transform:uppercase">Career Hits</span>
+          </div>
+          <div class="legend-body">
+            <div class="legend-name">Pete Rose</div>
+            <div class="legend-era">1963–1986 &middot; Cincinnati Reds &amp; Others</div>
+            <p>The all-time hits leader, Rose played 3,562 games and ran to first base on walks — earning the nickname "Charlie Hustle." His records are considered unbreakable. He is also permanently banned from baseball for gambling on games, and ineligible for the Hall of Fame — baseball's most tragic contradiction: its most prolific hitter barred from the sport's highest honour. He died in 2024, the ban outlasting him.</p>
+            <div class="legend-stats">
+              <div class="legend-stat"><strong>4,256</strong><span>Career Hits</span></div>
+              <div class="legend-stat"><strong>.303</strong><span>Career BA</span></div>
+              <div class="legend-stat"><strong>79.7</strong><span>Career WAR</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend-card">
+          <div class="legend-placeholder" style="background:linear-gradient(135deg,#0a3a1a,#1a6030);color:#fff">
+            <span style="font-size:2.8rem;font-weight:900;font-family:Georgia,serif;line-height:1">5,714</span>
+            <span style="font-family:sans-serif;font-size:0.75rem;opacity:0.6;letter-spacing:0.1em;text-transform:uppercase">Career Strikeouts</span>
+          </div>
+          <div class="legend-body">
+            <div class="legend-name">Nolan Ryan</div>
+            <div class="legend-era">1966–1993 &middot; Multiple Teams</div>
+            <p>Ryan threw a baseball harder than nearly anyone alive, for longer than anyone in history. His career spanned 27 seasons and ended at age 46. He threw 7 no-hitters — two more than the next closest pitcher. His 5,714 career strikeouts are nearly 1,000 ahead of second place. He was documented throwing 100+ mph at 44 years old. At his peak, on certain nights, he was simply unhittable.</p>
+            <div class="legend-stats">
+              <div class="legend-stat"><strong>7</strong><span>No-Hitters</span></div>
+              <div class="legend-stat"><strong>5,714</strong><span>Career Ks</span></div>
+              <div class="legend-stat"><strong>83.7</strong><span>Career WAR</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BASEBALL & AMERICA -->
+    <section id="america">
+      <h2>Baseball &amp; America</h2>
+      <hr class="section-rule">
+      <p>Baseball is called "America's Pastime," but that phrase understates the complexity of the relationship. The sport has been both mirror and participant — reflecting the nation's worst segregationist instincts, and eventually helping to dismantle them.</p>
+
+      <h3>The Negro Leagues</h3>
+      <p>From 1920 to 1948, while the major leagues were racially segregated, the Negro Leagues provided Black Americans with not just baseball but community institutions and cultural heroes. Josh Gibson hit an estimated 800+ career home runs. Satchel Paige was still throwing for the major leagues at age 42. "Cool Papa" Bell was, by reliable accounts, fast enough to score from first base on a bunt. These players competed at a level that rivalled or surpassed the major leagues. In 2020, MLB officially recognised the Negro Leagues as major leagues, retroactively rewriting the record books and acknowledging a century of deliberate erasure.</p>
+
+      <h3>A Game Without a Standard Field</h3>
+      <p>Uniquely among major team sports, there is no standardised playing field in baseball. Fenway Park's left-field wall (the "Green Monster") stands 37 feet tall, just 310 feet from home plate. Petco Park's centre field reaches 396 feet. Coors Field in Denver sits 5,280 feet above sea level — the thin air causes balls to travel 10–15% farther than at sea level. A ball that clears the wall in one park might be a routine fly out in another. This is considered a feature, not a flaw.</p>
+
+      <h3>The Global Game</h3>
+      <p>Over 30% of current MLB players were born outside the United States. Japan's <em>yakyu</em> tradition dates to 1873, and has developed a culture entirely its own — more disciplined, more team-oriented, with a style that contrasts sharply with American individualism. The Dominican Republic and Venezuela produce elite talent at extraordinary per-capita rates. Shohei Ohtani — the first player in 100 years to excel as both an elite pitcher and elite hitter simultaneously — represents what the global game has produced: a talent so unusual he required a rule change (the "Ohtani rule" allowing a two-way designated hitter) to accommodate him.</p>
+
+      <div class="callout red">
+        <div class="callout-title">Surprising Fact</div>
+        <p>"Take Me Out to the Ball Game" — sung at every seventh-inning stretch, arguably the most-performed sports song in history — was written in 1908 by Jack Norworth, who had never attended a baseball game when he wrote it. He scribbled the lyrics on a scrap of paper on the subway after seeing an advertisement for a game. He finally attended his first game 32 years later, in 1940.</p>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz">
+      <h2>Test Yourself</h2>
+      <hr class="section-rule">
+      <p>Six questions. Some are harder than they look.</p>
+
+      <div class="quiz-wrap">
+        <div id="quizInner">
+          <div class="quiz-progress">Question <span id="qNum">1</span> of 6</div>
+          <div class="question-text" id="questionText"></div>
+          <div class="answer-grid" id="answerGrid"></div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+          <button class="quiz-next" id="nextBtn" onclick="nextQuestion()">Next Question &rarr;</button>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <div class="score-big" id="scoreDisplay"></div>
+          <div class="score-denom">out of 6</div>
+          <div class="result-msg" id="resultMsg"></div>
+          <button class="quiz-restart" onclick="restartQuiz()">Play Again</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── NAV HIGHLIGHT ──
+const navLinks = document.querySelectorAll('.side-nav a');
+const sections = document.querySelectorAll('section[id]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-15% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+
+// ── PITCH VISUALISER ──
+const pitches = {
+  fastball:  { name:'4-Seam Fastball', speed:'88–102 mph', desc:'The baseline pitch. Thrown with heavy backspin, it fights gravity, appearing to hop. Elite velocity (100+ mph) leaves essentially zero adjustment time after the batter commits.', velocity:92, break:10, deception:50, difficulty:55, dx:0, dy:-4, color:'#E8A030' },
+  curveball: { name:'Curveball',        speed:'72–84 mph',  desc:'Heavy topspin creates a steep downward arc. The ball can drop 16 inches more than a spinless pitch. It looks headed for the batter\'s eyes, then ends up at their knees — the brain consistently misreads the trajectory until too late.', velocity:42, break:90, deception:78, difficulty:82, dx:10, dy:28, color:'#4A90D9' },
+  slider:    { name:'Slider',           speed:'80–92 mph',  desc:'The most common strikeout pitch in modern baseball. Looks like a fastball until it breaks sharply sideways. The late, hard break is why it leads all pitch types in whiff rate — batters commit expecting one location and get another.', velocity:72, break:72, deception:88, difficulty:75, dx:-28, dy:14, color:'#C41E3A' },
+  changeup:  { name:'Changeup',         speed:'78–88 mph',  desc:'Pure deception. Same arm action as a fastball, but gripped deep in the palm — arriving 10–15 mph slower. Batters swing early, off balance. The best changeups are indistinguishable from fastballs until it\'s too late to stop.', velocity:58, break:32, deception:93, difficulty:78, dx:18, dy:12, color:'#5EBD6F' },
+  cutter:    { name:'Cutter',           speed:'85–95 mph',  desc:'A cut fastball with late, small glove-side break. Mariano Rivera threw almost exclusively this pitch for 17 seasons and compiled the greatest closer career in history — proof that extreme command of one pitch beats moderate command of six.', velocity:84, break:42, deception:82, difficulty:68, dx:-12, dy:7, color:'#9B59B6' },
+  sinker:    { name:'Sinker',           speed:'88–96 mph',  desc:'A two-seam fastball with arm-side run and downward sink. Rather than chasing strikeouts, sinker pitchers induce weak ground balls and double plays. The ball dives into the difficult-to-elevate zone at the bottom of the strike zone.', velocity:87, break:56, deception:60, difficulty:60, dx:20, dy:18, color:'#E67E22' }
+};
+
+const canvas = document.getElementById('pitchCanvas');
+const ctx = canvas.getContext('2d');
+let currentPitch = 'fastball';
+let raf = null, timeoutId = null, animT = 0;
+
+function drawFrame(pitchKey) {
+  const d = pitches[pitchKey];
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Strike zone
+  const szX = w*0.22, szW = w*0.56, szY = h*0.72, szH = h*0.22;
+  ctx.fillStyle = 'rgba(255,255,255,0.07)';
+  ctx.fillRect(szX, szY, szW, szH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5,4]);
+  ctx.strokeRect(szX, szY, szW, szH);
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('STRIKE ZONE', w/2, szY + szH + 16);
+  ctx.fillText("CATCHER'S VIEW", w/2, 16);
+
+  const sx = w/2, sy = h*0.08;
+  const ex = w/2 + d.dx*1.6, ey = szY + szH/2;
+  const cpx = w/2, cpy = h*0.5;
+
+  // Ghost path
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.quadraticCurveTo(cpx, cpy, ex, ey);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Animated trail
+  const t = animT;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  for (let i = 0; i <= 40; i++) {
+    const ti = (i/40)*t;
+    const px = (1-ti)*(1-ti)*sx + 2*(1-ti)*ti*cpx + ti*ti*ex;
+    const py = (1-ti)*(1-ti)*sy + 2*(1-ti)*ti*cpy + ti*ti*ey;
+    i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+  }
+  ctx.strokeStyle = d.color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Ball
+  const bx = (1-t)*(1-t)*sx + 2*(1-t)*t*cpx + t*t*ex;
+  const by = (1-t)*(1-t)*sy + 2*(1-t)*t*cpy + t*t*ey;
+  const r = 10;
+  const g = ctx.createRadialGradient(bx-2, by-2, 1, bx, by, r);
+  g.addColorStop(0, '#fff');
+  g.addColorStop(0.5, d.color);
+  g.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.beginPath();
+  ctx.arc(bx, by, r, 0, Math.PI*2);
+  ctx.fillStyle = g;
+  ctx.fill();
+}
+
+function runAnim(key) {
+  if (raf) cancelAnimationFrame(raf);
+  if (timeoutId) clearTimeout(timeoutId);
+  animT = 0;
+  function step() {
+    animT = Math.min(animT + 0.013, 1);
+    drawFrame(key);
+    if (animT < 1) { raf = requestAnimationFrame(step); }
+    else { timeoutId = setTimeout(() => runAnim(key), 1200); }
+  }
+  step();
+}
+
+function selectPitch(key) {
+  currentPitch = key;
+  const d = pitches[key];
+  document.getElementById('pitchName').textContent = d.name;
+  document.getElementById('pitchSpeed').textContent = d.speed;
+  document.getElementById('pitchDesc').textContent = d.desc;
+  document.getElementById('bar-velocity').style.width = d.velocity + '%';
+  document.getElementById('bar-break').style.width = d.break + '%';
+  document.getElementById('bar-deception').style.width = d.deception + '%';
+  document.getElementById('bar-difficulty').style.width = d.difficulty + '%';
+  runAnim(key);
+}
+
+document.getElementById('pitchSelector').addEventListener('click', e => {
+  const btn = e.target.closest('.pitch-btn');
+  if (!btn || btn.dataset.pitch === currentPitch) return;
+  document.querySelectorAll('.pitch-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectPitch(btn.dataset.pitch);
+});
+
+runAnim('fastball');
+
+// ── QUIZ ──
+const questions = [
+  { q: 'How many stitches does a regulation MLB baseball have?',
+    opts: ['88 double stitches','108 double stitches','124 single stitches','216 double stitches'],
+    correct: 1,
+    explanation: '108 double stitches (216 individual stitches) of red waxed thread, sewn entirely by hand. The count has remained constant since the 1930s.' },
+  { q: 'What does the Magnus effect explain about a pitched baseball?',
+    opts: ['Why the bat\'s sweet spot reduces sting','Why pitchers slow down during their windup','How spin causes the ball to curve or appear to rise','Why baseball fields are not standardised'],
+    correct: 2,
+    explanation: 'The Magnus effect: a spinning ball creates unequal air pressure on either side, deflecting it toward lower pressure. Topspin = extra drop, backspin = less drop (perceived "rise"), sidespin = lateral break.' },
+  { q: 'Approximately how long does a bat-ball collision last?',
+    opts: ['50 milliseconds','10 milliseconds','1 millisecond','0.1 milliseconds'],
+    correct: 2,
+    explanation: 'About 1 millisecond — one thousandth of a second. The ball compresses to roughly half its diameter then springs back before the bat has finished moving through the contact zone.' },
+  { q: 'What is unique about Jackie Robinson\'s #42?',
+    opts: ['Highest number ever worn in MLB','Retired across all 30 MLB teams league-wide','The year he broke the colour barrier','Games he played consecutively'],
+    correct: 1,
+    explanation: 'No active player will ever wear #42 again — it\'s retired across the entire league. Every player wears #42 on April 15 (Jackie Robinson Day) each season.' },
+  { q: 'What market inefficiency did Billy Beane exploit in Moneyball?',
+    opts: ['Power hitters were underpriced vs. contact hitters','Pitcher wins were more reliable than ERA','On-base percentage was undervalued relative to batting average','Stolen bases predicted wins better than home runs'],
+    correct: 2,
+    explanation: 'Traditional scouts ignored walks. Beane found that OBP (which counts walks) predicted run-scoring far better than batting average — and walk-prone players were cheap because scouts didn\'t notice them.' },
+  { q: 'The Infield Fly Rule automatically declares a batter out on a pop-up in order to prevent what?',
+    opts: ['Infielders being hit by line drives','Fielders deliberately dropping the ball to create double plays','Pitchers throwing to first base excessively','Batters bunting with two strikes'],
+    correct: 1,
+    explanation: 'Without it, an infielder could drop a pop-up intentionally with runners on base, then step on second and throw to first for a double play while the runners froze. The rule removes that incentive by calling the batter out automatically.' }
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function loadQ(i) {
+  const q = questions[i];
+  document.getElementById('qNum').textContent = i + 1;
+  document.getElementById('questionText').textContent = q.q;
+  const grid = document.getElementById('answerGrid');
+  grid.innerHTML = '';
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = opt;
+    btn.onclick = () => answer(idx);
+    grid.appendChild(btn);
+  });
+  document.getElementById('quizFeedback').className = 'quiz-feedback';
+  document.getElementById('nextBtn').className = 'quiz-next';
+  answered = false;
+}
+
+function answer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIdx];
+  document.querySelectorAll('.answer-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.correct) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('quizFeedback');
+  const correct = idx === q.correct;
+  if (correct) score++;
+  fb.textContent = (correct ? '&#10003; Correct! ' : '&#10007; Not quite. ') + q.explanation;
+  fb.innerHTML = (correct ? '<strong>&#10003; Correct!</strong> ' : '<strong>&#10007; Not quite.</strong> ') + q.explanation;
+  fb.className = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+  const nb = document.getElementById('nextBtn');
+  nb.className = 'quiz-next show';
+  nb.textContent = qIdx < questions.length - 1 ? 'Next Question →' : 'See My Results';
+}
+
+function nextQuestion() {
+  qIdx++;
+  if (qIdx >= questions.length) showResult();
+  else loadQ(qIdx);
+}
+
+function showResult() {
+  document.getElementById('quizInner').style.display = 'none';
+  const res = document.getElementById('quizResult');
+  res.style.display = 'block';
+  document.getElementById('scoreDisplay').textContent = score;
+  const msgs = [
+    'Keep reading — baseball rewards patience.',
+    'A start. The physics section will help.',
+    'Getting there. Review the history timeline.',
+    'Solid. You understand the game\'s fundamentals.',
+    'Excellent — strong knowledge of baseball.',
+    'Outstanding. The dugout awaits.'
+  ];
+  document.getElementById('resultMsg').textContent = msgs[Math.min(score, 5)];
+}
+
+function restartQuiz() {
+  qIdx = 0; score = 0;
+  document.getElementById('quizInner').style.display = '';
+  document.getElementById('quizResult').style.display = 'none';
+  loadQ(0);
+}
+
+loadQ(0);
+</script>
+
+<script src="../header.js"></script>
+</body>
+</html>
