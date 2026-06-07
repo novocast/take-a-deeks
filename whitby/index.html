@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whitby</title>
+  <style>
+    :root {
+      --c1: #0f6b77;
+      --c2: #e0792b;
+      --ink: #f2f7fb;
+      --ink-soft: #c9dae6;
+      --panel: #0f1f2f;
+      --panel-2: #13293b;
+      --line: #2b4961;
+      --paper: #f8f2e6;
+      --paper-ink: #233746;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
+      line-height: 1.62;
+      background:
+        radial-gradient(circle at 8% 4%, #29597a 0%, transparent 30%),
+        radial-gradient(circle at 88% 10%, #12344f 0%, transparent 32%),
+        linear-gradient(165deg, #091423 0%, #0d1b2a 56%, #0a1723 100%);
+      min-height: 100vh;
+    }
+
+    .texture {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.14;
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.04) 0,
+          rgba(255, 255, 255, 0.04) 1px,
+          transparent 1px,
+          transparent 9px
+        );
+      z-index: -1;
+    }
+
+    .layout {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      gap: 20px;
+      padding: 22px;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 74px;
+      align-self: start;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(170deg, #12263a 0%, #0d1c2d 100%);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+      overflow: hidden;
+    }
+
+    .nav-head {
+      background: linear-gradient(140deg, var(--c1), #0b4955);
+      color: #ffffff;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .nav-head h2 {
+      margin: 0;
+      font-size: 0.94rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-head p {
+      margin: 7px 0 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.84);
+    }
+
+    .nav-toggle {
+      display: none;
+      width: 100%;
+      border: 0;
+      color: #fff;
+      background: linear-gradient(120deg, var(--c1), #0a4b57);
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+
+    .section-links {
+      list-style: none;
+      margin: 0;
+      padding: 10px;
+    }
+
+    .section-links li + li { margin-top: 4px; }
+
+    .section-links a {
+      display: block;
+      text-decoration: none;
+      color: var(--ink-soft);
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+      font-size: 0.9rem;
+      font-weight: 650;
+    }
+
+    .section-links a:hover {
+      color: #ffffff;
+      border-color: #385976;
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateX(3px);
+    }
+
+    .section-links a.active {
+      color: #ffffff;
+      background: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 70%, white 30%);
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+    }
+
+    main { min-width: 0; }
+
+    .hero {
+      position: relative;
+      min-height: 390px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid #375975;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.44);
+      background: #102234;
+      margin-bottom: 20px;
+      isolation: isolate;
+    }
+
+    .hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.08) contrast(1.08);
+      transform: scale(1.02);
+      opacity: 0.86;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(6, 12, 20, 0.08) 0%, rgba(8, 15, 26, 0.8) 62%, rgba(7, 13, 21, 0.93) 100%),
+        radial-gradient(circle at 12% 10%, rgba(224, 121, 43, 0.46) 0%, transparent 30%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: clamp(20px, 4vw, 34px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: end;
+      min-height: 390px;
+    }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: rgba(14, 35, 49, 0.6);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Baskerville", "Times New Roman", serif;
+      font-size: clamp(2rem, 4.6vw, 4rem);
+      line-height: 0.97;
+      max-width: 16ch;
+      text-wrap: balance;
+      letter-spacing: 0.01em;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      max-width: 62ch;
+      color: #e9f2f9;
+      font-size: 1rem;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.32);
+    }
+
+    .hero-stats {
+      width: min(270px, 90vw);
+      background: rgba(8, 18, 30, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 16px;
+      padding: 14px;
+      backdrop-filter: blur(4px);
+    }
+
+    .hero-stats h3 {
+      margin: 0 0 8px;
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+    }
+
+    .hero-stats ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+    }
+
+    .hero-stats li {
+      font-size: 0.9rem;
+      padding-left: 12px;
+      position: relative;
+    }
+
+    .hero-stats li::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--c2);
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+    }
+
+    section {
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 20px;
+      background: linear-gradient(165deg, var(--panel) 0%, var(--panel-2) 100%);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+      scroll-margin-top: 72px;
+    }
+
+    section:nth-of-type(even) {
+      background: linear-gradient(165deg, #112436 0%, #102131 100%);
+    }
+
+    h2 {
+      margin: 0;
+      color: #f6fcff;
+      font-size: clamp(1.35rem, 2.4vw, 2rem);
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 12px 0 14px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--c2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2eef7;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .photo {
+      margin: 0;
+      border: 1px solid #446884;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #0a1a28;
+    }
+
+    .photo img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 390px;
+      object-fit: cover;
+      background: #213443;
+    }
+
+    .photo figcaption {
+      font-size: 0.83rem;
+      color: #b9cfde;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .photo a { color: #8ed8e0; }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .event {
+      border: 1px solid #365974;
+      border-left: 4px solid var(--c2);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #dce9f4;
+    }
+
+    .event strong { color: #ffffff; }
+
+    .diagram {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #406680;
+      overflow: hidden;
+      background: #0c1f2f;
+      margin-top: 8px;
+    }
+
+    .callout {
+      margin-top: 10px;
+      border: 1px solid color-mix(in srgb, var(--c2) 45%, #ffffff 55%);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--c2) 14%, #0f2333 86%);
+      padding: 10px 12px;
+      color: #fff3e8;
+    }
+
+    .mosaic {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .mosaic .photo:first-child { grid-column: span 2; }
+
+    .slider-wrap {
+      margin-top: 10px;
+      border: 1px solid #41637f;
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(5, 13, 22, 0.36);
+    }
+
+    .slider-wrap input {
+      width: 100%;
+      accent-color: var(--c1);
+    }
+
+    .meter {
+      margin-top: 9px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid #325471;
+      overflow: hidden;
+      background: #091723;
+    }
+
+    .meter-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--c1), #6ac0d0);
+      transition: width 0.45s ease;
+    }
+
+    .quiz {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .quiz .q {
+      border: 1px solid #3c5d77;
+      border-radius: 12px;
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .quiz label {
+      display: block;
+      margin-top: 6px;
+      cursor: pointer;
+      color: #dbe9f3;
+    }
+
+    .quiz button {
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(120deg, var(--c1), #0f4f59);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 10px 14px;
+      width: fit-content;
+    }
+
+    .quiz button:hover { filter: brightness(1.08); }
+
+    #quiz-result {
+      min-height: 1.2em;
+      color: #9edfe6;
+      font-weight: 700;
+    }
+
+    footer {
+      margin: 22px 0 52px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px dashed #456a85;
+      background: rgba(255, 255, 255, 0.04);
+      color: #d8e7f2;
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 1080px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+
+      .side-nav {
+        top: 52px;
+        z-index: 20;
+      }
+
+      .nav-head { display: none; }
+      .nav-toggle { display: block; }
+      .section-links { display: none; }
+      .side-nav.open .section-links { display: block; }
+
+      .hero-content {
+        grid-template-columns: 1fr;
+        align-items: end;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .mosaic { grid-template-columns: 1fr; }
+      .mosaic .photo:first-child { grid-column: auto; }
+      section { padding: 15px; }
+      .hero { min-height: 340px; }
+      .hero-content { min-height: 340px; }
+      .hero h1 { max-width: 100%; }
+    }
+  </style>
+</head>
+<body data-page-id="whitby" style="--accent: #224b5f;">
+  <div class="texture" aria-hidden="true"></div>
+
+  <div class="layout">
+    <nav class="side-nav" aria-label="Section navigation">
+      <div class="nav-head">
+        <h2>Whitby Atlas</h2>
+        <p>A deep deeks into history, geology, myth, and modern life.</p>
+      </div>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Jump to section</button>
+      <ul class="section-links" id="nav-links">
+        <li><a href="#snapshot">1. Snapshot</a></li>
+        <li><a href="#land-shapes">2. Land and Sea Mechanics</a></li>
+        <li><a href="#abbey">3. Abbey and Belief</a></li>
+        <li><a href="#ships">4. Ships, Whaling, Cook</a></li>
+        <li><a href="#dracula">5. Dracula and Gothic Whitby</a></li>
+        <li><a href="#life">6. Everyday Whitby</a></li>
+        <li><a href="#hazards">7. Hazards and Rescue</a></li>
+        <li><a href="#walk">8. Walk, Quiz, and Big Ideas</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <header class="hero">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Whitby_Abbey_from_the_West_Cliff%2C_Whitby%2C_North_Yorkshire%2C_England-LCCN2001697144.jpg/1280px-Whitby_Abbey_from_the_West_Cliff%2C_Whitby%2C_North_Yorkshire%2C_England-LCCN2001697144.jpg" alt="Whitby Abbey and townscape from west cliff.">
+        <div class="hero-content">
+          <div>
+            <span class="kicker">North Yorkshire Coast</span>
+            <h1>Whitby: abbey ruins, storm seas, and a town built on stories</h1>
+            <p>Whitby sits where the River Esk meets the North Sea. It feels cinematic because it is a stacked system: geological drama below, port economy at sea level, religious skyline above, and a literary afterlife that still shapes real streets and businesses.</p>
+          </div>
+          <aside class="hero-stats">
+            <h3>At a glance</h3>
+            <ul>
+              <li>Medieval abbey ruins above the harbour</li>
+              <li>Synod of Whitby in 664 CE</li>
+              <li>Cook-era shipbuilding tradition</li>
+              <li>Global gothic identity via Dracula</li>
+            </ul>
+          </aside>
+        </div>
+      </header>
+
+      <section id="snapshot">
+        <h2>1. Snapshot: how Whitby is laid out</h2>
+        <p class="lede">Whitby is split by the Esk estuary into two urban characters: an older east side climbing toward church and abbey, and a broader west side tied to beach tourism and later expansion. The town works like a natural amphitheatre around water and cliffs.</p>
+        <div class="grid-2">
+          <figure class="photo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Whitby_harbour_-_geograph.org.uk_-_2484357.jpg/1280px-Whitby_harbour_-_geograph.org.uk_-_2484357.jpg" alt="Whitby harbour with fishing and visitor boats.">
+            <figcaption>Whitby harbour and waterfront. Source: <a href="https://commons.wikimedia.org/wiki/File:Whitby_harbour_-_geograph.org.uk_-_2484357.jpg">Wikimedia Commons</a>.</figcaption>
+          </figure>
+          <div>
+            <svg class="diagram" viewBox="0 0 640 360" role="img" aria-label="Sketch map of Whitby showing sea, river, piers, and abbey hill.">
+              <defs>
+                <linearGradient id="seaA" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#88c9e1"></stop>
+                  <stop offset="100%" stop-color="#5fa7c2"></stop>
+                </linearGradient>
+              </defs>
+              <rect width="640" height="360" fill="#f3e9d8"></rect>
+              <path d="M470 0 L640 0 L640 360 L515 360 Q540 160 470 0 Z" fill="url(#seaA)"></path>
+              <path d="M30 225 Q140 190 250 228 T420 220 Q455 214 505 232" stroke="#2f6980" stroke-width="28" fill="none" stroke-linecap="round"></path>
+              <path d="M470 124 L560 120" stroke="#3b4a53" stroke-width="8"></path>
+              <path d="M472 248 L562 252" stroke="#3b4a53" stroke-width="8"></path>
+              <path d="M352 102 Q410 72 468 93" stroke="#9f7654" stroke-width="30" fill="none" stroke-linecap="round"></path>
+              <rect x="390" y="66" width="52" height="30" fill="#cab89d" stroke="#6a5949" stroke-width="2"></rect>
+              <line x1="400" y1="66" x2="400" y2="96" stroke="#6a5949"></line>
+              <line x1="412" y1="66" x2="412" y2="96" stroke="#6a5949"></line>
+              <line x1="424" y1="66" x2="424" y2="96" stroke="#6a5949"></line>
+              <line x1="436" y1="66" x2="436" y2="96" stroke="#6a5949"></line>
+              <text x="443" y="60" font-size="16" font-weight="700" fill="#1a4f63">Abbey ruins</text>
+              <text x="145" y="195" font-size="16" font-weight="700" fill="#1a4f63">River Esk</text>
+              <text x="565" y="185" font-size="15" font-weight="700" fill="#1a4f63">North Sea</text>
+              <text x="515" y="112" font-size="13" fill="#2b4350">West Pier</text>
+              <text x="515" y="271" font-size="13" fill="#2b4350">East Pier</text>
+            </svg>
+            <p>That vertical layering drives experience: boats and quays at waterline, then steep movement uphill to graveyard and abbey. A short walk crosses centuries of architecture and multiple economic worlds.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="land-shapes">
+        <h2>2. Land and Sea Mechanics: why the coast looks this way</h2>
+        <p class="lede">Whitby sits in Jurassic strata where hard and soft bands erode at different rates. Add strong North Sea wave climates, and you get a coast that is beautiful, unstable, and geologically revealing.</p>
+        <div class="grid-2">
+          <div>
+            <p>Wave refraction pushes energy toward exposed points, while softer bands retreat more quickly than harder rock. Rain and freeze-thaw then weaken cliffs from above, so marine attack and weathering work together.</p>
+            <p>Whitby jet, the glossy black fossilized wood used in Victorian mourning jewelry, links geology to culture and commerce. Local cliffs gave the raw material; social customs created the market.</p>
+            <div class="callout"><strong>Surprising detail:</strong> Beachcombers often look after storms because erosion exposes fresh fossils and jet fragments that were buried days earlier.</div>
+          </div>
+          <div>
+            <svg class="diagram" viewBox="0 0 640 350" role="img" aria-label="Coastal erosion sketch with hard and soft layers.">
+              <rect width="640" height="350" fill="#edf6fa"></rect>
+              <path d="M0 92 Q130 72 260 92 T520 94 T640 108 L640 350 L0 350 Z" fill="#d8be9f"></path>
+              <path d="M0 130 Q120 111 260 130 T520 132 T640 146" stroke="#845d3f" stroke-width="20" fill="none"></path>
+              <path d="M0 186 Q120 168 260 186 T520 188 T640 202" stroke="#c9a684" stroke-width="26" fill="none"></path>
+              <path d="M0 245 Q120 225 260 245 T520 246 T640 260" stroke="#845d3f" stroke-width="20" fill="none"></path>
+              <path d="M505 0 L640 0 L640 350 L540 350 Q562 188 505 0 Z" fill="#84c3da"></path>
+              <path d="M500 68 Q560 78 586 145 Q610 214 545 292" fill="none" stroke="#2f6981" stroke-width="5" stroke-dasharray="9 8"></path>
+              <text x="24" y="42" fill="#18465a" font-size="17" font-weight="700">Hard layers resist retreat</text>
+              <text x="24" y="66" fill="#18465a" font-size="17" font-weight="700">Soft layers erode faster</text>
+              <text x="450" y="52" fill="#18465a" font-size="14">Wave energy concentration</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section id="abbey">
+        <h2>3. Abbey and Belief: the decision that echoed for centuries</h2>
+        <p class="lede">Whitby Abbey began as a 7th-century monastic center associated with Abbess Hild. The Synod of 664 CE aligned Northumbrian church practice with Roman Easter calculation, a religious decision with major political and administrative effects.</p>
+        <div class="grid-2">
+          <div>
+            <div class="timeline">
+              <div class="event"><strong>657 CE:</strong> Monastic foundation and early religious scholarship under Hild.</div>
+              <div class="event"><strong>664 CE:</strong> Synod of Whitby decides in favor of Roman Easter reckoning.</div>
+              <div class="event"><strong>Medieval centuries:</strong> Abbey rebuilt and expanded as a major institution.</div>
+              <div class="event"><strong>1539:</strong> Dissolution period drives abandonment and ruin.</div>
+              <div class="event"><strong>Modern era:</strong> Ruins become a defining heritage and tourism symbol.</div>
+            </div>
+            <p>The crucial point is institutional coherence. Shared calendars and rites were not only doctrinal; they were practical tools for governance, diplomacy, and social coordination across regions.</p>
+          </div>
+          <figure class="photo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Whitby_Abbey_2014.jpg/1280px-Whitby_Abbey_2014.jpg" alt="Whitby Abbey stone arches in ruin.">
+            <figcaption>Whitby Abbey ruins today. Source: <a href="https://commons.wikimedia.org/wiki/File:Whitby_Abbey_2014.jpg">Wikimedia Commons</a>.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="ships">
+        <h2>4. Ships, Whaling, and Captain Cook</h2>
+        <p class="lede">Whitby was a hard-working port where practical ship design mattered. Its collier-built hulls, stable and capacious, were ideal for dangerous, long-distance use and helped enable global exploration.</p>
+        <div class="grid-2">
+          <figure class="photo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Whitby_East_Pier_and_Lighthouse.jpg/1280px-Whitby_East_Pier_and_Lighthouse.jpg" alt="East Pier and lighthouse at Whitby.">
+            <figcaption>East Pier and lighthouse. Source: <a href="https://commons.wikimedia.org/wiki/File:Whitby_East_Pier_and_Lighthouse.jpg">Wikimedia Commons</a>.</figcaption>
+          </figure>
+          <div>
+            <p>James Cook's famous exploration vessel Endeavour began life as the Whitby collier Earl of Pembroke. A vessel type optimized for coal logistics became the platform for mapping and scientific collection in the Pacific.</p>
+            <p>Whitby also participated in Arctic whaling during the 18th and 19th centuries. Profits fueled local trades, but at the cost of severe risk and harsh labor conditions, reminding us that maritime growth often mixed innovation with exploitation.</p>
+            <div class="callout"><strong>Scale and comparison:</strong> Colliers were not built for speed. Their value was reliability, cargo volume, and resilience under punishing sea conditions.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dracula">
+        <h2>5. Dracula and Gothic Whitby</h2>
+        <p class="lede">Bram Stoker visited Whitby in 1890. In Dracula, the Demeter wreck at Whitby and the vampire enters as a black dog. The town's real topography, cliff churchyard, ruin skyline, sea mist, became literary machinery.</p>
+        <div class="grid-2">
+          <div>
+            <p>Whitby's gothic identity is not an arbitrary costume. It is rooted in physical composition: steep transitions, exposed weather, grave markers, and dramatic ruins. Fiction amplified these features and then fed back into tourism and local branding.</p>
+            <p>In urban-economic terms, narrative became infrastructure. Events, costumes, photography routes, and themed commerce all operate on this story-layer.</p>
+            <svg class="diagram" viewBox="0 0 640 290" role="img" aria-label="Gothic sketch of Whitby abbey profile under moonlight.">
+              <rect width="640" height="290" fill="#0f1f2f"></rect>
+              <circle cx="520" cy="72" r="42" fill="#f4d28c"></circle>
+              <path d="M0 240 Q150 180 280 220 T640 195 L640 290 L0 290 Z" fill="#1f3447"></path>
+              <path d="M260 205 L265 145 L280 140 L295 110 L310 140 L322 144 L324 206 Z" fill="#9fb0bb"></path>
+              <rect x="279" y="150" width="10" height="56" fill="#0f1f2f"></rect>
+              <rect x="298" y="150" width="10" height="56" fill="#0f1f2f"></rect>
+              <path d="M188 235 L240 208" stroke="#b89572" stroke-width="4" stroke-dasharray="5 5"></path>
+              <path d="M60 80 Q73 72 87 80 Q74 82 60 80" fill="#111"></path>
+              <path d="M92 102 Q104 93 118 102 Q106 104 92 102" fill="#111"></path>
+              <text x="24" y="34" fill="#d9e1e6" font-size="18" font-weight="700">Gothic atmosphere = terrain + ruins + story feedback loop</text>
+            </svg>
+          </div>
+          <figure class="photo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/St_Mary%27s_Churchyard%2C_Whitby_%2823672968695%29.jpg/960px-St_Mary%27s_Churchyard%2C_Whitby_%2823672968695%29.jpg" alt="Gravestones near St Mary's Church above Whitby.">
+            <figcaption>St Mary's churchyard above the harbour. Source: <a href="https://commons.wikimedia.org/wiki/File:St_Mary%27s_Churchyard,_Whitby_(23672968695).jpg">Wikimedia Commons</a>.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="life">
+        <h2>6. Everyday Whitby: food, work, and seasonality</h2>
+        <p class="lede">Whitby is not just a destination brand. It is a living coastal town where residents, workers, and visitors share constrained streets, volatile weather windows, and a highly seasonal economy.</p>
+        <div class="grid-2">
+          <div>
+            <p>Fish-and-chip culture is both symbol and system. It links supply logistics, labor peaks, queue geography, and social ritual. A meal becomes an urban event that affects how pavements, parking, and waterfront space are used.</p>
+            <p>Like many successful heritage towns, Whitby faces trade-offs: preserving old fabric, keeping homes affordable, and managing visitor pressure without hollowing out year-round community life.</p>
+            <div class="callout"><strong>Human context:</strong> Good coastal policy must serve three roles at once: home, workplace, and destination.</div>
+          </div>
+          <div class="mosaic">
+            <figure class="photo">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Whitby_fish_and_chips.jpg/960px-Whitby_fish_and_chips.jpg" alt="Fish and chips served in Whitby.">
+              <figcaption>Food identity: Whitby fish and chips. Source: <a href="https://commons.wikimedia.org/wiki/File:Whitby_fish_and_chips.jpg">Wikimedia Commons</a>.</figcaption>
+            </figure>
+            <figure class="photo">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Whitby_Harbour_at_night.jpg/960px-Whitby_Harbour_at_night.jpg" alt="Whitby harbour lit at night.">
+              <figcaption>Night-time economy at the harbour. Source: <a href="https://commons.wikimedia.org/wiki/File:Whitby_Harbour_at_night.jpg">Wikimedia Commons</a>.</figcaption>
+            </figure>
+            <figure class="photo">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Whitby_beach.jpg/960px-Whitby_beach.jpg" alt="Whitby beach and bay.">
+              <figcaption>Seasonal beach pressure. Source: <a href="https://commons.wikimedia.org/wiki/File:Whitby_beach.jpg">Wikimedia Commons</a>.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="hazards">
+        <h2>7. Hazards and Rescue: reading tides and storm risk</h2>
+        <p class="lede">Whitby's dramatic coast carries real hazard. Tidal changes, overtopping waves, and cliff instability can alter safe routes in minutes. Local rescue systems exist because risk is normal, not exceptional.</p>
+        <p>Use this simplified tide model. Hour 0 and 12 are low tide, hour 6 is high tide.</p>
+        <div class="slider-wrap">
+          <label for="tide-slider"><strong>Tide hour in cycle:</strong> <span id="tide-label">0.0 h</span></label>
+          <input id="tide-slider" type="range" min="0" max="12" step="0.1" value="0">
+          <div class="meter" aria-hidden="true"><div class="meter-fill" id="tide-fill"></div></div>
+          <p id="tide-text">Low tide: more beach exposed, but channels and mud can still trap the unwary.</p>
+        </div>
+        <p>Most incidents are preventable with basic timing checks and local warnings. Engineering maintenance on piers and sea walls is also continuous because salt, wave impact, and freeze cycles never stop.</p>
+      </section>
+
+      <section id="walk">
+        <h2>8. A One-Day Whitby Learning Walk + Quick Quiz</h2>
+        <p class="lede">This route teaches Whitby as a connected system. Start with shape, then economy, then belief and myth, and finish with risk literacy at the waterline.</p>
+        <ol>
+          <li><strong>West Cliff:</strong> map the whole estuary and cliff geometry first.</li>
+          <li><strong>Harbour edge:</strong> observe working-port and tourism overlap.</li>
+          <li><strong>199 Steps + St Mary's:</strong> feel vertical urban layering in your legs.</li>
+          <li><strong>Abbey grounds:</strong> connect early medieval history to modern identity.</li>
+          <li><strong>Piers at dusk:</strong> watch wave behavior and discuss hazard decisions.</li>
+        </ol>
+
+        <div class="quiz">
+          <div class="q" data-answer="b">
+            <p><strong>Q1.</strong> Why were Whitby collier designs historically important?</p>
+            <label><input type="radio" name="q1" value="a"> They were the quickest naval attack ships.</label>
+            <label><input type="radio" name="q1" value="b"> They offered robust, high-capacity hulls useful for long voyages.</label>
+            <label><input type="radio" name="q1" value="c"> They were built mainly for shallow farm canals.</label>
+          </div>
+          <div class="q" data-answer="c">
+            <p><strong>Q2.</strong> What made the Synod of Whitby historically consequential?</p>
+            <label><input type="radio" name="q2" value="a"> It launched North Sea steam shipping.</label>
+            <label><input type="radio" name="q2" value="b"> It created Whitby's first lighthouse board.</label>
+            <label><input type="radio" name="q2" value="c"> It aligned Northumbrian Easter practice with Roman calculation.</label>
+          </div>
+          <div class="q" data-answer="a">
+            <p><strong>Q3.</strong> Why do storms help reveal fossils and jet?</p>
+            <label><input type="radio" name="q3" value="a"> Erosion exposes fresh material along cliffs and beaches.</label>
+            <label><input type="radio" name="q3" value="b"> Storm water chemically creates new fossils overnight.</label>
+            <label><input type="radio" name="q3" value="c"> Jet can only be seen under moonlight.</label>
+          </div>
+          <button id="check-quiz" type="button">Check answers</button>
+          <p id="quiz-result" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <footer>
+        Whitby works as a model of place-making through layers: rocks shape coasts, coasts shape work, work shapes memory, and memory shapes modern economics. Once you see that loop, the town becomes more than scenery.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var nav = document.querySelector('.side-nav');
+      var toggle = document.querySelector('.nav-toggle');
+      var links = Array.prototype.slice.call(document.querySelectorAll('.section-links a'));
+      var headings = links.map(function (link) {
+        var id = link.getAttribute('href');
+        if (!id || id.charAt(0) !== '#') return null;
+        return document.querySelector(id);
+      }).filter(Boolean);
+
+      if (toggle && nav) {
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var id = '#' + entry.target.id;
+          links.forEach(function (link) {
+            link.classList.toggle('active', link.getAttribute('href') === id);
+          });
+        });
+      }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
+
+      headings.forEach(function (heading) { observer.observe(heading); });
+
+      links.forEach(function (link) {
+        link.addEventListener('click', function () {
+          if (nav && nav.classList.contains('open')) {
+            nav.classList.remove('open');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      });
+
+      var slider = document.getElementById('tide-slider');
+      var tideLabel = document.getElementById('tide-label');
+      var tideText = document.getElementById('tide-text');
+      var tideFill = document.getElementById('tide-fill');
+
+      function updateTide() {
+        if (!slider) return;
+        var h = Number(slider.value);
+        var level = (1 - Math.cos((h / 6) * Math.PI)) / 2;
+        var pct = Math.round(level * 100);
+
+        tideLabel.textContent = h.toFixed(1) + ' h';
+        tideFill.style.width = pct + '%';
+
+        if (pct < 25) {
+          tideText.textContent = 'Low tide: more beach exposed, but channels and mud can still trap the unwary.';
+        } else if (pct < 70) {
+          tideText.textContent = 'Flood tide: water rises quickly and escape paths can close faster than expected.';
+        } else {
+          tideText.textContent = 'High tide: overtopping and strong wave impact become more likely in windy conditions.';
+        }
+      }
+
+      if (slider) {
+        slider.addEventListener('input', updateTide);
+        updateTide();
+      }
+
+      var check = document.getElementById('check-quiz');
+      var result = document.getElementById('quiz-result');
+
+      if (check && result) {
+        check.addEventListener('click', function () {
+          var blocks = Array.prototype.slice.call(document.querySelectorAll('.quiz .q'));
+          var score = 0;
+
+          blocks.forEach(function (block, index) {
+            var name = 'q' + (index + 1);
+            var selected = document.querySelector('input[name="' + name + '"]:checked');
+            if (selected && selected.value === block.dataset.answer) score += 1;
+          });
+
+          result.textContent = 'You scored ' + score + '/' + blocks.length + '. ' +
+            (score === blocks.length
+              ? 'Excellent. You are reading Whitby as a complete coastal system.'
+              : score >= 2
+                ? 'Solid grasp. Revisit one section and take another shot.'
+                : 'Good start. Re-read geology and history, then retry.');
+        });
+      }
+    })();
+  </script>
+
+  <script src="../header.js"></script>
+</body>
+</html>
